@@ -350,21 +350,50 @@ input[type=number] { -moz-appearance: textfield; }
   border-radius: 12px;
   overflow: hidden;
   box-shadow: var(--shadow);
-  display: grid;
-  grid-template-columns: 80px 1fr;
-  max-height: 75vh;
+  display: flex;
+  flex-direction: column;
 }
 
-@media (max-width: 768px) { .day-view { grid-template-columns: 60px 1fr; } }
+.day-grid-wrapper {
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  overflow-y: auto;
+  max-height: 65vh;
+}
+
+@media (max-width: 768px) { .day-grid-wrapper { max-height: 60vh; } }
+
+/* Samsung-calendar-inspired all-day events */
+.allday-events {
+  padding: 0.75rem 1rem;
+  background: var(--surface-alt);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.allday-pill {
+  padding: 0.3rem 0.7rem;
+  border-radius: 14px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.allday-pill:hover { transform: translateY(-1px); }
+.allday-pill.color-green { background: #DCFCE7; color: #15803D; }
+.allday-pill.color-blue { background: #DBEAFE; color: #1D4ED8; }
 
 .day-header-bar {
-  grid-column: 1 / -1;
   background: linear-gradient(135deg, var(--surface-alt), var(--border));
   border-bottom: 2px solid var(--border);
   padding: 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .day-title {
@@ -390,7 +419,6 @@ input[type=number] { -moz-appearance: textfield; }
 .time-column {
   background: var(--surface-alt);
   border-right: 1px solid var(--border);
-  overflow-y: auto;
 }
 
 .time-slot {
@@ -406,7 +434,7 @@ input[type=number] { -moz-appearance: textfield; }
   justify-content: flex-end;
 }
 
-.events-container { position: relative; overflow-y: auto; background: var(--surface); }
+.events-container { position: relative; background: var(--surface); }
 .events-grid { position: relative; }
 .event-row { height: 60px; border-bottom: 1px solid var(--border); position: relative; }
 
@@ -445,11 +473,20 @@ input[type=number] { -moz-appearance: textfield; }
   margin-top: 1.5rem;
 }
 
-.task-input-wrapper { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.task-input-wrapper {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 600px) {
+  .task-input-wrapper { grid-template-columns: 1fr auto; }
+  .task-input-wrapper input { grid-column: 1 / -1; }
+}
 
 .task-input-wrapper input {
-  flex: 1;
-  min-width: 200px;
+  width: 100%;
   padding: 0.75rem;
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -474,6 +511,7 @@ input[type=number] { -moz-appearance: textfield; }
   font-size: 0.875rem;
   color: var(--text-primary);
   cursor: pointer;
+  max-width: 140px;
 }
 
 .task-item {
@@ -853,7 +891,8 @@ input[type=number] { -moz-appearance: textfield; }
 
 /* Quick add inline */
 .quick-add-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
   gap: 0.5rem;
   align-items: center;
   margin-top: 1rem;
@@ -863,9 +902,14 @@ input[type=number] { -moz-appearance: textfield; }
   border: 1px dashed var(--border);
 }
 
+@media (max-width: 600px) {
+  .quick-add-row { grid-template-columns: 1fr auto; }
+  .quick-add-row input { grid-column: 1 / -1; }
+}
+
 .quick-add-row input {
-  flex: 1;
-  padding: 0.5rem;
+  width: 100%;
+  padding: 0.6rem;
   border: 1px solid var(--border);
   border-radius: 4px;
   background: var(--surface);
@@ -875,7 +919,7 @@ input[type=number] { -moz-appearance: textfield; }
 }
 
 .quick-add-row select {
-  padding: 0.5rem;
+  padding: 0.6rem;
   border: 1px solid var(--border);
   border-radius: 4px;
   background: var(--surface);
@@ -883,6 +927,7 @@ input[type=number] { -moz-appearance: textfield; }
   color: var(--text-primary);
   cursor: pointer;
   font-family: inherit;
+  max-width: 130px;
 }
 
 .recent-list { max-height: 400px; overflow-y: auto; }
@@ -1017,6 +1062,72 @@ const CategoryBadge = ({ category, onChange }) => {
   );
 };
 
+// QuickAddTask with explicit + button (mobile-friendly)
+const QuickAddTask = ({ category, onCategoryChange, onAdd, placeholder, className }) => {
+  const [value, setValue] = useState('');
+
+  const handleAdd = () => {
+    if (!value.trim()) return;
+    onAdd(value);
+    setValue('');
+  };
+
+  return (
+    <div className={className || "quick-add-row"}>
+      <input
+        type="text"
+        value={value}
+        placeholder={placeholder}
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={(e) => { if (e.key === 'Enter') handleAdd(); }}
+      />
+      <select value={category} onChange={(e) => onCategoryChange(e.target.value)}>
+        {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}
+      </select>
+      <button
+        onClick={handleAdd}
+        style={{
+          background: '#FF6B35',
+          color: 'white',
+          border: 'none',
+          borderRadius: '6px',
+          padding: '0.5rem 1rem',
+          fontWeight: 600,
+          cursor: 'pointer',
+          fontSize: '1rem',
+          minWidth: '44px'
+        }}
+      >+</button>
+    </div>
+  );
+};
+
+// Compute meeting layouts with overlap support (Outlook-style)
+const computeMeetingLayouts = (meetings) => {
+  if (!meetings || !meetings.length) return [];
+
+  const enriched = meetings.map(m => {
+    const [h, mn] = m.start_time.split(':');
+    const startMin = parseInt(h) * 60 + parseInt(mn);
+    return { ...m, _start: startMin, _end: startMin + m.duration };
+  });
+
+  enriched.sort((a, b) => a._start - b._start);
+
+  return enriched.map(meeting => {
+    const overlapping = enriched.filter(m =>
+      m._start < meeting._end && m._end > meeting._start
+    );
+    overlapping.sort((a, b) => a._start - b._start || (a.id || '').toString().localeCompare((b.id || '').toString()));
+    const colIdx = overlapping.findIndex(m => m.id === meeting.id || (!m.id && !meeting.id && m.title === meeting.title && m.start_time === meeting.start_time));
+    return {
+      ...meeting,
+      _col: colIdx >= 0 ? colIdx : 0,
+      _totalCols: overlapping.length || 1
+    };
+  });
+};
+
 const MeetingModal = ({ meeting, onSave, onDelete, onClose, deleteInboxItem }) => {
   const [data, setData] = useState({
     id: meeting.id,
@@ -1025,6 +1136,8 @@ const MeetingModal = ({ meeting, onSave, onDelete, onClose, deleteInboxItem }) =
     duration: meeting.duration || 60,
     job: meeting.job || 'green',
     date: meeting.date,
+    recurrence: meeting.recurrence || 'none',
+    recurrence_end: meeting.recurrence_end || '',
     _fromInbox: meeting._fromInbox
   });
 
@@ -1059,6 +1172,23 @@ const MeetingModal = ({ meeting, onSave, onDelete, onClose, deleteInboxItem }) =
             <div className={`color-option blue ${data.job === 'blue' ? 'selected' : ''}`} onClick={() => setData({ ...data, job: 'blue' })}>🔵 Blue</div>
           </div>
         </div>
+        <div className="form-group">
+          <label>🔁 Repeat</label>
+          <select value={data.recurrence} onChange={(e) => setData({ ...data, recurrence: e.target.value })}>
+            <option value="none">Does not repeat</option>
+            <option value="daily">Daily</option>
+            <option value="weekdays">Every weekday (Mon-Fri)</option>
+            <option value="weekly">Weekly (same day)</option>
+            <option value="biweekly">Every 2 weeks</option>
+            <option value="monthly">Monthly (same date)</option>
+          </select>
+        </div>
+        {data.recurrence !== 'none' && (
+          <div className="form-group">
+            <label>End repeat (optional - leave blank for forever)</label>
+            <input type="date" value={data.recurrence_end} onChange={(e) => setData({ ...data, recurrence_end: e.target.value })} />
+          </div>
+        )}
         <div className="modal-actions spread">
           {data.id ? (<button className="btn btn-danger" onClick={() => onDelete(data.id)}>Delete</button>) : <div></div>}
           <div style={{ display: 'flex', gap: '0.75rem' }}>
@@ -1072,7 +1202,7 @@ const MeetingModal = ({ meeting, onSave, onDelete, onClose, deleteInboxItem }) =
 };
 
 const CommandCenter = () => {
-  const [view, setView] = useState('dashboard');
+  const [view, setView] = useState('inbox');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [meetings, setMeetings] = useState([]);
   const [tasks, setTasks] = useState([]);
@@ -1150,7 +1280,9 @@ const CommandCenter = () => {
       duration: parseInt(meeting.duration),
       job: meeting.job,
       start_minutes: startMinutes,
-      end_minutes: endMinutes
+      end_minutes: endMinutes,
+      recurrence: meeting.recurrence || 'none',
+      recurrence_end: meeting.recurrence_end || null
     };
     if (meeting.id) {
       await supabase.from('command_meetings').update(data).eq('id', meeting.id);
@@ -1284,7 +1416,35 @@ const CommandCenter = () => {
 
   const timeSlots = generateTimeSlots();
   const todayDateStr = formatDateLocal(currentDate);
-  const todayMeetings = meetings.filter(m => m.date === todayDateStr);
+  // Check if a recurring meeting occurs on a specific date
+  const meetingOccursOn = (meeting, dateStr) => {
+    if (!meeting.recurrence || meeting.recurrence === 'none') {
+      return meeting.date === dateStr;
+    }
+    const meetingDate = new Date(meeting.date + 'T00:00:00');
+    const checkDate = new Date(dateStr + 'T00:00:00');
+    if (checkDate < meetingDate) return false;
+    if (meeting.recurrence_end) {
+      const endDate = new Date(meeting.recurrence_end + 'T00:00:00');
+      if (checkDate > endDate) return false;
+    }
+    const dayDiff = Math.floor((checkDate - meetingDate) / (1000 * 60 * 60 * 24));
+    switch (meeting.recurrence) {
+      case 'daily': return true;
+      case 'weekdays': return checkDate.getDay() >= 1 && checkDate.getDay() <= 5;
+      case 'weekly': return dayDiff % 7 === 0;
+      case 'biweekly': return dayDiff % 14 === 0;
+      case 'monthly': return checkDate.getDate() === meetingDate.getDate();
+      default: return false;
+    }
+  };
+
+  // Get all meetings for a specific date (including recurring instances)
+  const getMeetingsForDate = (dateStr) => {
+    return meetings.filter(m => meetingOccursOn(m, dateStr));
+  };
+
+  const todayMeetings = getMeetingsForDate(todayDateStr);
   const todayTasks = tasks.filter(t => t.date === todayDateStr);
   const filteredTasks = filterCategory ? todayTasks.filter(t => t.context === filterCategory) : todayTasks;
 
@@ -1344,13 +1504,13 @@ const CommandCenter = () => {
 
       <div className="tabs">
         <div className="tabs-content">
+          <button className={`tab-btn ${view === 'inbox' ? 'active' : ''}`} onClick={() => setView('inbox')}>
+            📥 Inbox {inboxItems.length > 0 && <span className="inbox-badge">{inboxItems.length}</span>}
+          </button>
           <button className={`tab-btn ${view === 'dashboard' ? 'active' : ''}`} onClick={() => setView('dashboard')}>🏠 Home</button>
           <button className={`tab-btn ${view === 'day' ? 'active' : ''}`} onClick={() => setView('day')}>📅 Day</button>
           <button className={`tab-btn ${view === 'week' ? 'active' : ''}`} onClick={() => setView('week')}>📆 Week</button>
           <button className={`tab-btn ${view === 'month' ? 'active' : ''}`} onClick={() => setView('month')}>🗓️ Month</button>
-          <button className={`tab-btn ${view === 'inbox' ? 'active' : ''}`} onClick={() => setView('inbox')}>
-            📥 Inbox {inboxItems.length > 0 && <span className="inbox-badge">{inboxItems.length}</span>}
-          </button>
           <button className={`tab-btn ${view === 'review' ? 'active' : ''}`} onClick={() => setView('review')}>📋 Review</button>
         </div>
       </div>
@@ -1420,21 +1580,12 @@ const CommandCenter = () => {
                     })
                   )}
 
-                  <div className="quick-add-row">
-                    <input
-                      type="text"
-                      placeholder="Quick add task..."
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter' && e.target.value.trim()) {
-                          addQuickTask(e.target.value);
-                          e.target.value = '';
-                        }
-                      }}
-                    />
-                    <select value={newTaskCategory} onChange={(e) => setNewTaskCategory(e.target.value)}>
-                      {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}
-                    </select>
-                  </div>
+                  <QuickAddTask
+                    category={newTaskCategory}
+                    onCategoryChange={setNewTaskCategory}
+                    onAdd={addQuickTask}
+                    placeholder="Quick add task..."
+                  />
                 </div>
 
                 {inboxItems.length > 0 && (
@@ -1491,32 +1642,44 @@ const CommandCenter = () => {
                 </div>
                 <button className="add-meeting-btn" onClick={() => setMeetingModal({ start_time: '09:00', duration: 60, job: 'green' })}>+ Meeting</button>
               </div>
-              <div className="time-column">
-                {timeSlots.map(time => (<div key={time} className="time-slot">{time}</div>))}
-              </div>
-              <div className="events-container">
-                <div className="events-grid">
-                  {timeSlots.map((time) => {
-                    const slotMinutes = parseInt(time.split(':')[0]) * 60 + parseInt(time.split(':')[1]);
-                    const meetingStartingHere = todayMeetings.find(m => {
-                      const [mh, mm] = m.start_time.split(':');
-                      return parseInt(mh) * 60 + parseInt(mm) === slotMinutes;
-                    });
-                    return (
-                      <div key={time} className="event-row">
-                        {meetingStartingHere && (
-                          <div
-                            className={`meeting-block color-${meetingStartingHere.job} ${privacyMode ? 'privacy-blur' : ''}`}
-                            style={{ height: `${(meetingStartingHere.duration / 30) * 60 - 4}px`, top: '2px' }}
-                            onClick={() => setMeetingModal(meetingStartingHere)}
-                          >
-                            <div className="meeting-time">{meetingStartingHere.start_time} • {meetingStartingHere.duration}min</div>
-                            <div className="meeting-title">{meetingStartingHere.title}</div>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
+              <div className="day-grid-wrapper">
+                <div className="time-column">
+                  {timeSlots.map(time => (<div key={time} className="time-slot">{time}</div>))}
+                </div>
+                <div className="events-container">
+                  <div className="events-grid" style={{ position: 'relative', height: `${timeSlots.length * 60}px` }}>
+                    {timeSlots.map((time, idx) => (
+                      <div
+                        key={time}
+                        className="event-row"
+                        style={{ position: 'absolute', top: `${idx * 60}px`, left: 0, right: 0, height: '60px' }}
+                      ></div>
+                    ))}
+                    {computeMeetingLayouts(todayMeetings).map((meeting, idx) => {
+                      const startSlotIdx = (meeting._start - 7 * 60) / 30;
+                      const top = startSlotIdx * 60 + 2;
+                      const height = (meeting.duration / 30) * 60 - 4;
+                      const widthPct = 100 / meeting._totalCols;
+                      const leftPct = meeting._col * widthPct;
+                      return (
+                        <div
+                          key={meeting.id || idx}
+                          className={`meeting-block color-${meeting.job} ${privacyMode ? 'privacy-blur' : ''}`}
+                          style={{
+                            top: `${top}px`,
+                            height: `${height}px`,
+                            left: `calc(${leftPct}% + 4px)`,
+                            width: `calc(${widthPct}% - 8px)`,
+                            right: 'auto'
+                          }}
+                          onClick={() => setMeetingModal(meeting)}
+                        >
+                          <div className="meeting-time">{meeting.start_time} • {meeting.duration}min</div>
+                          <div className="meeting-title">{meeting.title}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
@@ -1529,21 +1692,13 @@ const CommandCenter = () => {
                 )}
               </div>
 
-              <div className="task-input-wrapper">
-                <input
-                  type="text"
-                  placeholder="Add a task..."
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter' && e.target.value.trim()) {
-                      addQuickTask(e.target.value);
-                      e.target.value = '';
-                    }
-                  }}
-                />
-                <select value={newTaskCategory} onChange={(e) => setNewTaskCategory(e.target.value)}>
-                  {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}
-                </select>
-              </div>
+              <QuickAddTask
+                category={newTaskCategory}
+                onCategoryChange={setNewTaskCategory}
+                onAdd={addQuickTask}
+                placeholder="Add a task..."
+                className="task-input-wrapper"
+              />
 
               {/* Category filter chips */}
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
@@ -1610,7 +1765,7 @@ const CommandCenter = () => {
                 const d = new Date(getWeekStart(currentDate));
                 d.setDate(d.getDate() + i);
                 const dateStr = formatDateLocal(d);
-                const dayMeetings = meetings.filter(m => m.date === dateStr);
+                const dayMeetings = getMeetingsForDate(dateStr);
                 const dayTaskCount = tasks.filter(t => t.date === dateStr && !t.completed).length;
                 const isToday = d.toDateString() === new Date().toDateString();
                 return (
@@ -1659,7 +1814,7 @@ const CommandCenter = () => {
                 return days.map((day, idx) => {
                   if (!day) return <div key={`empty-${idx}`} className="month-day other-month"></div>;
                   const dateStr = formatDateLocal(day);
-                  const dayMeetings = meetings.filter(m => m.date === dateStr);
+                  const dayMeetings = getMeetingsForDate(dateStr);
                   const isToday = day.toDateString() === new Date().toDateString();
                   return (
                     <div key={dateStr} className={`month-day ${isToday ? 'today' : ''}`} onClick={() => { setCurrentDate(day); setView('day'); }}>
