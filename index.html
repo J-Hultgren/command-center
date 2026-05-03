@@ -15,7 +15,6 @@
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://msal-js-cdn.azureedge.net/msal.min.js"></script>
 <style>
 *, *::before, *::after {
   box-sizing: border-box;
@@ -62,20 +61,14 @@ input[type=number] {
   -moz-appearance: textfield;
 }
 
-/* Root layout */
-#root {
+/* Main container */
+.app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
-.app-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #0F172A 0%, #1a2847 100%);
-}
-
+/* Header */
 .header {
   background: rgba(15, 23, 42, 0.95);
   backdrop-filter: blur(10px);
@@ -87,12 +80,13 @@ input[type=number] {
 }
 
 .header-content {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .header h1 {
@@ -110,6 +104,33 @@ input[type=number] {
   font-size: 1.8rem;
 }
 
+.view-tabs {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.tab-btn {
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  color: #9CA3AF;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-btn.active {
+  background: #FF6B35;
+  color: white;
+  border-color: #FF6B35;
+}
+
+.tab-btn:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
 .header-actions {
   display: flex;
   gap: 0.75rem;
@@ -125,7 +146,6 @@ input[type=number] {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  text-decoration: none;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -138,8 +158,6 @@ input[type=number] {
 
 .btn-primary:hover {
   background: #E55A24;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
 }
 
 .btn-secondary {
@@ -150,7 +168,6 @@ input[type=number] {
 
 .btn-secondary:hover {
   background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .btn-ghost {
@@ -165,174 +182,428 @@ input[type=number] {
   color: #FFFFFF;
 }
 
-.main-content {
+.privacy-toggle {
+  background: transparent;
+  color: #9CA3AF;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.privacy-toggle.active {
+  color: #FCD34D;
+  border-color: #FCD34D;
+  background: rgba(252, 211, 77, 0.1);
+}
+
+/* Main content */
+.main {
   flex: 1;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   width: 100%;
   padding: 1.5rem;
-  display: grid;
-  grid-template-columns: 1fr 300px;
-  gap: 1.5rem;
-  align-items: start;
 }
 
 @media (max-width: 768px) {
-  .main-content {
-    grid-template-columns: 1fr;
+  .main {
     padding: 1rem;
   }
 }
 
-/* Today view card */
-.today-card {
+/* Day view */
+.day-view {
   background: white;
   border-radius: 12px;
-  padding: 2rem;
+  overflow: hidden;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-  animation: slideUp 0.5s ease;
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  max-height: 85vh;
+  overflow: hidden;
 }
 
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
+@media (max-width: 768px) {
+  .day-view {
+    grid-template-columns: 60px 1fr;
   }
 }
 
-.today-header {
-  margin-bottom: 2rem;
-  border-bottom: 2px solid #F3F4F6;
-  padding-bottom: 1.5rem;
+.time-column {
+  background: #F9FAFB;
+  border-right: 1px solid #E5E7EB;
+  overflow-y: auto;
+  padding-top: 0;
 }
 
-.today-header h2 {
-  font-family: 'Syne', sans-serif;
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: #0F172A;
-  margin-bottom: 0.5rem;
-}
-
-.today-date {
-  color: #6B7280;
-  font-size: 0.875rem;
+.time-slot {
+  height: 60px;
+  border-bottom: 1px solid #E5E7EB;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  color: #9CA3AF;
   font-weight: 500;
+  text-align: right;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
 }
 
-/* Calendar events section */
-.calendar-section {
-  margin-bottom: 2rem;
-  padding: 1.5rem;
+.events-container {
+  position: relative;
+  overflow-y: auto;
+  background: white;
+}
+
+.events-grid {
+  position: relative;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.event-row {
+  height: 60px;
+  border-bottom: 1px solid #E5E7EB;
+  position: relative;
+}
+
+.meeting-block {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  background: white;
+  border: 2px solid;
+  border-radius: 6px;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.meeting-block.privacy-blur {
+  filter: blur(2px);
+}
+
+.meeting-block:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.meeting-block.job-t {
+  border-color: #86EFAC;
+  background: #F0FDF4;
+}
+
+.meeting-block.job-x {
+  border-color: #93C5FD;
+  background: #F0F9FF;
+}
+
+.meeting-time {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #6B7280;
+}
+
+.meeting-title {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #1F2937;
+  word-break: break-word;
+}
+
+.meeting-job {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+.meeting-block.job-t .meeting-job {
+  color: #22C55E;
+}
+
+.meeting-block.job-x .meeting-job {
+  color: #3B82F6;
+}
+
+/* Day header with date */
+.day-header {
+  grid-column: 1 / -1;
   background: #FAFAFA;
-  border-left: 4px solid #FF6B35;
-  border-radius: 8px;
-}
-
-.calendar-section h3 {
+  border-bottom: 2px solid #E5E7EB;
+  padding: 1rem;
+  text-align: center;
   font-family: 'Syne', sans-serif;
-  font-size: 1rem;
+  font-size: 1.125rem;
   font-weight: 600;
   color: #0F172A;
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
-.calendar-section h3::before {
-  content: '📅';
-  font-size: 1.125rem;
-}
-
-.event-item {
-  padding: 0.875rem;
+/* Week view */
+.week-view {
   background: white;
-  border-radius: 6px;
-  margin-bottom: 0.75rem;
-  border-left: 3px solid #0F172A;
-  display: flex;
-  justify-content: space-between;
-  align-items: start;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
   gap: 1rem;
 }
 
-.event-time {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #FF6B35;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  min-width: 70px;
+@media (max-width: 768px) {
+  .week-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+  }
 }
 
-.event-title {
-  font-weight: 500;
-  color: #1F2937;
-  font-size: 0.875rem;
-}
-
-.no-events {
-  color: #9CA3AF;
-  font-size: 0.875rem;
-  font-style: italic;
-  text-align: center;
+.day-card {
+  background: #FAFAFA;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
   padding: 1rem;
 }
 
-/* Task list */
-.tasks-section h3 {
-  font-family: 'Syne', sans-serif;
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: #0F172A;
-  margin-bottom: 1.25rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.day-card.today {
+  border: 2px solid #FF6B35;
+  background: #FFF7F3;
 }
 
-.tasks-section h3::before {
-  content: '🎯';
-  font-size: 1.25rem;
+.day-card h3 {
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #0F172A;
+  font-size: 0.875rem;
+}
+
+.day-card p {
+  font-size: 0.75rem;
+  color: #9CA3AF;
+}
+
+.events-list {
+  font-size: 0.7rem;
+  margin-top: 0.5rem;
+}
+
+.event-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 4px;
+}
+
+.event-dot.t {
+  background: #22C55E;
+}
+
+.event-dot.x {
+  background: #3B82F6;
+}
+
+/* Month view */
+.month-view {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.month-day {
+  aspect-ratio: 1;
+  border: 1px solid #E5E7EB;
+  border-radius: 6px;
+  padding: 0.5rem;
+  background: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.month-day.other-month {
+  background: #F9FAFB;
+  opacity: 0.5;
+}
+
+.month-day.today {
+  border: 2px solid #FF6B35;
+  background: #FFF7F3;
+}
+
+.month-day-num {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #0F172A;
+  margin-bottom: 2px;
+}
+
+.month-day-events {
+  display: flex;
+  gap: 2px;
+  flex-wrap: wrap;
+}
+
+.month-event-indicator {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+}
+
+/* Forms and modals */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 500;
+  color: #0F172A;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #E5E7EB;
+  border-radius: 6px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 0.875rem;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #FF6B35;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+
+/* Meal planning */
+.meal-plan-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.meal-day {
+  background: #F9FAFB;
+  padding: 1rem;
+  border-radius: 6px;
+  border-left: 4px solid #FF6B35;
+}
+
+.meal-day h4 {
+  font-weight: 600;
+  color: #0F172A;
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.meal-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #E5E7EB;
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  margin-bottom: 0.5rem;
+}
+
+.meal-input:focus {
+  outline: none;
+  border-color: #FF6B35;
+}
+
+/* Task list */
+.task-list {
+  margin-top: 1.5rem;
 }
 
 .task-item {
   background: #F9FAFB;
   border: 1px solid #E5E7EB;
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 0.875rem;
+  border-radius: 6px;
+  padding: 0.875rem;
+  margin-bottom: 0.75rem;
   display: flex;
   gap: 0.75rem;
-  align-items: start;
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-
-.task-item:hover {
-  background: white;
-  border-color: #FF6B35;
-  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.1);
-}
-
-.task-item.completed {
-  opacity: 0.6;
+  align-items: flex-start;
 }
 
 .task-checkbox {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border: 2px solid #D1D5DB;
-  border-radius: 4px;
+  border-radius: 3px;
   margin-top: 2px;
   flex-shrink: 0;
   cursor: pointer;
-  transition: all 0.2s ease;
 }
 
 .task-item input[type="checkbox"] {
@@ -342,17 +613,6 @@ input[type=number] {
 .task-item input[type="checkbox"]:checked + .task-checkbox {
   background: #FF6B35;
   border-color: #FF6B35;
-}
-
-.task-checkbox::after {
-  content: '✓';
-  color: white;
-  font-size: 0.875rem;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
 }
 
 .task-content {
@@ -370,239 +630,14 @@ input[type=number] {
 .task-meta {
   font-size: 0.75rem;
   color: #9CA3AF;
-  display: flex;
-  gap: 0.75rem;
-  align-items: center;
-  flex-wrap: wrap;
 }
 
-.task-context {
-  background: #EEF2FF;
-  color: #3730A3;
-  padding: 0.25rem 0.5rem;
-  border-radius: 3px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.task-context.work-tp {
-  background: #DBEAFE;
-  color: #1E40AF;
-}
-
-.task-context.work-xe {
-  background: #DCFCE7;
-  color: #15803D;
-}
-
-.task-context.trading {
-  background: #FED7AA;
-  color: #92400E;
-}
-
-.task-context.health {
-  background: #FCE7F3;
-  color: #BE185D;
-}
-
-.task-context.kids {
-  background: #FECACA;
-  color: #991B1B;
-}
-
-.task-context.learning {
-  background: #E9D5FF;
-  color: #6B21A8;
-}
-
-.task-context.home {
-  background: #D1FAE5;
-  color: #065F46;
-}
-
-.subtasks {
-  margin-top: 0.75rem;
-  padding-left: 1rem;
-  border-left: 2px solid #E5E7EB;
-}
-
-.subtask-item {
-  font-size: 0.8125rem;
-  color: #6B7280;
-  padding: 0.5rem 0;
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.subtask-item.done {
-  color: #9CA3AF;
-  text-decoration: line-through;
-}
-
-/* Sidebar */
-.sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.sidebar-card {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-}
-
-.sidebar-card h3 {
-  font-family: 'Syne', sans-serif;
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #0F172A;
-  margin-bottom: 1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.contexts-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.context-btn {
-  padding: 0.625rem 0.875rem;
-  background: #F3F4F6;
-  border: 1px solid #E5E7EB;
-  border-radius: 6px;
-  text-align: left;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: #6B7280;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.context-btn:hover {
-  background: #E5E7EB;
-  color: #1F2937;
-}
-
-.context-btn.active {
-  background: #FF6B35;
-  color: white;
-  border-color: #FF6B35;
-}
-
-.quick-add {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.quick-add input {
-  flex: 1;
-  padding: 0.625rem;
-  border: 1px solid #E5E7EB;
-  border-radius: 6px;
-  font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 0.8125rem;
-}
-
-.quick-add input::placeholder {
-  color: #D1D5DB;
-}
-
-.quick-add input:focus {
-  outline: none;
-  border-color: #FF6B35;
-  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
-}
-
-.quick-add button {
-  padding: 0.625rem 0.875rem;
-  background: #FF6B35;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.quick-add button:hover {
-  background: #E55A24;
-}
-
-/* Weekly review modal */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
-  animation: fadeIn 0.2s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.modal {
-  background: white;
-  border-radius: 12px;
-  padding: 2rem;
-  max-width: 600px;
-  width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  animation: slideUp 0.3s ease;
-}
-
-.modal h2 {
-  font-family: 'Syne', sans-serif;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #0F172A;
-  margin-bottom: 1.5rem;
-}
-
-.modal-section {
-  margin-bottom: 2rem;
-}
-
-.modal-section h3 {
-  font-weight: 600;
-  color: #0F172A;
-  margin-bottom: 1rem;
-  font-size: 0.95rem;
-}
-
-.modal-actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
-}
-
-.loading {
-  text-align: center;
-  padding: 3rem;
-  color: #9CA3AF;
-}
-
+/* Loading */
 .spinner {
   display: inline-block;
-  width: 30px;
-  height: 30px;
-  border: 3px solid rgba(255, 107, 53, 0.2);
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(255, 107, 53, 0.2);
   border-radius: 50%;
   border-top-color: #FF6B35;
   animation: spin 1s linear infinite;
@@ -612,60 +647,12 @@ input[type=number] {
   to { transform: rotate(360deg); }
 }
 
-.login-container {
+.loading-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
-  padding: 2rem;
-  text-align: center;
-}
-
-.login-box {
-  background: white;
-  padding: 3rem;
-  border-radius: 12px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-  max-width: 400px;
-}
-
-.login-box h1 {
-  font-family: 'Syne', sans-serif;
-  font-size: 2rem;
-  font-weight: 700;
-  color: #0F172A;
-  margin-bottom: 0.5rem;
-}
-
-.login-box p {
-  color: #6B7280;
-  margin-bottom: 2rem;
-  font-size: 0.95rem;
-}
-
-.context-manager {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-}
-
-@media (max-width: 640px) {
-  .header-content {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .header h1 {
-    font-size: 1.25rem;
-  }
-
-  .modal {
-    padding: 1.5rem;
-  }
-
-  .today-card {
-    padding: 1.5rem;
-  }
+  min-height: 400px;
+  color: #9CA3AF;
 }
 </style>
 </head>
@@ -673,105 +660,138 @@ input[type=number] {
 <div id="root"></div>
 
 <script type="text/babel">
-const { useState, useEffect, useRef } = React;
+const { useState, useEffect } = React;
 
-// Supabase setup
+// Supabase
 const SUPABASE_URL = 'https://irmtvjxlntozigbqxhvm.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlybXR2anhsbnRvemlnYnF4aHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4NTkzMTQsImV4cCI6MjA5MjQzNTMxNH0.nyIZx7Z0GnHEIlZpBlN6TzHHsf7tGuhdvWECdpcQ-a0';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Microsoft OAuth config
-const msalConfig = {
-  auth: {
-    clientId: 'YOUR_AZURE_CLIENT_ID', // User will set this
-    authority: 'https://login.microsoftonline.com/common',
-    redirectUri: window.location.origin
-  },
-  cache: {
-    cacheLocation: 'localStorage',
-    storeAuthStateInCookie: false
-  }
-};
-
-const scopes = ['Calendars.Read'];
-
 const CommandCenter = () => {
+  const [view, setView] = useState('day');
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [meetings, setMeetings] = useState([]);
   const [tasks, setTasks] = useState([]);
-  const [calendarEvents, setCalendarEvents] = useState([]);
-  const [selectedContext, setSelectedContext] = useState('all');
+  const [mealPlan, setMealPlan] = useState({});
+  const [showAddMeeting, setShowAddMeeting] = useState(false);
   const [showWeeklyReview, setShowWeeklyReview] = useState(false);
+  const [privacyMode, setPrivacyMode] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [newTaskInput, setNewTaskInput] = useState('');
-  const [newTaskContext, setNewTaskContext] = useState('work-tp');
 
-  const contexts = [
-    { id: 'work-tp', label: 'Work TerraPower' },
-    { id: 'work-xe', label: 'Work X-Energy' },
-    { id: 'trading', label: 'Trading' },
-    { id: 'health', label: 'Health' },
-    { id: 'kids', label: 'Kids' },
-    { id: 'learning', label: 'Learning' },
-    { id: 'home', label: 'Home' }
-  ];
+  const [newMeeting, setNewMeeting] = useState({
+    title: '',
+    startTime: '09:00',
+    duration: 60,
+    job: 't'
+  });
 
-  // Load tasks from Supabase
-  const loadTasks = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('command_tasks')
-        .select('*')
-        .eq('date', new Date().toISOString().split('T')[0])
-        .order('priority', { ascending: true });
-
-      if (error) throw error;
-      setTasks(data || []);
-    } catch (error) {
-      console.error('Error loading tasks:', error);
-    }
-  };
-
-  // Get today's events (mock - will connect to Microsoft Calendar)
-  const getTodayEvents = () => {
-    // This will be populated by Microsoft Calendar API
-    return calendarEvents.filter(event => {
-      const eventDate = new Date(event.start).toDateString();
-      const today = new Date().toDateString();
-      return eventDate === today;
-    });
-  };
-
+  // Load data from Supabase
   useEffect(() => {
-    loadTasks();
-    // Check if it's Sunday for weekly review
-    const today = new Date();
-    if (today.getDay() === 0) {
-      setShowWeeklyReview(true);
-    }
+    loadData();
     setLoading(false);
   }, []);
 
-  const handleAddTask = async () => {
-    if (!newTaskInput.trim()) return;
+  const loadData = async () => {
+    try {
+      // Load meetings for current date
+      const dateStr = currentDate.toISOString().split('T')[0];
+      const { data: meetingsData } = await supabase
+        .from('command_meetings')
+        .select('*')
+        .eq('date', dateStr);
 
-    const newTask = {
-      title: newTaskInput,
-      context: newTaskContext,
-      date: new Date().toISOString().split('T')[0],
-      completed: false,
-      subtasks: [],
-      priority: 1,
-      created_at: new Date().toISOString()
+      setMeetings(meetingsData || []);
+
+      // Load tasks for current date
+      const { data: tasksData } = await supabase
+        .from('command_tasks')
+        .select('*')
+        .eq('date', dateStr);
+
+      setTasks(tasksData || []);
+
+      // Load meal plan for current week
+      const { data: mealsData } = await supabase
+        .from('meal_plans')
+        .select('*')
+        .gte('date', getWeekStart(currentDate).toISOString().split('T')[0])
+        .lte('date', getWeekEnd(currentDate).toISOString().split('T')[0]);
+
+      const mealsMap = {};
+      mealsData?.forEach(meal => {
+        mealsMap[meal.date] = meal.meals;
+      });
+      setMealPlan(mealsMap);
+    } catch (error) {
+      console.error('Error loading data:', error);
+    }
+  };
+
+  const getWeekStart = (date) => {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - day;
+    return new Date(d.setDate(diff));
+  };
+
+  const getWeekEnd = (date) => {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - day + 6;
+    return new Date(d.setDate(diff));
+  };
+
+  const handleAddMeeting = async () => {
+    if (!newMeeting.title.trim()) return;
+
+    const dateStr = currentDate.toISOString().split('T')[0];
+    const [hours, minutes] = newMeeting.startTime.split(':');
+    const startMinutes = parseInt(hours) * 60 + parseInt(minutes);
+    const endMinutes = startMinutes + parseInt(newMeeting.duration);
+
+    const meeting = {
+      date: dateStr,
+      title: newMeeting.title,
+      start_time: newMeeting.startTime,
+      duration: parseInt(newMeeting.duration),
+      job: newMeeting.job,
+      start_minutes: startMinutes,
+      end_minutes: endMinutes
+    };
+
+    try {
+      const { error } = await supabase
+        .from('command_meetings')
+        .insert([meeting]);
+
+      if (error) throw error;
+      setMeetings([...meetings, meeting]);
+      setNewMeeting({ title: '', startTime: '09:00', duration: 60, job: 't' });
+      setShowAddMeeting(false);
+    } catch (error) {
+      console.error('Error adding meeting:', error);
+    }
+  };
+
+  const handleAddTask = async (title, context = 'work-t') => {
+    if (!title.trim()) return;
+
+    const dateStr = currentDate.toISOString().split('T')[0];
+    const task = {
+      date: dateStr,
+      title: title,
+      context: context,
+      completed: false
     };
 
     try {
       const { data, error } = await supabase
         .from('command_tasks')
-        .insert([newTask])
+        .insert([task])
         .select();
 
       if (error) throw error;
       setTasks([...tasks, ...data]);
-      setNewTaskInput('');
     } catch (error) {
       console.error('Error adding task:', error);
     }
@@ -779,212 +799,358 @@ const CommandCenter = () => {
 
   const handleToggleTask = async (taskId, completed) => {
     try {
-      const { error } = await supabase
+      await supabase
         .from('command_tasks')
         .update({ completed: !completed })
         .eq('id', taskId);
 
-      if (error) throw error;
       setTasks(tasks.map(t => t.id === taskId ? { ...t, completed: !completed } : t));
     } catch (error) {
       console.error('Error updating task:', error);
     }
   };
 
-  const filteredTasks = selectedContext === 'all' 
-    ? tasks 
-    : tasks.filter(t => t.context === selectedContext);
+  // Generate time slots
+  const generateTimeSlots = () => {
+    const slots = [];
+    for (let hour = 7; hour <= 22; hour++) {
+      for (let min of [0, 30]) {
+        const timeStr = `${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+        slots.push(timeStr);
+      }
+    }
+    return slots;
+  };
 
-  const todayEvents = getTodayEvents();
+  const timeSlots = generateTimeSlots();
 
-  const today = new Date();
-  const dateStr = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  // Get meetings for a specific time range
+  const getMeetingAtTime = (timeStr) => {
+    const [hours, mins] = timeStr.split(':');
+    const currentMinutes = parseInt(hours) * 60 + parseInt(mins);
+    return meetings.find(m => {
+      const [mh, mm] = m.start_time.split(':');
+      const mStart = parseInt(mh) * 60 + parseInt(mm);
+      const mEnd = mStart + m.duration;
+      return currentMinutes >= mStart && currentMinutes < mEnd;
+    });
+  };
+
+  const getMeetingHeight = (meeting) => {
+    return (meeting.duration / 30) * 60;
+  };
+
+  // Day view
+  const DayView = () => (
+    <div className="day-view">
+      <div className="day-header" style={{ gridColumn: '1 / -1' }}>
+        {currentDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+      </div>
+
+      <div className="time-column">
+        {timeSlots.map(time => (
+          <div key={time} className="time-slot">
+            {time}
+          </div>
+        ))}
+      </div>
+
+      <div className="events-container">
+        <div className="events-grid">
+          {timeSlots.map((time, idx) => {
+            const meeting = getMeetingAtTime(time);
+            if (meeting && idx > 0 && getMeetingAtTime(timeSlots[idx - 1]) === meeting) {
+              return <div key={time} className="event-row"></div>;
+            }
+
+            return (
+              <div key={time} className="event-row">
+                {meeting && (
+                  <div
+                    className={`meeting-block job-${meeting.job} ${privacyMode ? 'privacy-blur' : ''}`}
+                    style={{ height: `${getMeetingHeight(meeting)}px` }}
+                  >
+                    <div className="meeting-time">{meeting.start_time}</div>
+                    <div className="meeting-title">{meeting.title}</div>
+                    <div className="meeting-job">{meeting.job}</div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+
+  // Week view
+  const WeekView = () => {
+    const weekStart = getWeekStart(currentDate);
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(weekStart);
+      d.setDate(d.getDate() + i);
+      days.push(d);
+    }
+
+    return (
+      <div className="week-view">
+        <h2 style={{ fontFamily: 'Syne', marginBottom: '1.5rem' }}>
+          Week of {days[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+        </h2>
+        <div className="week-grid">
+          {days.map(day => {
+            const dateStr = day.toISOString().split('T')[0];
+            const dayMeetings = meetings.filter(m => m.date === dateStr);
+            const isToday = day.toDateString() === new Date().toDateString();
+
+            return (
+              <div key={dateStr} className={`day-card ${isToday ? 'today' : ''}`}>
+                <h3>{day.toLocaleDateString('en-US', { weekday: 'short' })}</h3>
+                <p>{day.getDate()}</p>
+                {dayMeetings.length > 0 && (
+                  <div className="events-list">
+                    {dayMeetings.map((m, idx) => (
+                      <div key={idx}>
+                        <span className={`event-dot ${m.job}`}></span>
+                        {m.title}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
+  // Month view
+  const MonthView = () => {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+
+    const days = [];
+    for (let i = 0; i < startingDayOfWeek; i++) {
+      days.push(null);
+    }
+    for (let i = 1; i <= daysInMonth; i++) {
+      days.push(new Date(year, month, i));
+    }
+
+    const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    return (
+      <div className="month-view">
+        <h2 style={{ fontFamily: 'Syne', marginBottom: '1rem' }}>
+          {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+        </h2>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '0.5rem', marginBottom: '1rem' }}>
+          {weekDays.map(day => (
+            <div key={day} style={{ fontWeight: 600, textAlign: 'center', color: '#0F172A', fontSize: '0.875rem' }}>
+              {day}
+            </div>
+          ))}
+        </div>
+
+        <div className="month-grid">
+          {days.map((day, idx) => {
+            if (!day) return <div key={`empty-${idx}`} className="month-day other-month"></div>;
+
+            const dateStr = day.toISOString().split('T')[0];
+            const dayMeetings = meetings.filter(m => m.date === dateStr);
+            const isToday = day.toDateString() === new Date().toDateString();
+
+            return (
+              <div key={dateStr} className={`month-day ${isToday ? 'today' : ''}`}>
+                <div className="month-day-num">{day.getDate()}</div>
+                <div className="month-day-events">
+                  {dayMeetings.slice(0, 3).map((m, i) => (
+                    <div key={i} className={`month-event-indicator event-dot ${m.job}`}></div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
+  const dateStr = currentDate.toISOString().split('T')[0];
+  const dayTasks = tasks.filter(t => !t.completed);
 
   return (
-    <div className="app-container">
+    <div className="app">
       <header className="header">
         <div className="header-content">
-          <h1>
-            <span>⚡</span>
-            Command Center
-          </h1>
+          <h1><span>⚡</span>Command Center</h1>
+
+          <div className="view-tabs">
+            <button className={`tab-btn ${view === 'day' ? 'active' : ''}`} onClick={() => setView('day')}>Day</button>
+            <button className={`tab-btn ${view === 'week' ? 'active' : ''}`} onClick={() => setView('week')}>Week</button>
+            <button className={`tab-btn ${view === 'month' ? 'active' : ''}`} onClick={() => setView('month')}>Month</button>
+          </div>
+
           <div className="header-actions">
-            <button className="btn btn-ghost" onClick={() => setShowWeeklyReview(true)}>
-              📋 Weekly Review
+            <button className="btn btn-secondary" onClick={() => setShowAddMeeting(true)}>📅 Add Meeting</button>
+            <button className="btn btn-secondary" onClick={() => setShowWeeklyReview(true)}>📋 Review</button>
+            <button className={`privacy-toggle ${privacyMode ? 'active' : ''}`} onClick={() => setPrivacyMode(!privacyMode)}>
+              {privacyMode ? '🔒 Private' : '👁️ Show'}
             </button>
           </div>
         </div>
       </header>
 
-      <main className="main-content">
-        <div>
-          <div className="today-card">
-            <div className="today-header">
-              <h2>Today</h2>
-              <p className="today-date">{dateStr}</p>
-            </div>
+      <main className="main">
+        {view === 'day' && <DayView />}
+        {view === 'week' && <WeekView />}
+        {view === 'month' && <MonthView />}
 
-            {todayEvents.length > 0 && (
-              <div className="calendar-section">
-                <h3>Calendar</h3>
-                {todayEvents.map((event, idx) => (
-                  <div key={idx} className="event-item">
-                    <div className="event-time">
-                      {new Date(event.start).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
-                    </div>
-                    <div className="event-title">{event.title}</div>
-                  </div>
-                ))}
+        {view === 'day' && (
+          <div style={{ marginTop: '2rem' }}>
+            <h3 style={{ fontFamily: 'Syne', fontSize: '1.125rem', marginBottom: '1rem', color: 'white' }}>📋 Tasks</h3>
+            <div style={{ background: 'white', borderRadius: '12px', padding: '1.5rem' }}>
+              <div style={{ marginBottom: '1rem' }}>
+                <input
+                  type="text"
+                  placeholder="Add a task..."
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' && e.target.value.trim()) {
+                      handleAddTask(e.target.value);
+                      e.target.value = '';
+                    }
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    border: '1px solid #E5E7EB',
+                    borderRadius: '6px',
+                    fontFamily: 'IBM Plex Sans'
+                  }}
+                />
               </div>
-            )}
 
-            <div className="tasks-section">
-              <h3>Today's Tasks</h3>
-
-              {filteredTasks.length === 0 ? (
-                <div className="no-events">No tasks for today. Add one below.</div>
+              {dayTasks.length === 0 ? (
+                <p style={{ color: '#9CA3AF', fontStyle: 'italic' }}>No tasks for today</p>
               ) : (
-                filteredTasks.map(task => (
-                  <div key={task.id} className={`task-item ${task.completed ? 'completed' : ''}`}>
-                    <input 
-                      type="checkbox" 
-                      checked={task.completed}
-                      onChange={() => handleToggleTask(task.id, task.completed)}
+                dayTasks.map(task => (
+                  <div key={task.id} className="task-item">
+                    <input
+                      type="checkbox"
+                      checked={false}
+                      onChange={() => handleToggleTask(task.id, false)}
                     />
                     <div className="task-checkbox"></div>
                     <div className="task-content">
                       <div className="task-title">{task.title}</div>
-                      <div className="task-meta">
-                        <span className={`task-context task-context-${task.context}`}>
-                          {contexts.find(c => c.id === task.context)?.label}
-                        </span>
-                      </div>
-                      {task.subtasks && task.subtasks.length > 0 && (
-                        <div className="subtasks">
-                          {task.subtasks.map((subtask, idx) => (
-                            <div key={idx} className={`subtask-item ${subtask.done ? 'done' : ''}`}>
-                              <span>→</span> {subtask.title}
-                            </div>
-                          ))}
-                        </div>
-                      )}
                     </div>
                   </div>
                 ))
               )}
             </div>
           </div>
-        </div>
+        )}
+      </main>
 
-        <div className="sidebar">
-          <div className="sidebar-card">
-            <h3>Contexts</h3>
-            <div className="contexts-list">
-              <button 
-                className={`context-btn ${selectedContext === 'all' ? 'active' : ''}`}
-                onClick={() => setSelectedContext('all')}
-              >
-                All Contexts
-              </button>
-              {contexts.map(ctx => (
-                <button
-                  key={ctx.id}
-                  className={`context-btn ${selectedContext === ctx.id ? 'active' : ''}`}
-                  onClick={() => setSelectedContext(ctx.id)}
-                >
-                  {ctx.label}
-                </button>
-              ))}
-            </div>
-          </div>
+      {showAddMeeting && (
+        <div className="modal-overlay" onClick={() => setShowAddMeeting(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h2>Add Meeting</h2>
 
-          <div className="sidebar-card">
-            <h3>Quick Add</h3>
-            <div className="quick-add">
+            <div className="form-group">
+              <label>Title</label>
               <input
                 type="text"
-                value={newTaskInput}
-                onChange={(e) => setNewTaskInput(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleAddTask()}
-                placeholder="Add task..."
+                value={newMeeting.title}
+                onChange={(e) => setNewMeeting({ ...newMeeting, title: e.target.value })}
+                placeholder="Meeting title"
               />
-              <button onClick={handleAddTask}>+</button>
             </div>
-            <div className="context-manager">
-              {contexts.map(ctx => (
-                <button
-                  key={ctx.id}
-                  className={`context-btn ${newTaskContext === ctx.id ? 'active' : ''}`}
-                  style={{ fontSize: '0.7rem' }}
-                  onClick={() => setNewTaskContext(ctx.id)}
-                >
-                  {ctx.label.split(' ')[0]}
-                </button>
-              ))}
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>Start Time</label>
+                <input
+                  type="time"
+                  value={newMeeting.startTime}
+                  onChange={(e) => setNewMeeting({ ...newMeeting, startTime: e.target.value })}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Duration (minutes)</label>
+                <input
+                  type="number"
+                  value={newMeeting.duration}
+                  onChange={(e) => setNewMeeting({ ...newMeeting, duration: e.target.value })}
+                  min="15"
+                  step="15"
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label>Job</label>
+              <select
+                value={newMeeting.job}
+                onChange={(e) => setNewMeeting({ ...newMeeting, job: e.target.value })}
+              >
+                <option value="t">T (TerraPower)</option>
+                <option value="x">X (X-Energy)</option>
+              </select>
+            </div>
+
+            <div className="modal-actions">
+              <button className="btn btn-secondary" onClick={() => setShowAddMeeting(false)}>Cancel</button>
+              <button className="btn btn-primary" onClick={handleAddMeeting}>Add Meeting</button>
             </div>
           </div>
         </div>
-      </main>
+      )}
 
       {showWeeklyReview && (
         <div className="modal-overlay" onClick={() => setShowWeeklyReview(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <h2>📋 Weekly Review</h2>
-            <div className="modal-section">
-              <h3>This Week's Wins</h3>
-              <p style={{ color: '#6B7280', marginBottom: '1rem' }}>
-                What went well? What are you proud of?
-              </p>
-              <textarea style={{
-                width: '100%',
-                minHeight: '100px',
-                padding: '0.75rem',
-                border: '1px solid #E5E7EB',
-                borderRadius: '6px',
-                fontFamily: 'IBM Plex Sans',
-                marginBottom: '1rem'
-              }} placeholder="Type here..."/>
+
+            <div className="form-group">
+              <label>This Week's Wins</label>
+              <textarea placeholder="What went well?" style={{ minHeight: '80px' }}></textarea>
             </div>
 
-            <div className="modal-section">
-              <h3>Areas to Improve</h3>
-              <p style={{ color: '#6B7280', marginBottom: '1rem' }}>
-                What could have gone better?
-              </p>
-              <textarea style={{
-                width: '100%',
-                minHeight: '100px',
-                padding: '0.75rem',
-                border: '1px solid #E5E7EB',
-                borderRadius: '6px',
-                fontFamily: 'IBM Plex Sans',
-                marginBottom: '1rem'
-              }} placeholder="Type here..."/>
+            <div className="form-group">
+              <label>Areas to Improve</label>
+              <textarea placeholder="What could be better?" style={{ minHeight: '80px' }}></textarea>
             </div>
 
-            <div className="modal-section">
-              <h3>Next Week's Focus</h3>
-              <p style={{ color: '#6B7280', marginBottom: '1rem' }}>
-                What are your top 3 priorities?
-              </p>
-              <textarea style={{
-                width: '100%',
-                minHeight: '100px',
-                padding: '0.75rem',
-                border: '1px solid #E5E7EB',
-                borderRadius: '6px',
-                fontFamily: 'IBM Plex Sans',
-                marginBottom: '1rem'
-              }} placeholder="Type here..."/>
+            <div className="form-group">
+              <label>Next Week's Focus</label>
+              <textarea placeholder="Top 3 priorities?" style={{ minHeight: '80px' }}></textarea>
+            </div>
+
+            <h3 style={{ marginTop: '1.5rem', marginBottom: '1rem', fontWeight: 600 }}>🍽️ Meal Plan - Next Week</h3>
+
+            <div className="meal-plan-grid">
+              {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
+                <div key={day} className="meal-day">
+                  <h4>{day}</h4>
+                  <input type="text" className="meal-input" placeholder="Breakfast" />
+                  <input type="text" className="meal-input" placeholder="Lunch" />
+                  <input type="text" className="meal-input" placeholder="Dinner" />
+                </div>
+              ))}
             </div>
 
             <div className="modal-actions">
-              <button className="btn btn-secondary" onClick={() => setShowWeeklyReview(false)}>
-                Cancel
-              </button>
-              <button className="btn btn-primary" onClick={() => setShowWeeklyReview(false)}>
-                Save Review
-              </button>
+              <button className="btn btn-secondary" onClick={() => setShowWeeklyReview(false)}>Cancel</button>
+              <button className="btn btn-primary" onClick={() => setShowWeeklyReview(false)}>Save Review</button>
             </div>
           </div>
         </div>
