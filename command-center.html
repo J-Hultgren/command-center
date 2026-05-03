@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover"/>
+<title>Command Center</title>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#0F172A"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Command Center"/>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect fill='%230F172A' width='32' height='32'/><text x='50%' y='50%' font-size='20' text-anchor='middle' dominant-baseline='middle' fill='%23FF6B35'>⚡</text></svg>"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://msal-js-cdn.azureedge.net/msal.min.js"></script>
+<style>
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: linear-gradient(135deg, #0F172A 0%, #1a2847 100%);
+  color: #1F2937;
+  overscroll-behavior: none;
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 107, 53, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 107, 53, 0.5);
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* Root layout */
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0F172A 0%, #1a2847 100%);
+}
+
+.header {
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 107, 53, 0.1);
+  padding: 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.header h1 span {
+  color: #FF6B35;
+  font-size: 1.8rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.btn {
+  padding: 0.625rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-primary {
+  background: #FF6B35;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #E55A24;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: #9CA3AF;
+  border: none;
+  padding: 0.5rem;
+  font-size: 1rem;
+}
+
+.btn-ghost:hover {
+  color: #FFFFFF;
+}
+
+.main-content {
+  flex: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+  }
+}
+
+/* Today view card */
+.today-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  animation: slideUp 0.5s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.today-header {
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #F3F4F6;
+  padding-bottom: 1.5rem;
+}
+
+.today-header h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin-bottom: 0.5rem;
+}
+
+.today-date {
+  color: #6B7280;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Calendar events section */
+.calendar-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: #FAFAFA;
+  border-left: 4px solid #FF6B35;
+  border-radius: 8px;
+}
+
+.calendar-section h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #0F172A;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.calendar-section h3::before {
+  content: '📅';
+  font-size: 1.125rem;
+}
+
+.event-item {
+  padding: 0.875rem;
+  background: white;
+  border-radius: 6px;
+  margin-bottom: 0.75rem;
+  border-left: 3px solid #0F172A;
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 1rem;
+}
+
+.event-time {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #FF6B35;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 70px;
+}
+
+.event-title {
+  font-weight: 500;
+  color: #1F2937;
+  font-size: 0.875rem;
+}
+
+.no-events {
+  color: #9CA3AF;
+  font-size: 0.875rem;
+  font-style: italic;
+  text-align: center;
+  padding: 1rem;
+}
+
+/* Task list */
+.tasks-section h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tasks-section h3::before {
+  content: '🎯';
+  font-size: 1.25rem;
+}
+
+.task-item {
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 0.875rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: start;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.task-item:hover {
+  background: white;
+  border-color: #FF6B35;
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.1);
+}
+
+.task-item.completed {
+  opacity: 0.6;
+}
+
+.task-checkbox {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #D1D5DB;
+  border-radius: 4px;
+  margin-top: 2px;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.task-item input[type="checkbox"] {
+  display: none;
+}
+
+.task-item input[type="checkbox"]:checked + .task-checkbox {
+  background: #FF6B35;
+  border-color: #FF6B35;
+}
+
+.task-checkbox::after {
+  content: '✓';
+  color: white;
+  font-size: 0.875rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.task-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.task-title {
+  font-weight: 500;
+  color: #1F2937;
+  word-break: break-word;
+  margin-bottom: 0.25rem;
+}
+
+.task-meta {
+  font-size: 0.75rem;
+  color: #9CA3AF;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.task-context {
+  background: #EEF2FF;
+  color: #3730A3;
+  padding: 0.25rem 0.5rem;
+  border-radius: 3px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.task-context.work-tp {
+  background: #DBEAFE;
+  color: #1E40AF;
+}
+
+.task-context.work-xe {
+  background: #DCFCE7;
+  color: #15803D;
+}
+
+.task-context.trading {
+  background: #FED7AA;
+  color: #92400E;
+}
+
+.task-context.health {
+  background: #FCE7F3;
+  color: #BE185D;
+}
+
+.task-context.kids {
+  background: #FECACA;
+  color: #991B1B;
+}
+
+.task-context.learning {
+  background: #E9D5FF;
+  color: #6B21A8;
+}
+
+.task-context.home {
+  background: #D1FAE5;
+  color: #065F46;
+}
+
+.subtasks {
+  margin-top: 0.75rem;
+  padding-left: 1rem;
+  border-left: 2px solid #E5E7EB;
+}
+
+.subtask-item {
+  font-size: 0.8125rem;
+  color: #6B7280;
+  padding: 0.5rem 0;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.subtask-item.done {
+  color: #9CA3AF;
+  text-decoration: line-through;
+}
+
+/* Sidebar */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.sidebar-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.sidebar-card h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.contexts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.context-btn {
+  padding: 0.625rem 0.875rem;
+  background: #F3F4F6;
+  border: 1px solid #E5E7EB;
+  border-radius: 6px;
+  text-align: left;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #6B7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.context-btn:hover {
+  background: #E5E7EB;
+  color: #1F2937;
+}
+
+.context-btn.active {
+  background: #FF6B35;
+  color: white;
+  border-color: #FF6B35;
+}
+
+.quick-add {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.quick-add input {
+  flex: 1;
+  padding: 0.625rem;
+  border: 1px solid #E5E7EB;
+  border-radius: 6px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 0.8125rem;
+}
+
+.quick-add input::placeholder {
+  color: #D1D5DB;
+}
+
+.quick-add input:focus {
+  outline: none;
+  border-color: #FF6B35;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
+
+.quick-add button {
+  padding: 0.625rem 0.875rem;
+  background: #FF6B35;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quick-add button:hover {
+  background: #E55A24;
+}
+
+/* Weekly review modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+}
+
+.modal h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin-bottom: 1.5rem;
+}
+
+.modal-section {
+  margin-bottom: 2rem;
+}
+
+.modal-section h3 {
+  font-weight: 600;
+  color: #0F172A;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: #9CA3AF;
+}
+
+.spinner {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(255, 107, 53, 0.2);
+  border-radius: 50%;
+  border-top-color: #FF6B35;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.login-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  text-align: center;
+}
+
+.login-box {
+  background: white;
+  padding: 3rem;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  max-width: 400px;
+}
+
+.login-box h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin-bottom: 0.5rem;
+}
+
+.login-box p {
+  color: #6B7280;
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+}
+
+.context-manager {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header h1 {
+    font-size: 1.25rem;
+  }
+
+  .modal {
+    padding: 1.5rem;
+  }
+
+  .today-card {
+    padding: 1.5rem;
+  }
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+// Supabase setup
+const SUPABASE_URL = 'https://irmtvjxlntozigbqxhvm.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlybXR2anhsbnRvemlnYnF4aHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4NTkzMTQsImV4cCI6MjA5MjQzNTMxNH0.nyIZx7Z0GnHEIlZpBlN6TzHHsf7tGuhdvWECdpcQ-a0';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Microsoft OAuth config
+const msalConfig = {
+  auth: {
+    clientId: 'YOUR_AZURE_CLIENT_ID', // User will set this
+    authority: 'https://login.microsoftonline.com/common',
+    redirectUri: window.location.origin
+  },
+  cache: {
+    cacheLocation: 'localStorage',
+    storeAuthStateInCookie: false
+  }
+};
+
+const scopes = ['Calendars.Read'];
+
+const CommandCenter = () => {
+  const [tasks, setTasks] = useState([]);
+  const [calendarEvents, setCalendarEvents] = useState([]);
+  const [selectedContext, setSelectedContext] = useState('all');
+  const [showWeeklyReview, setShowWeeklyReview] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [newTaskInput, setNewTaskInput] = useState('');
+  const [newTaskContext, setNewTaskContext] = useState('work-tp');
+
+  const contexts = [
+    { id: 'work-tp', label: 'Work TerraPower' },
+    { id: 'work-xe', label: 'Work X-Energy' },
+    { id: 'trading', label: 'Trading' },
+    { id: 'health', label: 'Health' },
+    { id: 'kids', label: 'Kids' },
+    { id: 'learning', label: 'Learning' },
+    { id: 'home', label: 'Home' }
+  ];
+
+  // Load tasks from Supabase
+  const loadTasks = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('command_tasks')
+        .select('*')
+        .eq('date', new Date().toISOString().split('T')[0])
+        .order('priority', { ascending: true });
+
+      if (error) throw error;
+      setTasks(data || []);
+    } catch (error) {
+      console.error('Error loading tasks:', error);
+    }
+  };
+
+  // Get today's events (mock - will connect to Microsoft Calendar)
+  const getTodayEvents = () => {
+    // This will be populated by Microsoft Calendar API
+    return calendarEvents.filter(event => {
+      const eventDate = new Date(event.start).toDateString();
+      const today = new Date().toDateString();
+      return eventDate === today;
+    });
+  };
+
+  useEffect(() => {
+    loadTasks();
+    // Check if it's Sunday for weekly review
+    const today = new Date();
+    if (today.getDay() === 0) {
+      setShowWeeklyReview(true);
+    }
+    setLoading(false);
+  }, []);
+
+  const handleAddTask = async () => {
+    if (!newTaskInput.trim()) return;
+
+    const newTask = {
+      title: newTaskInput,
+      context: newTaskContext,
+      date: new Date().toISOString().split('T')[0],
+      completed: false,
+      subtasks: [],
+      priority: 1,
+      created_at: new Date().toISOString()
+    };
+
+    try {
+      const { data, error } = await supabase
+        .from('command_tasks')
+        .insert([newTask])
+        .select();
+
+      if (error) throw error;
+      setTasks([...tasks, ...data]);
+      setNewTaskInput('');
+    } catch (error) {
+      console.error('Error adding task:', error);
+    }
+  };
+
+  const handleToggleTask = async (taskId, completed) => {
+    try {
+      const { error } = await supabase
+        .from('command_tasks')
+        .update({ completed: !completed })
+        .eq('id', taskId);
+
+      if (error) throw error;
+      setTasks(tasks.map(t => t.id === taskId ? { ...t, completed: !completed } : t));
+    } catch (error) {
+      console.error('Error updating task:', error);
+    }
+  };
+
+  const filteredTasks = selectedContext === 'all' 
+    ? tasks 
+    : tasks.filter(t => t.context === selectedContext);
+
+  const todayEvents = getTodayEvents();
+
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+  return (
+    <div className="app-container">
+      <header className="header">
+        <div className="header-content">
+          <h1>
+            <span>⚡</span>
+            Command Center
+          </h1>
+          <div className="header-actions">
+            <button className="btn btn-ghost" onClick={() => setShowWeeklyReview(true)}>
+              📋 Weekly Review
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="main-content">
+        <div>
+          <div className="today-card">
+            <div className="today-header">
+              <h2>Today</h2>
+              <p className="today-date">{dateStr}</p>
+            </div>
+
+            {todayEvents.length > 0 && (
+              <div className="calendar-section">
+                <h3>Calendar</h3>
+                {todayEvents.map((event, idx) => (
+                  <div key={idx} className="event-item">
+                    <div className="event-time">
+                      {new Date(event.start).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                    <div className="event-title">{event.title}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="tasks-section">
+              <h3>Today's Tasks</h3>
+
+              {filteredTasks.length === 0 ? (
+                <div className="no-events">No tasks for today. Add one below.</div>
+              ) : (
+                filteredTasks.map(task => (
+                  <div key={task.id} className={`task-item ${task.completed ? 'completed' : ''}`}>
+                    <input 
+                      type="checkbox" 
+                      checked={task.completed}
+                      onChange={() => handleToggleTask(task.id, task.completed)}
+                    />
+                    <div className="task-checkbox"></div>
+                    <div className="task-content">
+                      <div className="task-title">{task.title}</div>
+                      <div className="task-meta">
+                        <span className={`task-context task-context-${task.context}`}>
+                          {contexts.find(c => c.id === task.context)?.label}
+                        </span>
+                      </div>
+                      {task.subtasks && task.subtasks.length > 0 && (
+                        <div className="subtasks">
+                          {task.subtasks.map((subtask, idx) => (
+                            <div key={idx} className={`subtask-item ${subtask.done ? 'done' : ''}`}>
+                              <span>→</span> {subtask.title}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="sidebar">
+          <div className="sidebar-card">
+            <h3>Contexts</h3>
+            <div className="contexts-list">
+              <button 
+                className={`context-btn ${selectedContext === 'all' ? 'active' : ''}`}
+                onClick={() => setSelectedContext('all')}
+              >
+                All Contexts
+              </button>
+              {contexts.map(ctx => (
+                <button
+                  key={ctx.id}
+                  className={`context-btn ${selectedContext === ctx.id ? 'active' : ''}`}
+                  onClick={() => setSelectedContext(ctx.id)}
+                >
+                  {ctx.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="sidebar-card">
+            <h3>Quick Add</h3>
+            <div className="quick-add">
+              <input
+                type="text"
+                value={newTaskInput}
+                onChange={(e) => setNewTaskInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleAddTask()}
+                placeholder="Add task..."
+              />
+              <button onClick={handleAddTask}>+</button>
+            </div>
+            <div className="context-manager">
+              {contexts.map(ctx => (
+                <button
+                  key={ctx.id}
+                  className={`context-btn ${newTaskContext === ctx.id ? 'active' : ''}`}
+                  style={{ fontSize: '0.7rem' }}
+                  onClick={() => setNewTaskContext(ctx.id)}
+                >
+                  {ctx.label.split(' ')[0]}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {showWeeklyReview && (
+        <div className="modal-overlay" onClick={() => setShowWeeklyReview(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h2>📋 Weekly Review</h2>
+            <div className="modal-section">
+              <h3>This Week's Wins</h3>
+              <p style={{ color: '#6B7280', marginBottom: '1rem' }}>
+                What went well? What are you proud of?
+              </p>
+              <textarea style={{
+                width: '100%',
+                minHeight: '100px',
+                padding: '0.75rem',
+                border: '1px solid #E5E7EB',
+                borderRadius: '6px',
+                fontFamily: 'IBM Plex Sans',
+                marginBottom: '1rem'
+              }} placeholder="Type here..."/>
+            </div>
+
+            <div className="modal-section">
+              <h3>Areas to Improve</h3>
+              <p style={{ color: '#6B7280', marginBottom: '1rem' }}>
+                What could have gone better?
+              </p>
+              <textarea style={{
+                width: '100%',
+                minHeight: '100px',
+                padding: '0.75rem',
+                border: '1px solid #E5E7EB',
+                borderRadius: '6px',
+                fontFamily: 'IBM Plex Sans',
+                marginBottom: '1rem'
+              }} placeholder="Type here..."/>
+            </div>
+
+            <div className="modal-section">
+              <h3>Next Week's Focus</h3>
+              <p style={{ color: '#6B7280', marginBottom: '1rem' }}>
+                What are your top 3 priorities?
+              </p>
+              <textarea style={{
+                width: '100%',
+                minHeight: '100px',
+                padding: '0.75rem',
+                border: '1px solid #E5E7EB',
+                borderRadius: '6px',
+                fontFamily: 'IBM Plex Sans',
+                marginBottom: '1rem'
+              }} placeholder="Type here..."/>
+            </div>
+
+            <div className="modal-actions">
+              <button className="btn btn-secondary" onClick={() => setShowWeeklyReview(false)}>
+                Cancel
+              </button>
+              <button className="btn btn-primary" onClick={() => setShowWeeklyReview(false)}>
+                Save Review
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+ReactDOM.render(<CommandCenter />, document.getElementById('root'));
+</script>
+</body>
+</html>
