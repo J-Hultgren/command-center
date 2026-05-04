@@ -75,13 +75,78 @@ input[type=number] { -moz-appearance: textfield; }
 /* ============= MOBILE LAYOUT (default) ============= */
 .app-shell { padding-bottom: 100px; }
 
-/* Top header */
+/* Top header - Google Calendar style */
 .top-bar {
-  padding: 1.25rem 1.25rem 0.75rem;
+  padding: 0.75rem 1.25rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--border-soft);
+  flex-wrap: wrap;
 }
+
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.cal-nav-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.cal-nav-btn:hover { background: var(--bg-soft); border-color: var(--text-muted); }
+
+.cal-arrow {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  color: var(--text-soft);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.cal-arrow:hover { background: var(--bg-soft); color: var(--text); }
+
+.cal-title-big {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  font-size: 1.35rem;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  margin-left: 0.5rem;
+}
+
+.view-select {
+  padding: 0.5rem 0.85rem;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.view-select:focus { outline: none; border-color: var(--accent); }
 
 .greeting-text {
   font-family: 'Plus Jakarta Sans', sans-serif;
@@ -1125,7 +1190,309 @@ input[type=number] { -moz-appearance: textfield; }
   gap: 0.5rem;
 }
 
-/* ============= MONTH VIEW ============= */
+/* ============= GOOGLE CALENDAR STYLE ============= */
+
+/* Week view */
+.gcal-week {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  margin: 0 -0.5rem;
+}
+
+@media (min-width: 900px) { .gcal-week { margin: 0; } }
+
+.gcal-week-header {
+  display: grid;
+  grid-template-columns: 56px repeat(7, 1fr);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-card);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.gcal-tz-cell {
+  padding: 0.5rem;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-align: center;
+  border-right: 1px solid var(--border-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gcal-day-header {
+  padding: 0.65rem 0.4rem;
+  text-align: center;
+  cursor: pointer;
+  border-right: 1px solid var(--border-soft);
+  transition: background 0.15s;
+}
+
+.gcal-day-header:last-child { border-right: none; }
+.gcal-day-header:hover { background: var(--bg-soft); }
+
+.gcal-day-name {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.gcal-day-header.today .gcal-day-name { color: var(--accent); }
+
+.gcal-day-num {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: var(--text);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gcal-day-num.today {
+  background: var(--accent);
+  color: white;
+  font-weight: 600;
+}
+
+/* All-day events row */
+.gcal-allday-row {
+  display: grid;
+  grid-template-columns: 56px repeat(7, 1fr);
+  border-bottom: 1px solid var(--border);
+  min-height: 24px;
+}
+
+.gcal-allday-cell {
+  border-right: 1px solid var(--border-soft);
+  padding: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.gcal-allday-cell:last-child { border-right: none; }
+
+.gcal-allday-event {
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* Time grid */
+.gcal-time-grid {
+  display: grid;
+  grid-template-columns: 56px repeat(7, 1fr);
+  position: relative;
+  overflow-x: hidden;
+}
+
+.gcal-time-col {
+  border-right: 1px solid var(--border-soft);
+}
+
+.gcal-time-label {
+  height: 48px;
+  padding: 0 6px 0 0;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-align: right;
+  border-bottom: 1px solid var(--border-soft);
+  font-variant-numeric: tabular-nums;
+  position: relative;
+  top: -7px;
+}
+
+.gcal-day-col {
+  position: relative;
+  border-right: 1px solid var(--border-soft);
+}
+
+.gcal-day-col:last-child { border-right: none; }
+
+.gcal-hour-cell {
+  height: 48px;
+  border-bottom: 1px solid var(--border-soft);
+  cursor: pointer;
+}
+
+.gcal-hour-cell:hover { background: var(--bg-soft); }
+
+.gcal-event {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  border-radius: 4px;
+  padding: 3px 6px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  overflow: hidden;
+  z-index: 2;
+}
+
+.gcal-event:hover { box-shadow: var(--shadow); z-index: 3; }
+.gcal-event.privacy-blur { filter: blur(4px); }
+
+.gcal-event-title {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.gcal-event-time {
+  font-size: 0.6rem;
+  opacity: 0.75;
+  margin-top: 1px;
+}
+
+.gcal-now-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #EA4335;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.gcal-now-line::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #EA4335;
+}
+
+/* Month view */
+.gcal-month {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  margin: 0 -0.5rem;
+}
+
+@media (min-width: 900px) { .gcal-month { margin: 0; } }
+
+.gcal-month-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-bottom: 1px solid var(--border);
+}
+
+.gcal-month-dow {
+  text-align: center;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 0.6rem 0;
+  border-right: 1px solid var(--border-soft);
+}
+
+.gcal-month-dow:last-child { border-right: none; }
+
+.gcal-month-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.gcal-month-week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-bottom: 1px solid var(--border-soft);
+  min-height: 100px;
+}
+
+@media (min-width: 900px) { .gcal-month-week { min-height: 120px; } }
+
+.gcal-month-week:last-child { border-bottom: none; }
+
+.gcal-month-cell {
+  border-right: 1px solid var(--border-soft);
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+  transition: background 0.15s;
+}
+
+.gcal-month-cell:last-child { border-right: none; }
+.gcal-month-cell:hover { background: var(--bg-soft); }
+.gcal-month-cell.other-month .gcal-month-num { color: var(--text-muted); }
+
+.gcal-month-num {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin-bottom: 2px;
+}
+
+.gcal-month-num.today {
+  background: var(--accent);
+  color: white;
+  font-weight: 700;
+}
+
+.gcal-month-events {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.gcal-month-event {
+  font-size: 0.65rem;
+  padding: 2px 5px;
+  border-radius: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.gcal-month-more {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  padding: 1px 5px;
+  font-weight: 600;
+}
+
+/* ============= LEGACY MONTH VIEW (kept for back-compat, hidden) ============= */
 .month-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -1662,7 +2029,9 @@ const formatDateLocal = (date) => {
 const getWeekStart = (date) => {
   const d = new Date(date);
   const day = d.getDay();
-  d.setDate(d.getDate() - day);
+  // Monday-start: Sunday=0 becomes 6 days back, Monday=1 becomes 0, etc.
+  const offset = (day + 6) % 7;
+  d.setDate(d.getDate() - offset);
   d.setHours(0, 0, 0, 0);
   return d;
 };
@@ -2054,14 +2423,19 @@ const App = () => {
 
   // ============= Categories =============
   const saveCategory = async (cat) => {
+    let result;
     if (cat.id && categories.find(c => c.id === cat.id)) {
-      await supabase.from('cc_categories').update({ label: cat.label, icon: cat.icon, color: cat.color, sort_order: cat.sort_order }).eq('id', cat.id);
-      showToast('Updated');
+      result = await supabase.from('cc_categories').update({ label: cat.label, icon: cat.icon, color: cat.color, sort_order: cat.sort_order }).eq('id', cat.id);
     } else {
       const newId = (cat.label.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30)) + '-' + Date.now().toString(36).slice(-4);
-      await supabase.from('cc_categories').insert([{ id: newId, label: cat.label, icon: cat.icon, color: cat.color, sort_order: cat.sort_order ?? categories.length }]);
-      showToast('Added');
+      result = await supabase.from('cc_categories').insert([{ id: newId, label: cat.label, icon: cat.icon, color: cat.color, sort_order: cat.sort_order ?? categories.length }]);
     }
+    if (result.error) {
+      showToast('Save failed: ' + result.error.message);
+      console.error('Category save error:', result.error);
+      return;
+    }
+    showToast(cat.id ? 'Updated' : 'Added');
     setEditingCategory(null);
     loadCategories();
   };
@@ -2231,18 +2605,57 @@ const App = () => {
 
       <div className="app-shell-main">
         <header className="top-bar">
-          <div>
-            <div className="greeting-text">{greetingTime()}, Jessa</div>
-            <div className="greeting-sub">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</div>
-          </div>
-          <div className="top-actions">
-            <button className="icon-btn" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>{theme === 'light' ? '🌙' : '☀️'}</button>
-            <button className={`icon-btn ${privacyMode ? 'active' : ''}`} onClick={() => setPrivacyMode(!privacyMode)}>{privacyMode ? '🔒' : '👁️'}</button>
-            <button className="icon-btn" onClick={() => setShowSettings(true)}>⚙️</button>
-          </div>
+          {(view === 'today' || view === 'week' || view === 'month') ? (
+            <>
+              <div className="top-bar-left">
+                <button className="cal-nav-btn" onClick={() => setCurrentDate(new Date())}>Today</button>
+                <button className="cal-arrow" onClick={() => {
+                  const d = new Date(currentDate);
+                  if (view === 'today') d.setDate(d.getDate() - 1);
+                  else if (view === 'week') d.setDate(d.getDate() - 7);
+                  else d.setMonth(d.getMonth() - 1);
+                  setCurrentDate(d);
+                }}>‹</button>
+                <button className="cal-arrow" onClick={() => {
+                  const d = new Date(currentDate);
+                  if (view === 'today') d.setDate(d.getDate() + 1);
+                  else if (view === 'week') d.setDate(d.getDate() + 7);
+                  else d.setMonth(d.getMonth() + 1);
+                  setCurrentDate(d);
+                }}>›</button>
+                <div className="cal-title-big">
+                  {view === 'today' && currentDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                  {view === 'week' && currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                  {view === 'month' && currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                </div>
+              </div>
+              <div className="top-actions">
+                <select className="view-select" value={view} onChange={(e) => setView(e.target.value)}>
+                  <option value="today">Day</option>
+                  <option value="week">Week</option>
+                  <option value="month">Month</option>
+                </select>
+                <button className="icon-btn" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>{theme === 'light' ? '🌙' : '☀️'}</button>
+                <button className={`icon-btn ${privacyMode ? 'active' : ''}`} onClick={() => setPrivacyMode(!privacyMode)}>{privacyMode ? '🔒' : '👁️'}</button>
+                <button className="icon-btn" onClick={() => setShowSettings(true)}>⚙️</button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <div className="greeting-text">{greetingTime()}, Jessa</div>
+                <div className="greeting-sub">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</div>
+              </div>
+              <div className="top-actions">
+                <button className="icon-btn" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>{theme === 'light' ? '🌙' : '☀️'}</button>
+                <button className={`icon-btn ${privacyMode ? 'active' : ''}`} onClick={() => setPrivacyMode(!privacyMode)}>{privacyMode ? '🔒' : '👁️'}</button>
+                <button className="icon-btn" onClick={() => setShowSettings(true)}>⚙️</button>
+              </div>
+            </>
+          )}
         </header>
 
-        {(view === 'today' || view === 'week' || view === 'month') && (
+        {false && (view === 'today' || view === 'week' || view === 'month') && (
           <div className="date-nav-pills">
             {weekDays.map((d, i) => {
               const isToday = d.toDateString() === new Date().toDateString();
@@ -2278,8 +2691,8 @@ const App = () => {
             />
           )}
           {view === 'today' && <TodayView dayMeetings={dayMeetings} dayTasks={dayTasks} privacyMode={privacyMode} setMeetingModal={setMeetingModal} setTaskModal={setTaskModal} toggleTask={toggleTask} currentDate={currentDate} addQuickTask={addQuickTask} />}
-          {view === 'week' && <WeekView meetings={meetings} tasks={tasks} currentDate={currentDate} setCurrentDate={setCurrentDate} setView={setView} privacyMode={privacyMode} />}
-          {view === 'month' && <MonthView meetings={meetings} tasks={tasks} currentDate={currentDate} setCurrentDate={setCurrentDate} setView={setView} />}
+          {view === 'week' && <WeekView meetings={meetings} tasks={tasks} currentDate={currentDate} setCurrentDate={setCurrentDate} setView={setView} privacyMode={privacyMode} setMeetingModal={setMeetingModal} />}
+          {view === 'month' && <MonthView meetings={meetings} tasks={tasks} currentDate={currentDate} setCurrentDate={setCurrentDate} setView={setView} privacyMode={privacyMode} />}
           {view === 'inbox' && (
             <InboxView
               inboxItems={inboxItems}
@@ -2594,74 +3007,125 @@ const TodayView = ({ dayMeetings, dayTasks, privacyMode, setMeetingModal, setTas
 };
 
 // =============== WEEK ===============
-const WeekView = ({ meetings, tasks, currentDate, setCurrentDate, setView, privacyMode }) => {
+const WeekView = ({ meetings, tasks, currentDate, setCurrentDate, setView, privacyMode, setMeetingModal }) => {
   const weekStart = getWeekStart(currentDate);
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(weekStart);
+    d.setDate(d.getDate() + i);
+    return d;
+  });
+
+  // Hours from 5am to 10pm like Google Calendar
+  const hours = [];
+  for (let h = 5; h <= 22; h++) hours.push(h);
 
   return (
-    <>
-      <div className="page-title-area">
-        <div className="page-title">This Week</div>
-        <div className="page-subtitle">Week of {weekStart.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}</div>
-      </div>
-
-      <div className="timeline">
-        {Array.from({ length: 7 }, (_, i) => {
-          const d = new Date(weekStart);
-          d.setDate(d.getDate() + i);
-          const dateStr = formatDateLocal(d);
-          const dayMeetings = meetings.filter(m => meetingOccursOn(m, dateStr));
-          const dayTasks = tasks.filter(t => t.date === dateStr && !t.completed);
+    <div className="gcal-week">
+      {/* Day headers row */}
+      <div className="gcal-week-header">
+        <div className="gcal-tz-cell">GMT</div>
+        {days.map((d, i) => {
           const isToday = d.toDateString() === new Date().toDateString();
-
-          if (dayMeetings.length === 0 && dayTasks.length === 0) return null;
-
           return (
-            <div key={i} style={{ marginBottom: '1.25rem' }}>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', padding: '0.25rem 0 0.6rem', cursor: 'pointer', borderBottom: '1px solid var(--border-soft)', marginBottom: '0.6rem' }} onClick={() => { setCurrentDate(d); setView('today'); }}>
-                <div style={{ fontFamily: 'Plus Jakarta Sans', fontSize: '1.1rem', fontWeight: 700, color: isToday ? 'var(--accent)' : 'var(--text)' }}>{d.toLocaleDateString('en-US', { weekday: 'long' })}</div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', paddingLeft: '0.5rem' }}>
-                {dayMeetings.map(m => (
-                  <div key={m.id} className={`event-card ${privacyMode ? 'privacy-blur' : ''}`} style={{ background: hexToSoftBg(m.job), minHeight: '44px' }}>
-                    <div className="event-duration-bar" style={{ background: m.job }}></div>
-                    <div className="event-icon" style={{ width: '32px', height: '32px', fontSize: '0.95rem', background: m.job, color: 'white' }}>{m.icon || '📅'}</div>
-                    <div className="event-content">
-                      <div className="event-title" style={{ fontSize: '0.85rem' }}>{m.title}</div>
-                      <div className="event-meta" style={{ fontSize: '0.7rem' }}>{m.start_time} · {m.duration}min</div>
-                    </div>
-                  </div>
-                ))}
-                {dayTasks.map(t => {
-                  const cat = getCategoryById(t.context);
-                  return (
-                    <div key={t.id} className="event-card" style={{ background: hexToSoftBg(cat.color), minHeight: '44px' }}>
-                      <div className="event-duration-bar" style={{ background: cat.color }}></div>
-                      <div className="event-icon" style={{ width: '32px', height: '32px', fontSize: '0.95rem', background: cat.color, color: 'white' }}>⭕</div>
-                      <div className="event-content">
-                        <div className="event-title" style={{ fontSize: '0.85rem' }}>{t.title}</div>
-                        <div className="event-meta" style={{ fontSize: '0.7rem' }}>{cat.label}</div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+            <div key={i} className={`gcal-day-header ${isToday ? 'today' : ''}`} onClick={() => { setCurrentDate(d); setView('today'); }}>
+              <div className="gcal-day-name">{d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}</div>
+              <div className={`gcal-day-num ${isToday ? 'today' : ''}`}>{d.getDate()}</div>
             </div>
           );
         })}
       </div>
-    </>
+
+      {/* All-day row (multi-day events placeholder) */}
+      <div className="gcal-allday-row">
+        <div className="gcal-tz-cell"></div>
+        {days.map((d, i) => {
+          const dateStr = formatDateLocal(d);
+          const dayTasks = tasks.filter(t => t.date === dateStr && !t.completed);
+          return (
+            <div key={i} className="gcal-allday-cell">
+              {dayTasks.slice(0, 2).map(t => {
+                const cat = getCategoryById(t.context);
+                return (
+                  <div key={t.id} className="gcal-allday-event" style={{ background: hexToSoftBg(cat.color), color: hexToTextColor(cat.color) }} title={t.title}>
+                    {t.title}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Time grid */}
+      <div className="gcal-time-grid">
+        <div className="gcal-time-col">
+          {hours.map(h => (
+            <div key={h} className="gcal-time-label">{String(h).padStart(2, '0')}:00</div>
+          ))}
+        </div>
+        {days.map((d, i) => {
+          const dateStr = formatDateLocal(d);
+          const dayMeetings = meetings.filter(m => meetingOccursOn(m, dateStr));
+          const isToday = d.toDateString() === new Date().toDateString();
+          const now = new Date();
+          const nowMins = now.getHours() * 60 + now.getMinutes();
+          const showNowLine = isToday && nowMins >= 5 * 60 && nowMins <= 22 * 60 + 60;
+          const nowTop = ((nowMins - 5 * 60) / 60) * 48;
+
+          return (
+            <div key={i} className="gcal-day-col">
+              {hours.map(h => (
+                <div key={h} className="gcal-hour-cell" onClick={() => {
+                  setMeetingModal({
+                    date: dateStr,
+                    start_time: `${String(h).padStart(2, '0')}:00`,
+                    duration: 60,
+                    job: '#5DCFA0',
+                    icon: '📅'
+                  });
+                }}></div>
+              ))}
+              {dayMeetings.map(m => {
+                const startMin = minutesFromTime(m.start_time);
+                if (startMin < 5 * 60 || startMin > 22 * 60 + 30) return null;
+                const top = ((startMin - 5 * 60) / 60) * 48;
+                const height = (m.duration / 60) * 48 - 2;
+                return (
+                  <div
+                    key={m.id}
+                    className={`gcal-event ${privacyMode ? 'privacy-blur' : ''}`}
+                    style={{
+                      top: `${top}px`,
+                      height: `${Math.max(height, 18)}px`,
+                      background: hexToSoftBg(m.job),
+                      borderLeft: `3px solid ${m.job}`,
+                      color: hexToTextColor(m.job)
+                    }}
+                    onClick={(e) => { e.stopPropagation(); setMeetingModal(m); }}
+                  >
+                    <div className="gcal-event-title">{m.title}</div>
+                    {height > 30 && <div className="gcal-event-time">{m.start_time}</div>}
+                  </div>
+                );
+              })}
+              {showNowLine && (
+                <div className="gcal-now-line" style={{ top: `${nowTop}px` }}></div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 };
 
 // =============== MONTH ===============
-const MonthView = ({ meetings, tasks, currentDate, setCurrentDate, setView }) => {
+const MonthView = ({ meetings, tasks, currentDate, setCurrentDate, setView, privacyMode }) => {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
-  const startOffset = firstDay.getDay();
+  const startOffset = (firstDay.getDay() + 6) % 7;
   const days = [];
   for (let i = startOffset; i > 0; i--) {
     const d = new Date(year, month, 1 - i);
@@ -2677,49 +3141,56 @@ const MonthView = ({ meetings, tasks, currentDate, setCurrentDate, setView }) =>
     days.push({ date: next, otherMonth: true });
   }
 
-  const navigateMonth = (dir) => {
-    const d = new Date(currentDate);
-    d.setMonth(d.getMonth() + dir);
-    setCurrentDate(d);
-  };
+  // Group into weeks
+  const weeks = [];
+  for (let i = 0; i < days.length; i += 7) {
+    weeks.push(days.slice(i, i + 7));
+  }
 
   return (
-    <>
-      <div className="page-title-area" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '0.5rem' }}>
-        <div>
-          <div className="page-title">{currentDate.toLocaleDateString('en-US', { month: 'long' })}</div>
-          <div className="page-subtitle">{currentDate.getFullYear()}</div>
-        </div>
-        <div style={{ display: 'flex', gap: '0.4rem' }}>
-          <button className="icon-btn" onClick={() => navigateMonth(-1)}>‹</button>
-          <button className="icon-btn" onClick={() => setCurrentDate(new Date())}>•</button>
-          <button className="icon-btn" onClick={() => navigateMonth(1)}>›</button>
-        </div>
+    <div className="gcal-month">
+      <div className="gcal-month-header">
+        {['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'].map(d => (
+          <div key={d} className="gcal-month-dow">{d}</div>
+        ))}
       </div>
-
-      <div className="month-grid">
-        {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (<div key={i} className="month-day-head">{d}</div>))}
-        {days.map(({ date, otherMonth }, idx) => {
-          const dateStr = formatDateLocal(date);
-          const dayMeetings = meetings.filter(m => meetingOccursOn(m, dateStr));
-          const dayTasks = tasks.filter(t => t.date === dateStr && !t.completed);
-          const isToday = date.toDateString() === new Date().toDateString();
-          const isSelected = !isToday && date.toDateString() === currentDate.toDateString();
-          return (
-            <div key={idx} className={`month-cell ${otherMonth ? 'other-month' : ''} ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}`} onClick={() => { setCurrentDate(date); setView('today'); }}>
-              <div className="month-cell-num">{date.getDate()}</div>
-              <div className="month-cell-events">
-                {dayMeetings.slice(0, 3).map((m, i) => (<div key={`m-${i}`} className="month-event-pill" style={{ background: m.job }}></div>))}
-                {dayTasks.length > 0 && dayMeetings.length < 3 && Array.from({ length: Math.min(dayTasks.length, 3 - dayMeetings.length) }).map((_, i) => {
-                  const cat = getCategoryById(dayTasks[i].context);
-                  return <div key={`t-${i}`} className="month-event-pill" style={{ background: cat.color }}></div>;
-                })}
-              </div>
-            </div>
-          );
-        })}
+      <div className="gcal-month-body">
+        {weeks.map((week, wIdx) => (
+          <div key={wIdx} className="gcal-month-week">
+            {week.map(({ date, otherMonth }, dIdx) => {
+              const dateStr = formatDateLocal(date);
+              const dayMeetings = meetings.filter(m => meetingOccursOn(m, dateStr));
+              const dayTasks = tasks.filter(t => t.date === dateStr && !t.completed);
+              const isToday = date.toDateString() === new Date().toDateString();
+              return (
+                <div key={dIdx} className={`gcal-month-cell ${otherMonth ? 'other-month' : ''}`} onClick={() => { setCurrentDate(date); setView('today'); }}>
+                  <div className={`gcal-month-num ${isToday ? 'today' : ''}`}>{date.getDate()}</div>
+                  <div className="gcal-month-events">
+                    {dayMeetings.slice(0, 3).map((m, i) => (
+                      <div key={`m-${i}`} className={`gcal-month-event ${privacyMode ? 'privacy-blur' : ''}`} style={{ background: hexToSoftBg(m.job), color: hexToTextColor(m.job), borderLeft: `2px solid ${m.job}` }} title={m.title}>
+                        {m.start_time && <span style={{ fontWeight: 600, marginRight: '4px' }}>{m.start_time}</span>}
+                        {m.title}
+                      </div>
+                    ))}
+                    {dayTasks.slice(0, 2).map((t, i) => {
+                      const cat = getCategoryById(t.context);
+                      return (
+                        <div key={`t-${i}`} className="gcal-month-event" style={{ background: hexToSoftBg(cat.color), color: hexToTextColor(cat.color), borderLeft: `2px solid ${cat.color}` }} title={t.title}>
+                          ○ {t.title}
+                        </div>
+                      );
+                    })}
+                    {(dayMeetings.length + dayTasks.length) > 5 && (
+                      <div className="gcal-month-more">+{(dayMeetings.length + dayTasks.length) - 5} more</div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ))}
       </div>
-    </>
+    </div>
   );
 };
 
