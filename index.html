@@ -5,1219 +5,820 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover"/>
 <title>Command Center</title>
 <link rel="manifest" href="manifest.json"/>
-<meta name="theme-color" content="#FAF8F5"/>
+<meta name="theme-color" content="#F5F1EA"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Command Center"/>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect fill='%23FAF8F5' width='32' height='32'/><text x='50%' y='50%' font-size='20' text-anchor='middle' dominant-baseline='middle' fill='%23E8859A'>⚡</text></svg>"/>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect fill='%23F5F1EA' width='32' height='32' rx='8'/><circle cx='16' cy='16' r='6' fill='%23E8859A'/></svg>"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet"/>
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
-  --bg-primary: #FAF8F5;
-  --bg-secondary: #F5F2EC;
-  --surface: #FFFFFF;
-  --surface-alt: #FBFAF7;
-  --border: #EAE6DE;
-  --text-primary: #2C2C2C;
-  --text-secondary: #6B6B6B;
-  --text-muted: #A0A0A0;
-  --accent: #E8859A;
-  --accent-dark: #C96885;
-  --shadow: 0 8px 32px rgba(180, 160, 140, 0.12);
-  --shadow-sm: 0 1px 3px rgba(180, 160, 140, 0.08);
+  --bg: #F5F1EA;
+  --bg-card: #FFFFFF;
+  --bg-soft: #FAF7F2;
+  --border: #E8E2D7;
+  --border-soft: #F0EBE0;
+  --text: #1F1B16;
+  --text-soft: #5C544A;
+  --text-muted: #9B9388;
+  --accent: #FF7A59;
+  --accent-soft: #FFE8E0;
+
+  /* Structured-style vibrant category colors */
+  --c-coral: #FF7A6B;
+  --c-coral-bg: #FFE5E0;
+  --c-mint: #5DCFA0;
+  --c-mint-bg: #DCF4E8;
+  --c-sky: #6BB7E8;
+  --c-sky-bg: #DCEAF6;
+  --c-lavender: #A892E8;
+  --c-lavender-bg: #E8DEF7;
+  --c-amber: #F5B544;
+  --c-amber-bg: #FCEBC8;
+  --c-rose: #E8859A;
+  --c-rose-bg: #FAE0E5;
+  --c-teal: #4FBDBA;
+  --c-teal-bg: #D5EFEE;
+  --c-slate: #8A8A8A;
+  --c-slate-bg: #ECECEC;
+
+  --radius-sm: 10px;
+  --radius: 16px;
+  --radius-lg: 24px;
+  --shadow-sm: 0 1px 2px rgba(31, 27, 22, 0.06);
+  --shadow: 0 4px 16px rgba(31, 27, 22, 0.08);
+  --shadow-lg: 0 12px 32px rgba(31, 27, 22, 0.12);
 }
 
 [data-theme="dark"] {
-  --bg-primary: #1A1A1F;
-  --bg-secondary: #232329;
-  --surface: #2A2A30;
-  --surface-alt: #1F1F25;
-  --border: #3A3A42;
-  --text-primary: #F0EDE8;
-  --text-secondary: #C4BFB8;
-  --text-muted: #888188;
+  --bg: #1A1815;
+  --bg-card: #25221E;
+  --bg-soft: #1F1D1A;
+  --border: #3A3530;
+  --border-soft: #2D2A26;
+  --text: #F2EDE5;
+  --text-soft: #C4BEB3;
+  --text-muted: #807A70;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { -webkit-tap-highlight-color: transparent; }
 
 body {
-  font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
-  color: var(--text-primary);
-  overscroll-behavior: none;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
   min-height: 100vh;
-  transition: background 0.3s ease;
+  overscroll-behavior: none;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 }
 
-::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(232, 133, 154, 0.35); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(232, 133, 154, 0.55); }
+::-webkit-scrollbar-thumb { background: rgba(155, 147, 136, 0.3); border-radius: 3px; }
 
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
 input[type=number] { -moz-appearance: textfield; }
 
-.app { min-height: 100vh; display: flex; flex-direction: column; }
+.app { min-height: 100vh; padding-bottom: 100px; }
 
-/* Header */
-.header {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--border);
-  padding: 1rem;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.header-content {
-  max-width: 1400px;
-  margin: 0 auto;
+/* Top header */
+.top-bar {
+  padding: 1.25rem 1.25rem 0.75rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
 }
 
-.header h1 {
-  font-family: 'Syne', sans-serif;
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  letter-spacing: -0.5px;
+.greeting { display: flex; align-items: center; gap: 0.6rem; }
+.greeting-text {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--text);
+  letter-spacing: -0.01em;
 }
 
-.header h1 span { color: var(--accent); font-size: 1.8rem; }
-
-.date-nav {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--text-primary);
+.greeting-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-top: 1px;
 }
 
-.date-nav button {
-  background: var(--surface-alt);
-  border: 1px solid var(--border);
-  color: var(--text-secondary);
-  padding: 0.4rem 0.7rem;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  transition: all 0.2s;
-}
-
-.date-nav button:hover { background: var(--surface); border-color: var(--accent); color: var(--accent); }
-
-.date-nav .current-date { font-size: 0.95rem; font-weight: 500; min-width: 180px; text-align: center; }
-
-.header-actions { display: flex; gap: 0.5rem; align-items: center; }
+.top-actions { display: flex; gap: 0.4rem; align-items: center; }
 
 .icon-btn {
-  background: var(--surface-alt);
-  color: var(--text-secondary);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--bg-card);
   border: 1px solid var(--border);
-  padding: 0.5rem 0.7rem;
-  border-radius: 6px;
-  font-size: 0.875rem;
   cursor: pointer;
-  transition: all 0.2s;
-}
-
-.icon-btn:hover { color: var(--accent); border-color: var(--accent); }
-.icon-btn.active { color: #B58105; border-color: #FCD34D; background: #FFFBEB; }
-
-/* Tabs */
-.tabs {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--border);
-  padding: 0 1rem;
-}
-
-.tabs-content {
-  max-width: 1400px;
-  margin: 0 auto;
   display: flex;
-  gap: 0;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: all 0.2s;
+  color: var(--text-soft);
+}
+
+.icon-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+.icon-btn.active { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-soft); }
+
+/* Big page title */
+.page-title-area { padding: 0.5rem 1.25rem 1rem; }
+.page-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  font-size: 2.25rem;
+  color: var(--text);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+.page-subtitle {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  margin-top: 0.4rem;
+  font-weight: 500;
+}
+
+/* Date pill nav */
+.date-nav-pills {
+  padding: 0 1.25rem 1rem;
+  display: flex;
+  gap: 0.4rem;
   overflow-x: auto;
+  scrollbar-width: none;
 }
 
-.tab-btn {
-  padding: 0.875rem 1.25rem;
-  background: transparent;
-  color: var(--text-secondary);
-  border: none;
-  font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: all 0.2s;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
+.date-nav-pills::-webkit-scrollbar { display: none; }
 
-.tab-btn:hover { color: var(--text-primary); }
-.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
-
-.inbox-badge {
-  background: var(--accent);
-  color: white;
-  font-size: 0.65rem;
-  padding: 2px 6px;
-  border-radius: 10px;
-  font-weight: 700;
-}
-
-.main { flex: 1; max-width: 1400px; margin: 0 auto; width: 100%; padding: 1.5rem; }
-@media (max-width: 768px) { .main { padding: 1rem; } }
-
-/* Buttons */
-.btn {
-  padding: 0.625rem 1rem;
-  border: none;
-  border-radius: 6px;
-  font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.btn-primary { background: var(--accent); color: white; }
-.btn-primary:hover { background: var(--accent-dark); }
-
-.btn-secondary { background: var(--surface-alt); color: var(--text-primary); border: 1px solid var(--border); }
-.btn-secondary:hover { background: var(--border); }
-
-.btn-danger { background: #EF4444; color: white; }
-.btn-danger:hover { background: #DC2626; }
-
-.btn-ghost { background: transparent; color: var(--text-secondary); border: none; padding: 0.4rem 0.6rem; font-size: 0.8125rem; cursor: pointer; }
-.btn-ghost:hover { color: var(--accent); }
-
-/* Card */
-.card {
-  background: var(--surface);
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: var(--shadow);
-}
-
-/* Dashboard */
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 1.5rem;
-}
-
-@media (max-width: 968px) { .dashboard-grid { grid-template-columns: 1fr; } }
-
-.welcome-card {
-  background: linear-gradient(135deg, var(--surface), var(--surface-alt));
-  border-radius: 12px;
-  padding: 2rem;
-  margin-bottom: 1.5rem;
-  box-shadow: var(--shadow);
-  border-left: 4px solid var(--accent);
-}
-
-.welcome-card h2 {
-  font-family: 'Syne', sans-serif;
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 0.5rem;
-  letter-spacing: -0.5px;
-}
-
-.welcome-card p { color: var(--text-secondary); font-size: 0.95rem; }
-
-.stat-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.stat-card {
-  background: var(--surface);
-  border-radius: 10px;
-  padding: 1.25rem;
-  box-shadow: var(--shadow-sm);
+.date-pill {
+  flex-shrink: 0;
+  padding: 0.6rem 0.8rem;
+  border-radius: var(--radius);
+  background: var(--bg-card);
   border: 1px solid var(--border);
-  transition: all 0.2s;
   cursor: pointer;
+  text-align: center;
+  min-width: 56px;
+  transition: all 0.2s;
 }
 
-.stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
-
-.stat-label {
-  font-size: 0.7rem;
+.date-pill .pill-dow {
+  font-size: 0.65rem;
+  font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin-bottom: 2px;
 }
 
-.stat-value {
-  font-family: 'Syne', sans-serif;
-  font-size: 2rem;
+.date-pill .pill-num {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.1rem;
   font-weight: 700;
-  color: var(--text-primary);
-  line-height: 1;
+  color: var(--text);
 }
 
-.stat-sub { font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem; }
+.date-pill.today { background: var(--text); color: white; border-color: var(--text); }
+.date-pill.today .pill-dow,
+.date-pill.today .pill-num { color: white; }
 
-.section-title {
-  font-family: 'Syne', sans-serif;
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 1rem;
+.date-pill.selected:not(.today) {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+.date-pill.selected:not(.today) .pill-num { color: var(--accent); }
+.date-pill.selected:not(.today) .pill-dow { color: var(--accent); }
+
+/* Tabs */
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border);
+  padding: 0.5rem 1rem 1rem;
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  justify-content: space-between;
+  justify-content: space-around;
+  z-index: 100;
+  backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.95);
 }
 
-.section-title-text { display: flex; align-items: center; gap: 0.5rem; }
+[data-theme="dark"] .tab-bar { background: rgba(37, 34, 30, 0.95); }
 
-/* Categories */
-.categories-card {
-  background: var(--surface);
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: var(--shadow);
-  margin-bottom: 1.5rem;
-}
-
-.category-list {
+.tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 0.6rem 0.4rem;
+  cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-}
-
-.category-row {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 0.625rem 0.875rem;
-  background: var(--surface-alt);
-  border-radius: 6px;
-  border-left: 4px solid;
+  gap: 4px;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.65rem;
+  font-weight: 600;
   transition: all 0.2s;
-  cursor: pointer;
+  position: relative;
+  border-radius: 12px;
 }
 
-.category-row:hover { transform: translateX(2px); }
-
-.category-info { display: flex; align-items: center; gap: 0.625rem; }
-
-.category-icon { font-size: 1rem; }
-
-.category-name { font-weight: 500; font-size: 0.875rem; color: var(--text-primary); }
-
-.category-count {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-  background: var(--surface);
-  padding: 0.15rem 0.5rem;
+.tab-btn .tab-icon { font-size: 1.3rem; line-height: 1; }
+.tab-btn:hover { color: var(--text-soft); }
+.tab-btn.active { color: var(--accent); }
+.tab-btn.active .tab-icon { transform: scale(1.1); }
+.tab-btn.has-badge::after {
+  content: attr(data-count);
+  position: absolute;
+  top: 4px;
+  right: calc(50% - 18px);
+  background: var(--c-coral);
+  color: white;
+  font-size: 0.6rem;
+  padding: 1px 5px;
   border-radius: 10px;
-  border: 1px solid var(--border);
+  font-weight: 700;
+  min-width: 16px;
+  text-align: center;
 }
 
-/* Day view */
-/* Samsung Calendar style header */
-.cal-title-bar {
-  text-align: center;
-  margin-bottom: 1rem;
+/* Content container */
+.content { padding: 0 1.25rem; max-width: 700px; margin: 0 auto; }
+
+/* Visual timeline (Structured-inspired) */
+.timeline {
+  position: relative;
+  padding: 0.5rem 0;
+}
+
+.timeline-row {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  align-items: stretch;
   position: relative;
 }
 
-.cal-title {
-  font-family: 'Syne', sans-serif;
-  font-size: 1.875rem;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-  color: var(--text-primary);
-  text-transform: uppercase;
-  margin-bottom: 0.5rem;
-}
-
-.cal-day-subtitle {
-  display: flex;
-  align-items: baseline;
-  justify-content: flex-start;
-  gap: 0.6rem;
-  padding: 0 0.25rem 0.75rem;
-}
-
-.cal-day-num {
-  font-family: 'Syne', sans-serif;
-  font-size: 1.875rem;
+.timeline-time {
+  font-size: 0.75rem;
   font-weight: 600;
-  color: var(--text-primary);
-  line-height: 1;
-}
-
-.cal-day-name {
-  font-family: 'Syne', sans-serif;
-  font-size: 1.375rem;
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.cal-week-num {
-  font-size: 0.7rem;
   color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-weight: 500;
+  padding-top: 1rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
-/* All-day events row */
-.allday-row {
-  padding: 0.6rem 0.75rem;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
+.timeline-time.now {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.timeline-empty-slot {
+  background: transparent;
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius);
+  min-height: 56px;
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  opacity: 0;
 }
 
-.allday-row:empty { display: none; }
+.timeline-row:hover .timeline-empty-slot { opacity: 1; }
+.timeline-empty-slot:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
 
-/* Floating action button */
+/* Timeline event card */
+.event-card {
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+  min-height: 56px;
+}
+
+.event-card:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+.event-card.privacy-blur { filter: blur(5px); }
+
+.event-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.event-content { flex: 1; min-width: 0; }
+
+.event-title {
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--text);
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.event-meta {
+  font-size: 0.72rem;
+  color: var(--text-soft);
+  font-weight: 500;
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.event-duration-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+}
+
+/* Color variants */
+.color-coral { background: var(--c-coral-bg); }
+.color-coral .event-duration-bar { background: var(--c-coral); }
+.color-coral .event-icon { background: var(--c-coral); color: white; }
+
+.color-mint { background: var(--c-mint-bg); }
+.color-mint .event-duration-bar { background: var(--c-mint); }
+.color-mint .event-icon { background: var(--c-mint); color: white; }
+
+.color-sky { background: var(--c-sky-bg); }
+.color-sky .event-duration-bar { background: var(--c-sky); }
+.color-sky .event-icon { background: var(--c-sky); color: white; }
+
+.color-lavender { background: var(--c-lavender-bg); }
+.color-lavender .event-duration-bar { background: var(--c-lavender); }
+.color-lavender .event-icon { background: var(--c-lavender); color: white; }
+
+.color-amber { background: var(--c-amber-bg); }
+.color-amber .event-duration-bar { background: var(--c-amber); }
+.color-amber .event-icon { background: var(--c-amber); color: white; }
+
+.color-rose { background: var(--c-rose-bg); }
+.color-rose .event-duration-bar { background: var(--c-rose); }
+.color-rose .event-icon { background: var(--c-rose); color: white; }
+
+.color-teal { background: var(--c-teal-bg); }
+.color-teal .event-duration-bar { background: var(--c-teal); }
+.color-teal .event-icon { background: var(--c-teal); color: white; }
+
+.color-slate { background: var(--c-slate-bg); }
+.color-slate .event-duration-bar { background: var(--c-slate); }
+.color-slate .event-icon { background: var(--c-slate); color: white; }
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-muted);
+}
+
+.empty-state-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+.empty-state-title { font-weight: 700; color: var(--text-soft); margin-bottom: 0.25rem; font-size: 1rem; }
+.empty-state-text { font-size: 0.85rem; }
+
+/* FAB */
 .fab {
   position: fixed;
-  bottom: 1.5rem;
-  right: 1.5rem;
+  bottom: 90px;
+  right: 1.25rem;
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  box-shadow: 0 4px 16px rgba(180, 160, 140, 0.25);
-  color: var(--accent);
-  font-size: 1.75rem;
+  background: var(--text);
+  color: white;
+  border: none;
+  font-size: 1.5rem;
   cursor: pointer;
+  box-shadow: var(--shadow-lg);
   z-index: 50;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
   font-weight: 300;
-  line-height: 1;
 }
 
-.fab:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 20px rgba(232, 133, 154, 0.35);
-}
+.fab:hover { transform: scale(1.05); }
 
-/* Samsung-style week view */
-.week-header-row {
+/* Stats cards */
+.stats-row {
   display: grid;
-  grid-template-columns: 32px repeat(7, 1fr);
-  gap: 0;
-  padding: 0.5rem 0 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.week-header-cell {
-  text-align: center;
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  font-weight: 500;
-  padding: 0.25rem 0;
-}
-
-.week-day-row {
-  display: grid;
-  grid-template-columns: 32px repeat(7, 1fr);
-  gap: 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.week-num-cell {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 0.5rem 0;
-  font-size: 0.65rem;
-  color: var(--text-muted);
-  font-weight: 500;
-  letter-spacing: 0.5px;
-}
-
-.week-day-cell {
-  padding: 0.5rem 0.25rem;
-  border-left: 1px solid var(--border);
-  cursor: pointer;
-  min-height: 140px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.week-day-cell:first-of-type { border-left: none; }
-.week-day-cell:hover { background: var(--surface-alt); }
-
-.week-day-num {
-  font-family: 'Syne', sans-serif;
-  font-size: 1.125rem;
-  font-weight: 600;
-  text-align: center;
-  color: var(--text-primary);
-  margin-bottom: 0.25rem;
-}
-
-.week-day-cell.selected {
-  border: 1px solid var(--text-secondary);
-  border-radius: 4px;
-}
-
-.week-day-cell.today .week-day-num {
-  color: var(--accent);
-  font-weight: 700;
-}
-
-.cell-event {
-  font-size: 0.65rem;
-  padding: 0.15rem 0.4rem;
-  border-radius: 3px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  cursor: pointer;
-  background: var(--surface-alt);
-  color: var(--text-primary);
-}
-
-.cell-event.color-green { background: #E8F0E1; color: #4A7C3A; border-left: 2px solid #7FB069; }
-.cell-event.color-blue { background: #E1EAF5; color: #3A6B96; border-left: 2px solid #7FB1D9; }
-.cell-event.task-event { background: #FAE0E5; color: #9B4A5E; border-left: 2px solid #E8859A; }
-
-/* Month view week-number column */
-.month-with-weeknum {
-  display: grid;
-  grid-template-columns: 32px 1fr;
-  gap: 0;
-}
-
-.month-weeknum-col {
-  display: flex;
-  flex-direction: column;
-  padding-top: 2.5rem;
-}
-
-.month-weeknum-cell {
-  flex: 1;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  font-size: 0.65rem;
-  color: var(--text-muted);
-  font-weight: 500;
-  padding-top: 0.4rem;
-  letter-spacing: 0.5px;
-}
-
-.month-day {
-  aspect-ratio: auto;
-  min-height: 80px;
-}
-
-.month-day-events { gap: 2px; padding-top: 2px; }
-
-.month-day-event-row {
-  font-size: 0.6rem;
-  padding: 0.1rem 0.3rem;
-  border-radius: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-bottom: 1px;
-  line-height: 1.3;
-}
-
-.month-day-event-row.color-green { background: #E8F0E1; color: #4A7C3A; }
-.month-day-event-row.color-blue { background: #E1EAF5; color: #3A6B96; }
-.month-day-event-row.task-row { background: #FAE0E5; color: #9B4A5E; }
-
-.month-day.selected {
-  outline: 1px solid var(--text-secondary);
-  outline-offset: -1px;
-}
-
-.month-day.today .month-day-num {
-  color: var(--accent);
-  font-weight: 700;
-}
-
-.day-view {
-  background: var(--surface);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: var(--shadow);
-  display: flex;
-  flex-direction: column;
-}
-
-.day-grid-wrapper {
-  display: grid;
-  grid-template-columns: 60px 1fr;
-  overflow-y: auto;
-  max-height: 65vh;
-}
-
-@media (max-width: 768px) { .day-grid-wrapper { max-height: 60vh; } }
-
-/* Samsung-calendar-inspired all-day events */
-.allday-events {
-  padding: 0.75rem 1rem;
-  background: var(--surface-alt);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
-
-.allday-pill {
-  padding: 0.3rem 0.7rem;
-  border-radius: 14px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: transform 0.15s;
-}
-
-.allday-pill:hover { transform: translateY(-1px); }
-.allday-pill.color-green { background: #E1EFD9; color: #4A7C3A; }
-.allday-pill.color-blue { background: #DCEAF5; color: #3A6B96; }
-
-.day-header-bar {
-  background: linear-gradient(135deg, var(--surface-alt), var(--border));
-  border-bottom: 2px solid var(--border);
-  padding: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.day-title {
-  font-family: 'Syne', sans-serif;
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.add-meeting-btn {
-  background: var(--accent);
-  color: white;
-  border: none;
-  padding: 0.4rem 0.75rem;
-  border-radius: 4px;
-  font-size: 0.8125rem;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.add-meeting-btn:hover { background: var(--accent-dark); }
-
-.time-column {
-  background: var(--surface-alt);
-  border-right: 1px solid var(--border);
-}
-
-.time-slot {
-  height: 60px;
-  border-bottom: 1px solid var(--border);
-  padding: 4px 8px;
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  font-weight: 500;
-  text-align: right;
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-end;
-}
-
-.events-container { position: relative; background: var(--surface); }
-.events-grid { position: relative; }
-.event-row { height: 60px; border-bottom: 1px solid var(--border); position: relative; }
-
-.meeting-block {
-  position: absolute;
-  left: 8px;
-  right: 8px;
-  background: white;
-  border-left: 4px solid;
-  border-radius: 4px;
-  padding: 0.5rem 0.75rem;
-  cursor: pointer;
-  transition: all 0.15s;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  z-index: 1;
-}
-
-.meeting-block.privacy-blur { filter: blur(4px); }
-.meeting-block:hover { transform: translateX(2px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12); }
-.meeting-block.color-green { border-left-color: #7FB069; background: linear-gradient(135deg, #F1F8F0, #E1EFD9); }
-.meeting-block.color-blue { border-left-color: #7FB1D9; background: linear-gradient(135deg, #F0F6FB, #DCEAF5); }
-
-.meeting-time { font-size: 0.7rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 2px; }
-.meeting-title { font-size: 0.8125rem; font-weight: 500; color: #1F2937; word-break: break-word; overflow: hidden; text-overflow: ellipsis; }
-
-/* Tasks */
-.tasks-panel {
-  background: var(--surface);
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: var(--shadow);
-  margin-top: 1.5rem;
-}
-
-.task-input-wrapper {
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-@media (max-width: 600px) {
-  .task-input-wrapper { grid-template-columns: 1fr auto; }
-  .task-input-wrapper input { grid-column: 1 / -1; }
-}
-
-.task-input-wrapper input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  font-family: inherit;
-  font-size: 0.875rem;
-  background: var(--surface);
-  color: var(--text-primary);
-}
-
-.task-input-wrapper input:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(232, 133, 154, 0.15);
-}
-
-.task-input-wrapper select {
-  padding: 0.75rem;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--surface);
-  font-family: inherit;
-  font-size: 0.875rem;
-  color: var(--text-primary);
-  cursor: pointer;
-  max-width: 140px;
-}
-
-.task-item {
-  background: var(--surface-alt);
-  border: 1px solid var(--border);
-  border-left: 4px solid;
-  border-radius: 6px;
-  padding: 0.875rem;
-  margin-bottom: 0.5rem;
-  display: flex;
+  grid-template-columns: repeat(2, 1fr);
   gap: 0.75rem;
-  align-items: flex-start;
-  transition: all 0.15s;
+  margin-bottom: 1.25rem;
 }
 
-.task-item:hover { background: var(--surface); }
-
-.task-item.completed { opacity: 0.5; }
-.task-item.completed .task-title { text-decoration: line-through; }
-
-.checkbox-wrapper { position: relative; width: 20px; height: 20px; margin-top: 2px; flex-shrink: 0; }
-.checkbox-wrapper input[type="checkbox"] { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; z-index: 2; }
-.checkbox-display { position: absolute; top: 0; left: 0; width: 20px; height: 20px; border: 2px solid #D1D5DB; border-radius: 4px; background: white; transition: all 0.2s; }
-.checkbox-wrapper input:checked ~ .checkbox-display { background: var(--accent); border-color: var(--accent); }
-.checkbox-wrapper input:checked ~ .checkbox-display::after { content: '✓'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 0.875rem; font-weight: bold; }
-
-.task-content { flex: 1; min-width: 0; }
-.task-title-input {
-  font-weight: 500;
-  color: var(--text-primary);
-  word-break: break-word;
-  margin-bottom: 0.25rem;
-  background: transparent;
-  border: none;
-  width: 100%;
-  font-size: 0.9rem;
-  padding: 0;
-  font-family: inherit;
-}
-
-.task-title-input:focus {
-  outline: none;
-  border-bottom: 1px solid var(--accent);
-}
-
-.task-meta { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
-
-.category-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.2rem 0.5rem;
-  border-radius: 3px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.category-badge:hover { transform: scale(1.05); }
-
-.category-select-mini {
+.stat-card {
+  background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 3px;
-  padding: 0.15rem 0.3rem;
-  font-size: 0.7rem;
-  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 1rem;
   cursor: pointer;
-  color: var(--text-primary);
-  font-family: inherit;
+  transition: all 0.2s;
 }
 
-.task-actions { display: flex; gap: 0.25rem; }
+.stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
 
-.empty-state {
-  color: var(--text-muted);
-  font-style: italic;
-  text-align: center;
-  padding: 1.5rem;
-  font-size: 0.875rem;
+.stat-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
 }
 
-/* Inbox */
-.brain-dump-area {
-  background: linear-gradient(135deg, #FAEDF0, #F5DEE5);
-  border: 2px dashed var(--accent);
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
+.stat-label { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.stat-value { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; color: var(--text); margin-top: 0.15rem; line-height: 1; }
+.stat-sub { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+/* Inbox - GTD style */
+.brain-dump {
+  background: linear-gradient(135deg, var(--c-amber-bg), #FFF5DC);
+  border: 2px dashed var(--c-amber);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
 }
 
-.brain-dump-area textarea {
+.brain-dump-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #8B6F2A;
+  margin-bottom: 0.5rem;
+}
+
+.brain-dump textarea {
   width: 100%;
-  min-height: 120px;
+  min-height: 100px;
   border: none;
   background: transparent;
   font-family: inherit;
   font-size: 0.95rem;
   resize: vertical;
-  color: var(--text-primary);
+  color: var(--text);
 }
 
-.brain-dump-area textarea:focus { outline: none; }
-.brain-dump-area textarea::placeholder { color: var(--accent-dark); }
+.brain-dump textarea:focus { outline: none; }
+.brain-dump textarea::placeholder { color: #B58105; }
 
-.brain-dump-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.5rem; }
+.brain-dump-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.75rem; }
 
-.inbox-item {
-  background: var(--surface-alt);
+.btn {
+  padding: 0.65rem 1rem;
+  border: none;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.btn-primary { background: var(--text); color: white; }
+.btn-primary:hover { background: #000; transform: translateY(-1px); }
+
+.btn-soft { background: var(--bg-soft); color: var(--text-soft); border: 1px solid var(--border); }
+.btn-soft:hover { background: var(--border-soft); }
+
+.btn-ghost { background: transparent; color: var(--text-muted); border: none; padding: 0.4rem 0.7rem; font-size: 0.8rem; cursor: pointer; }
+.btn-ghost:hover { color: var(--text); }
+
+.btn-danger { background: var(--c-coral); color: white; }
+.btn-danger:hover { background: #E5685A; }
+
+/* Inbox items */
+.inbox-list { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.inbox-card {
+  background: var(--bg-card);
   border: 1px solid var(--border);
-  border-left: 4px solid var(--accent);
-  border-radius: 6px;
-  padding: 0.875rem;
-  margin-bottom: 0.75rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  transition: all 0.15s;
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
+  transition: all 0.2s;
+  cursor: pointer;
 }
 
-.inbox-item.expanded { border-left-color: var(--accent); }
-.inbox-item.starred { border-left-color: #FCD34D; background: linear-gradient(135deg, var(--surface-alt), #FFFBEB); }
-.inbox-item.priority-high { border-left-color: #EF4444; }
-.inbox-item.priority-medium { border-left-color: #F59E0B; }
-.inbox-item.priority-low { border-left-color: #10B981; }
+.inbox-card:hover { border-color: var(--text-muted); }
+.inbox-card.expanded { border-color: var(--accent); box-shadow: var(--shadow); }
+.inbox-card.starred { background: linear-gradient(135deg, #FFFAF0, var(--bg-card)); border-color: var(--c-amber); }
 
-.inbox-item-row { display: flex; gap: 0.6rem; align-items: flex-start; }
+.inbox-card-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
 
-.inbox-item-checkbox {
+.inbox-circle {
   width: 22px;
   height: 22px;
-  border: 2px solid #D1D5DB;
+  border: 2px solid var(--border);
   border-radius: 50%;
   flex-shrink: 0;
   cursor: pointer;
   margin-top: 1px;
-  transition: all 0.15s;
-  background: var(--surface);
+  background: var(--bg-card);
+  transition: all 0.2s;
 }
 
-.inbox-item-checkbox:hover { border-color: var(--accent); }
+.inbox-circle:hover { border-color: var(--c-mint); background: var(--c-mint-bg); }
 
-.inbox-item-main { flex: 1; min-width: 0; }
+.inbox-main { flex: 1; min-width: 0; }
 
-.inbox-item-title {
-  font-weight: 500;
+.inbox-title {
+  font-weight: 600;
+  color: var(--text);
   font-size: 0.95rem;
-  color: var(--text-primary);
   word-break: break-word;
-  background: transparent;
-  border: none;
-  width: 100%;
-  font-family: inherit;
-  padding: 0;
-  cursor: pointer;
+  line-height: 1.35;
 }
 
-.inbox-item-title:focus {
-  outline: none;
-  border-bottom: 1px solid var(--accent);
-}
+.inbox-pills { display: flex; gap: 0.4rem; margin-top: 0.5rem; flex-wrap: wrap; align-items: center; }
 
-.inbox-item-meta {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  margin-top: 0.4rem;
-  flex-wrap: wrap;
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
-
-.inbox-meta-pill {
+.inbox-pill {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
-  padding: 0.15rem 0.5rem;
-  border-radius: 10px;
+  gap: 4px;
+  padding: 0.25rem 0.6rem;
+  border-radius: 20px;
   font-size: 0.7rem;
-  font-weight: 500;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  cursor: pointer;
+  font-weight: 600;
 }
 
-.inbox-meta-pill:hover { border-color: var(--accent); }
+.inbox-pill.high { background: var(--c-coral-bg); color: #B83A2C; }
+.inbox-pill.medium { background: var(--c-amber-bg); color: #8B6F2A; }
+.inbox-pill.low { background: var(--c-mint-bg); color: #2D7A56; }
+.inbox-pill.due-overdue { background: var(--c-coral-bg); color: #B83A2C; font-weight: 700; }
+.inbox-pill.due-today { background: var(--c-amber-bg); color: #8B6F2A; font-weight: 700; }
+.inbox-pill.due-future { background: var(--bg-soft); color: var(--text-soft); border: 1px solid var(--border); }
 
-.inbox-meta-pill.priority-high { background: #FEF2F2; color: #991B1B; border-color: #FCA5A5; }
-.inbox-meta-pill.priority-medium { background: #FFFBEB; color: #92400E; border-color: #FCD34D; }
-.inbox-meta-pill.priority-low { background: #F0FDF4; color: #166534; border-color: #86EFAC; }
-.inbox-meta-pill.due-overdue { background: #FEF2F2; color: #991B1B; border-color: #FCA5A5; font-weight: 600; }
-.inbox-meta-pill.due-today { background: #FEF3C7; color: #92400E; border-color: #FCD34D; font-weight: 600; }
+.inbox-tag-empty { font-size: 0.7rem; color: var(--text-muted); font-style: italic; }
 
-.star-btn { background: transparent; border: none; cursor: pointer; font-size: 1.1rem; padding: 0; line-height: 1; opacity: 0.4; transition: opacity 0.15s; }
+.star-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.15rem;
+  padding: 0;
+  line-height: 1;
+  opacity: 0.35;
+  transition: opacity 0.2s;
+  color: var(--c-amber);
+  flex-shrink: 0;
+}
+
 .star-btn.starred { opacity: 1; }
-.star-btn:hover { opacity: 0.8; }
+.star-btn:hover { opacity: 0.85; }
 
-.inbox-item-expand {
-  margin-top: 0.5rem;
-  padding-top: 0.5rem;
+.inbox-expand {
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
   border-top: 1px dashed var(--border);
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.65rem;
 }
 
-.inbox-detail-row { display: grid; grid-template-columns: 80px 1fr; gap: 0.5rem; align-items: center; }
-.inbox-detail-row label { font-size: 0.75rem; color: var(--text-secondary); font-weight: 500; }
-.inbox-detail-row input,
-.inbox-detail-row select,
-.inbox-detail-row textarea {
-  padding: 0.4rem 0.6rem;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  font-size: 0.8125rem;
-  font-family: inherit;
-  background: var(--surface);
-  color: var(--text-primary);
-  width: 100%;
-}
-
-.inbox-detail-row textarea { min-height: 60px; resize: vertical; }
-
-.inbox-item-content { flex: 1; min-width: 200px; }
-.inbox-item-text { color: var(--text-primary); font-size: 0.9rem; word-break: break-word; margin-bottom: 0.25rem; }
-.inbox-item-time { font-size: 0.7rem; color: var(--text-muted); }
-
-.inbox-item-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
-
-.inbox-filters {
-  display: flex;
+.detail-row {
+  display: grid;
+  grid-template-columns: 80px 1fr;
   gap: 0.5rem;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
   align-items: center;
 }
 
-.filter-chip {
-  padding: 0.3rem 0.7rem;
-  border-radius: 14px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  background: var(--surface-alt);
-  border: 1px solid var(--border);
-  cursor: pointer;
-  color: var(--text-secondary);
-}
+.detail-row label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
 
-.filter-chip.active {
-  background: var(--accent);
-  color: white;
-  border-color: var(--accent);
-}
-
-.sort-select {
-  padding: 0.4rem 0.7rem;
-  border-radius: 4px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  font-size: 0.75rem;
-  cursor: pointer;
-  color: var(--text-primary);
-  font-family: inherit;
-  margin-left: auto;
-}
-
-.inbox-action {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  padding: 0.3rem 0.6rem;
-  border-radius: 4px;
-  font-size: 0.7rem;
-  cursor: pointer;
-  font-weight: 500;
-  color: var(--text-secondary);
-  transition: all 0.15s;
-}
-
-.inbox-action:hover { border-color: var(--accent); color: var(--accent); }
-.inbox-action.danger:hover { border-color: #EF4444; color: #EF4444; }
-
-/* Week view */
-.week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.75rem; margin-top: 1rem; }
-@media (max-width: 768px) { .week-grid { grid-template-columns: repeat(2, 1fr); } }
-
-.day-card {
-  background: var(--surface-alt);
+.detail-row input,
+.detail-row select,
+.detail-row textarea {
+  padding: 0.5rem 0.7rem;
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 0.875rem;
-  cursor: pointer;
-  transition: all 0.15s;
-  min-height: 120px;
-}
-
-.day-card:hover { background: var(--surface); border-color: var(--accent); }
-.day-card.today { border: 2px solid var(--accent); background: rgba(232, 133, 154, 0.08); }
-
-.day-card h3 { font-weight: 600; margin-bottom: 0.25rem; color: var(--text-primary); font-size: 0.875rem; }
-.day-card .day-num { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem; }
-
-.events-list { font-size: 0.7rem; }
-
-.event-mini {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.2rem 0;
-  color: var(--text-secondary);
-}
-
-.event-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-.event-dot.green { background: #7FB069; }
-.event-dot.blue { background: #7FB1D9; }
-
-/* Month view */
-.month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.4rem; margin-top: 1rem; }
-
-.month-day-header {
-  font-weight: 600;
-  text-align: center;
-  color: var(--text-secondary);
-  font-size: 0.75rem;
-  padding: 0.25rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.month-day {
-  aspect-ratio: 1;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 0.4rem;
-  background: var(--surface);
-  cursor: pointer;
-  transition: all 0.15s;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow: hidden;
-}
-
-.month-day:hover { background: var(--surface-alt); border-color: var(--accent); }
-.month-day.other-month { background: var(--surface-alt); opacity: 0.4; }
-.month-day.today { border: 2px solid var(--accent); background: rgba(232, 133, 154, 0.08); }
-.month-day-num { font-size: 0.8rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
-.month-day-events { display: flex; flex-direction: column; gap: 1px; }
-.month-event-pill { width: 100%; height: 3px; border-radius: 1px; }
-.month-event-pill.green { background: #7FB069; }
-.month-event-pill.blue { background: #7FB1D9; }
-
-/* Review */
-.review-section { margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
-.review-section:last-child { border-bottom: none; }
-
-.review-section h3 {
-  font-family: 'Syne', sans-serif;
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.review-section textarea {
-  width: 100%;
-  min-height: 100px;
-  padding: 0.75rem;
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  font-size: 0.85rem;
   font-family: inherit;
-  font-size: 0.875rem;
-  resize: vertical;
-  background: var(--surface);
-  color: var(--text-primary);
+  background: var(--bg-soft);
+  color: var(--text);
+  width: 100%;
 }
 
-.review-section textarea:focus {
+.detail-row textarea { min-height: 60px; resize: vertical; }
+
+.detail-row input:focus,
+.detail-row select:focus,
+.detail-row textarea:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(232, 133, 154, 0.15);
+  background: var(--bg-card);
 }
 
-.meal-plan-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1rem; }
-
-.meal-day {
-  background: var(--surface-alt);
-  padding: 1rem;
-  border-radius: 6px;
-  border-left: 4px solid var(--accent);
+.expand-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-top: 0.25rem;
 }
 
-.meal-day h4 {
+/* Filter chips */
+.filter-row {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 0.25rem;
+}
+
+.filter-row::-webkit-scrollbar { display: none; }
+
+.chip {
+  flex-shrink: 0;
+  padding: 0.45rem 0.85rem;
+  border-radius: 20px;
+  font-size: 0.78rem;
   font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 0.75rem;
-  font-size: 0.8125rem;
-  font-family: 'Syne', sans-serif;
-}
-
-.meal-input {
-  width: 100%;
-  padding: 0.5rem 0.625rem;
+  background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 4px;
-  font-size: 0.8125rem;
-  margin-bottom: 0.5rem;
-  font-family: inherit;
-  background: var(--surface);
-  color: var(--text-primary);
-}
-
-.meal-input::placeholder { color: var(--text-muted); }
-.meal-input:focus { outline: none; border-color: var(--accent); }
-
-.review-card {
-  background: var(--surface-alt);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 1rem;
-  margin-bottom: 0.75rem;
   cursor: pointer;
-  transition: all 0.15s;
+  color: var(--text-soft);
+  white-space: nowrap;
+  transition: all 0.2s;
 }
 
-.review-card:hover { background: var(--surface); border-color: var(--accent); }
-.review-card-date { font-weight: 600; font-family: 'Syne', sans-serif; color: var(--text-primary); margin-bottom: 0.25rem; }
-.review-card-preview { font-size: 0.8125rem; color: var(--text-secondary); }
+.chip:hover { border-color: var(--text-muted); }
+.chip.active { background: var(--text); color: white; border-color: var(--text); }
+
+.sort-select {
+  padding: 0.45rem 0.7rem;
+  border-radius: 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  font-size: 0.75rem;
+  cursor: pointer;
+  color: var(--text-soft);
+  font-family: inherit;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* Section heading */
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 1.25rem 0 0.75rem;
+}
+
+.section-heading h2 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+/* Categories sidebar / list */
+.cat-list { display: flex; flex-direction: column; gap: 0.4rem; }
+
+.cat-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cat-row:hover { border-color: var(--text-muted); }
+
+.cat-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: white;
+  flex-shrink: 0;
+}
+
+.cat-text { flex: 1; }
+.cat-name { font-weight: 600; font-size: 0.9rem; color: var(--text); }
+.cat-count { font-size: 0.7rem; color: var(--text-muted); }
+
+.cat-arrow { color: var(--text-muted); font-size: 1rem; }
 
 /* Modal */
 .modal-overlay {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  background: rgba(31, 27, 22, 0.5);
+  backdrop-filter: blur(8px);
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
   z-index: 1000;
-  padding: 1rem;
+  padding: 0;
+}
+
+@media (min-width: 600px) {
+  .modal-overlay { align-items: center; padding: 1rem; }
 }
 
 .modal {
-  background: var(--surface);
-  border-radius: 12px;
-  padding: 2rem;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: 1.5rem 1.25rem 2rem;
   max-width: 500px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-lg);
+}
+
+@media (min-width: 600px) { .modal { border-radius: var(--radius-lg); } }
+
+.modal-handle {
+  width: 36px;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin: 0 auto 1.25rem;
 }
 
 .modal h2 {
-  font-family: 'Syne', sans-serif;
-  font-size: 1.5rem;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.4rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--text);
   margin-bottom: 1.5rem;
+  letter-spacing: -0.01em;
 }
 
-.form-group { margin-bottom: 1.25rem; }
-.form-group label { display: block; font-weight: 500; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.875rem; }
+.form-group { margin-bottom: 1.1rem; }
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  color: var(--text-soft);
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 
 .form-group input,
 .form-group select,
 .form-group textarea {
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.75rem 0.9rem;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 12px;
   font-family: inherit;
-  font-size: 0.875rem;
-  background: var(--surface);
-  color: var(--text-primary);
+  font-size: 0.95rem;
+  background: var(--bg-soft);
+  color: var(--text);
 }
 
 .form-group input:focus,
@@ -1225,116 +826,353 @@ input[type=number] { -moz-appearance: textfield; }
 .form-group textarea:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(232, 133, 154, 0.15);
+  background: var(--bg-card);
 }
 
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
 
-.color-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-.color-option { padding: 1rem; border: 2px solid var(--border); border-radius: 6px; cursor: pointer; text-align: center; font-weight: 500; font-size: 0.875rem; transition: all 0.15s; }
-.color-option.green { background: #F1F8F0; color: #4A7C3A; }
-.color-option.blue { background: #F0F6FB; color: #3A6B96; }
-.color-option.selected.green { border-color: #7FB069; box-shadow: 0 0 0 2px #7FB069; }
-.color-option.selected.blue { border-color: #7FB1D9; box-shadow: 0 0 0 2px #7FB1D9; }
+/* Color picker grid */
+.color-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+.color-swatch {
+  aspect-ratio: 1;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: white;
+  border: 2px solid transparent;
+  transition: all 0.15s;
+}
+
+.color-swatch:hover { transform: scale(1.05); }
+.color-swatch.selected { border-color: var(--text); box-shadow: 0 0 0 3px var(--bg-card); transform: scale(1.05); }
+
+.icon-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 0.4rem;
+  max-height: 180px;
+  overflow-y: auto;
+  padding: 0.25rem;
+  background: var(--bg-soft);
+  border-radius: 12px;
+}
+
+.icon-pick {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  background: var(--bg-card);
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+
+.icon-pick:hover { background: var(--border-soft); }
+.icon-pick.selected { background: var(--accent-soft); border-color: var(--accent); }
 
 .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem; }
 .modal-actions.spread { justify-content: space-between; }
 
-.toast {
-  position: fixed;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #1F2937;
-  color: white;
-  padding: 0.875rem 1.5rem;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  z-index: 2000;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-  animation: slideUp 0.3s ease;
-}
-
-@keyframes slideUp { from { opacity: 0; transform: translate(-50%, 20px); } to { opacity: 1; transform: translate(-50%, 0); } }
-
-/* Quick add inline */
-.quick-add-row {
-  display: grid;
-  grid-template-columns: 1fr auto auto;
+/* Quick add task */
+.quick-add {
+  display: flex;
   gap: 0.5rem;
-  align-items: center;
-  margin-top: 1rem;
-  padding: 0.75rem;
-  background: var(--surface-alt);
-  border-radius: 8px;
-  border: 1px dashed var(--border);
-}
-
-@media (max-width: 600px) {
-  .quick-add-row { grid-template-columns: 1fr auto; }
-  .quick-add-row input { grid-column: 1 / -1; }
-}
-
-.quick-add-row input {
-  width: 100%;
-  padding: 0.6rem;
+  background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 4px;
-  background: var(--surface);
-  font-size: 0.875rem;
-  color: var(--text-primary);
+  border-radius: 14px;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.quick-add input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 0.5rem 0.75rem;
   font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--text);
 }
 
-.quick-add-row select {
-  padding: 0.6rem;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  background: var(--surface);
-  font-size: 0.8rem;
-  color: var(--text-primary);
+.quick-add input:focus { outline: none; }
+
+.quick-add button {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--text);
+  color: white;
+  border: none;
   cursor: pointer;
-  font-family: inherit;
-  max-width: 130px;
+  font-size: 1.2rem;
+  font-weight: 300;
+  flex-shrink: 0;
 }
 
-.recent-list { max-height: 400px; overflow-y: auto; }
+/* Review */
+.review-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
 
-.dashboard-list-item {
+.review-section h3 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.75rem;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.review-section textarea {
+  width: 100%;
+  min-height: 90px;
   padding: 0.75rem;
-  border-bottom: 1px solid var(--border);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  resize: vertical;
+  background: var(--bg-soft);
+  color: var(--text);
+}
+
+.review-section textarea:focus { outline: none; border-color: var(--accent); background: var(--bg-card); }
+
+.meal-grid {
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 0.75rem;
 }
 
-.dashboard-list-item:last-child { border-bottom: none; }
-.dashboard-list-item .item-text { flex: 1; min-width: 0; font-size: 0.875rem; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; }
-.dashboard-list-item .item-meta { font-size: 0.7rem; color: var(--text-muted); }
+.meal-day {
+  background: var(--bg-soft);
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  padding: 0.85rem;
+}
+
+.meal-day h4 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text-soft);
+  margin-bottom: 0.5rem;
+}
+
+.meal-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin-bottom: 0.4rem;
+  font-family: inherit;
+  background: var(--bg-card);
+  color: var(--text);
+}
+
+.meal-input:focus { outline: none; border-color: var(--accent); }
+
+.review-history-card {
+  background: var(--bg-soft);
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+}
+
+.review-history-card:hover { border-color: var(--accent); }
+
+.review-history-date { font-weight: 700; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text); margin-bottom: 0.2rem; font-size: 0.9rem; }
+.review-history-preview { font-size: 0.8rem; color: var(--text-muted); }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 110px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--text);
+  color: var(--bg-card);
+  padding: 0.75rem 1.25rem;
+  border-radius: 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  z-index: 2000;
+  box-shadow: var(--shadow-lg);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translate(-50%, 12px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* Month view */
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-top: 0.5rem;
+}
+
+.month-day-head {
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0.4rem 0;
+}
+
+.month-cell {
+  aspect-ratio: 0.9;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 0.4rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transition: all 0.15s;
+  overflow: hidden;
+}
+
+.month-cell:hover { border-color: var(--text-muted); }
+.month-cell.today { background: var(--text); color: white; }
+.month-cell.today .month-cell-num { color: white; font-weight: 800; }
+.month-cell.other-month { opacity: 0.4; }
+.month-cell.selected { border: 2px solid var(--accent); }
+
+.month-cell-num {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.month-cell-events { display: flex; flex-direction: column; gap: 2px; }
+
+.month-event-pill {
+  height: 4px;
+  border-radius: 2px;
+}
+
+.month-event-pill.color-coral { background: var(--c-coral); }
+.month-event-pill.color-mint { background: var(--c-mint); }
+.month-event-pill.color-sky { background: var(--c-sky); }
+.month-event-pill.color-lavender { background: var(--c-lavender); }
+.month-event-pill.color-amber { background: var(--c-amber); }
+.month-event-pill.color-rose { background: var(--c-rose); }
+.month-event-pill.color-teal { background: var(--c-teal); }
+.month-event-pill.color-slate { background: var(--c-slate); }
+
+/* Settings page */
+.settings-section { margin-bottom: 1.5rem; }
+.settings-section h3 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.75rem;
+}
+
+.settings-row {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.settings-row .setting-label { font-weight: 600; font-size: 0.9rem; color: var(--text); }
+.settings-row .setting-desc { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+
+.toggle-switch {
+  width: 44px;
+  height: 26px;
+  background: var(--border);
+  border-radius: 13px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.toggle-switch.on { background: var(--c-mint); }
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 22px;
+  height: 22px;
+  background: white;
+  border-radius: 50%;
+  transition: left 0.2s;
+}
+
+.toggle-switch.on::after { left: 20px; }
 </style>
 </head>
 <body>
 <div id="root"></div>
 
 <script type="text/babel">
-const { useState, useEffect } = React;
+const { useState, useEffect, useMemo } = React;
 
 const SUPABASE_URL = 'https://irmtvjxlntozigbqxhvm.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlybXR2anhsbnRvemlnYnF4aHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4NTkzMTQsImV4cCI6MjA5MjQzNTMxNH0.nyIZx7Z0GnHEIlZpBlN6TzHHsf7tGuhdvWECdpcQ-a0';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Categories config - prominent throughout app
+const COLORS = [
+  { id: 'coral', label: 'Coral', icon: '🌸' },
+  { id: 'mint', label: 'Mint', icon: '🌿' },
+  { id: 'sky', label: 'Sky', icon: '☁️' },
+  { id: 'lavender', label: 'Lavender', icon: '🪻' },
+  { id: 'amber', label: 'Amber', icon: '🌟' },
+  { id: 'rose', label: 'Rose', icon: '💗' },
+  { id: 'teal', label: 'Teal', icon: '🌊' },
+  { id: 'slate', label: 'Slate', icon: '⚫' }
+];
+
+const ICONS = ['💼', '📊', '🧪', '⚗️', '📞', '💻', '✏️', '📝', '🏃', '💪', '🧘', '🍽️', '🍳', '☕', '👨‍👩‍👧', '🎂', '🎁', '✈️', '🎵', '🎬', '📚', '🇰🇷', '📈', '💰', '🛒', '🏠', '🐕', '⛪', '💊', '🦷', '✂️', '💅', '⏰', '🎯', '🎨', '🌟', '❤️', '🔥', '⚡', '💡', '📌', '✅'];
+
 const CATEGORIES = [
-  { id: 'work-green', label: 'Work · Green', icon: '🟢', color: '#7FB069', bg: '#E8F0E1', text: '#4A7C3A' },
-  { id: 'work-blue', label: 'Work · Blue', icon: '🔵', color: '#7FB1D9', bg: '#E1EAF5', text: '#3A6B96' },
-  { id: 'trading', label: 'Trading', icon: '📈', color: '#E8C77E', bg: '#FBF4DC', text: '#8B6F2A' },
-  { id: 'health', label: 'Health & Gym', icon: '💪', color: '#E8859A', bg: '#FAE0E5', text: '#9B4A5E' },
-  { id: 'kids', label: 'Kids', icon: '👨‍👩‍👧', color: '#E89E8C', bg: '#FAE5DD', text: '#9B5848' },
-  { id: 'learning', label: 'Korean / Learning', icon: '📚', color: '#B594E6', bg: '#EDE3F7', text: '#6E51A6' },
-  { id: 'home', label: 'Home & Meals', icon: '🏠', color: '#7FCDBB', bg: '#DDF0EA', text: '#3E826B' },
-  { id: 'general', label: 'General', icon: '📌', color: '#A8A39B', bg: '#EDE9E2', text: '#5D5852' }
+  { id: 'work-mint',     label: 'Work · Mint',          icon: '💼', color: 'mint' },
+  { id: 'work-sky',      label: 'Work · Sky',           icon: '🧪', color: 'sky' },
+  { id: 'trading',       label: 'Trading',              icon: '📈', color: 'amber' },
+  { id: 'health',        label: 'Health & Gym',         icon: '💪', color: 'rose' },
+  { id: 'kids',          label: 'Kids',                 icon: '👨‍👩‍👧', color: 'coral' },
+  { id: 'learning',      label: 'Korean / Learning',    icon: '📚', color: 'lavender' },
+  { id: 'home',          label: 'Home & Meals',         icon: '🏠', color: 'teal' },
+  { id: 'general',       label: 'General',              icon: '📌', color: 'slate' }
 ];
 
 const getCategoryById = (id) => CATEGORIES.find(c => c.id === id) || CATEGORIES[CATEGORIES.length - 1];
@@ -1354,223 +1192,46 @@ const getWeekStart = (date) => {
   return d;
 };
 
-// Inline editable task title
-const TaskTitle = ({ task, onSave }) => {
-  const [editing, setEditing] = useState(false);
-  const [value, setValue] = useState(task.title);
-
-  useEffect(() => { setValue(task.title); }, [task.title]);
-
-  const handleBlur = () => {
-    if (value.trim() && value !== task.title) {
-      onSave({ ...task, title: value });
-    } else {
-      setValue(task.title);
-    }
-    setEditing(false);
-  };
-
-  if (editing) {
-    return (
-      <input
-        type="text"
-        className="task-title-input"
-        value={value}
-        autoFocus
-        onChange={(e) => setValue(e.target.value)}
-        onBlur={handleBlur}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') e.target.blur();
-          if (e.key === 'Escape') { setValue(task.title); setEditing(false); }
-        }}
-      />
-    );
-  }
-
-  return (
-    <div
-      className="task-title-input"
-      style={{ cursor: 'text' }}
-      onClick={() => setEditing(true)}
-    >
-      {task.title}
-    </div>
-  );
+const minutesFromTime = (t) => {
+  const [h, m] = t.split(':');
+  return parseInt(h) * 60 + parseInt(m);
 };
 
-// Category badge - clickable to change
-const CategoryBadge = ({ category, onChange }) => {
-  const cat = getCategoryById(category);
-  const [open, setOpen] = useState(false);
-
-  if (onChange && open) {
-    return (
-      <select
-        className="category-select-mini"
-        value={category}
-        onChange={(e) => { onChange(e.target.value); setOpen(false); }}
-        onBlur={() => setOpen(false)}
-        autoFocus
-      >
-        {CATEGORIES.map(c => (
-          <option key={c.id} value={c.id}>{c.icon} {c.label}</option>
-        ))}
-      </select>
-    );
-  }
-
-  return (
-    <span
-      className="category-badge"
-      style={{ background: cat.bg, color: cat.text }}
-      onClick={() => onChange && setOpen(true)}
-    >
-      <span>{cat.icon}</span>
-      <span>{cat.label}</span>
-    </span>
-  );
-};
-
-// QuickAddTask with explicit + button (mobile-friendly)
-const QuickAddTask = ({ category, onCategoryChange, onAdd, placeholder, className }) => {
-  const [value, setValue] = useState('');
-
-  const handleAdd = () => {
-    if (!value.trim()) return;
-    onAdd(value);
-    setValue('');
-  };
-
-  return (
-    <div className={className || "quick-add-row"}>
-      <input
-        type="text"
-        value={value}
-        placeholder={placeholder}
-        onChange={(e) => setValue(e.target.value)}
-        onKeyDown={(e) => { if (e.key === 'Enter') handleAdd(); }}
-      />
-      <select value={category} onChange={(e) => onCategoryChange(e.target.value)}>
-        {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}
-      </select>
-      <button
-        onClick={handleAdd}
-        style={{
-          background: '#E8859A',
-          color: 'white',
-          border: 'none',
-          borderRadius: '6px',
-          padding: '0.5rem 1rem',
-          fontWeight: 600,
-          cursor: 'pointer',
-          fontSize: '1rem',
-          minWidth: '44px'
-        }}
-      >+</button>
-    </div>
-  );
-};
-
-// Compute meeting layouts with overlap support (Outlook-style)
+// Compute meeting layouts (overlap support)
 const computeMeetingLayouts = (meetings) => {
-  if (!meetings || !meetings.length) return [];
-
-  const enriched = meetings.map(m => {
-    const [h, mn] = m.start_time.split(':');
-    const startMin = parseInt(h) * 60 + parseInt(mn);
-    return { ...m, _start: startMin, _end: startMin + m.duration };
-  });
-
+  if (!meetings.length) return [];
+  const enriched = meetings.map(m => ({ ...m, _start: minutesFromTime(m.start_time), _end: minutesFromTime(m.start_time) + m.duration }));
   enriched.sort((a, b) => a._start - b._start);
-
   return enriched.map(meeting => {
-    const overlapping = enriched.filter(m =>
-      m._start < meeting._end && m._end > meeting._start
-    );
-    overlapping.sort((a, b) => a._start - b._start || (a.id || '').toString().localeCompare((b.id || '').toString()));
-    const colIdx = overlapping.findIndex(m => m.id === meeting.id || (!m.id && !meeting.id && m.title === meeting.title && m.start_time === meeting.start_time));
-    return {
-      ...meeting,
-      _col: colIdx >= 0 ? colIdx : 0,
-      _totalCols: overlapping.length || 1
-    };
+    const overlapping = enriched.filter(m => m._start < meeting._end && m._end > meeting._start);
+    overlapping.sort((a, b) => a._start - b._start);
+    const colIdx = overlapping.findIndex(m => (m.id && m.id === meeting.id) || (m === meeting));
+    return { ...meeting, _col: Math.max(colIdx, 0), _totalCols: overlapping.length || 1 };
   });
 };
 
-const MeetingModal = ({ meeting, onSave, onDelete, onClose, deleteInboxItem }) => {
-  const [data, setData] = useState({
-    id: meeting.id,
-    title: meeting.title || '',
-    start_time: meeting.start_time || '09:00',
-    duration: meeting.duration || 60,
-    job: meeting.job || 'green',
-    date: meeting.date,
-    recurrence: meeting.recurrence || 'none',
-    recurrence_end: meeting.recurrence_end || '',
-    _fromInbox: meeting._fromInbox
-  });
-
-  const handleSave = async () => {
-    if (!data.title.trim()) return;
-    await onSave(data);
-    if (data._fromInbox) deleteInboxItem(data._fromInbox);
-  };
-
-  return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <h2>{data.id ? 'Edit Meeting' : 'New Meeting'}</h2>
-        <div className="form-group">
-          <label>Title</label>
-          <input type="text" value={data.title} onChange={(e) => setData({ ...data, title: e.target.value })} placeholder="Meeting title" autoFocus />
-        </div>
-        <div className="form-row">
-          <div className="form-group">
-            <label>Start Time</label>
-            <input type="time" value={data.start_time} onChange={(e) => setData({ ...data, start_time: e.target.value })} />
-          </div>
-          <div className="form-group">
-            <label>Duration (min)</label>
-            <input type="number" value={data.duration} onChange={(e) => setData({ ...data, duration: parseInt(e.target.value) || 60 })} min="15" step="15" />
-          </div>
-        </div>
-        <div className="form-group">
-          <label>Color</label>
-          <div className="color-picker">
-            <div className={`color-option green ${data.job === 'green' ? 'selected' : ''}`} onClick={() => setData({ ...data, job: 'green' })}>🟢 Green</div>
-            <div className={`color-option blue ${data.job === 'blue' ? 'selected' : ''}`} onClick={() => setData({ ...data, job: 'blue' })}>🔵 Blue</div>
-          </div>
-        </div>
-        <div className="form-group">
-          <label>🔁 Repeat</label>
-          <select value={data.recurrence} onChange={(e) => setData({ ...data, recurrence: e.target.value })}>
-            <option value="none">Does not repeat</option>
-            <option value="daily">Daily</option>
-            <option value="weekdays">Every weekday (Mon-Fri)</option>
-            <option value="weekly">Weekly (same day)</option>
-            <option value="biweekly">Every 2 weeks</option>
-            <option value="monthly">Monthly (same date)</option>
-          </select>
-        </div>
-        {data.recurrence !== 'none' && (
-          <div className="form-group">
-            <label>End repeat (optional - leave blank for forever)</label>
-            <input type="date" value={data.recurrence_end} onChange={(e) => setData({ ...data, recurrence_end: e.target.value })} />
-          </div>
-        )}
-        <div className="modal-actions spread">
-          {data.id ? (<button className="btn btn-danger" onClick={() => onDelete(data.id)}>Delete</button>) : <div></div>}
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
-            <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
-            <button className="btn btn-primary" onClick={handleSave}>Save</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+// Recurrence check
+const meetingOccursOn = (meeting, dateStr) => {
+  if (!meeting.recurrence || meeting.recurrence === 'none') return meeting.date === dateStr;
+  const meetingDate = new Date(meeting.date + 'T00:00:00');
+  const checkDate = new Date(dateStr + 'T00:00:00');
+  if (checkDate < meetingDate) return false;
+  if (meeting.recurrence_end) {
+    const endDate = new Date(meeting.recurrence_end + 'T00:00:00');
+    if (checkDate > endDate) return false;
+  }
+  const dayDiff = Math.floor((checkDate - meetingDate) / (1000 * 60 * 60 * 24));
+  switch (meeting.recurrence) {
+    case 'daily': return true;
+    case 'weekdays': return checkDate.getDay() >= 1 && checkDate.getDay() <= 5;
+    case 'weekly': return dayDiff % 7 === 0;
+    case 'biweekly': return dayDiff % 14 === 0;
+    case 'monthly': return checkDate.getDate() === meetingDate.getDate();
+    default: return false;
+  }
 };
 
-const CommandCenter = () => {
+const App = () => {
   const [view, setView] = useState('inbox');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [meetings, setMeetings] = useState([]);
@@ -1582,20 +1243,20 @@ const CommandCenter = () => {
   const [theme, setTheme] = useState(localStorage.getItem('cc-theme') || 'light');
   const [toast, setToast] = useState(null);
   const [meetingModal, setMeetingModal] = useState(null);
+  const [taskModal, setTaskModal] = useState(null);
   const [brainDumpText, setBrainDumpText] = useState('');
   const [currentReview, setCurrentReview] = useState({ wins: '', improvements: '', focus: '' });
-  const [filterCategory, setFilterCategory] = useState(null);
-  const [newTaskCategory, setNewTaskCategory] = useState('general');
-  const [inboxFilter, setInboxFilter] = useState('all'); // all, starred, high, today, category
-  const [inboxSort, setInboxSort] = useState('newest'); // newest, oldest, priority, due
+  const [inboxFilter, setInboxFilter] = useState('all');
+  const [inboxSort, setInboxSort] = useState('newest');
   const [expandedInboxId, setExpandedInboxId] = useState(null);
+  const [newTaskCategory, setNewTaskCategory] = useState('general');
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('cc-theme', theme);
   }, [theme]);
 
-  useEffect(() => { loadAll(); }, [currentDate]);
+  useEffect(() => { loadAll(); }, []);
 
   const loadAll = async () => {
     await Promise.all([loadMeetings(), loadTasks(), loadInbox(), loadReviews(), loadMealPlan()]);
@@ -1605,29 +1266,22 @@ const CommandCenter = () => {
     const { data } = await supabase.from('command_meetings').select('*').order('start_time');
     setMeetings(data || []);
   };
-
   const loadTasks = async () => {
     const { data } = await supabase.from('command_tasks').select('*').order('created_at');
     setTasks(data || []);
   };
-
   const loadInbox = async () => {
     const { data } = await supabase.from('inbox_items').select('*').order('created_at', { ascending: false });
     setInboxItems(data || []);
   };
-
   const loadReviews = async () => {
     const { data } = await supabase.from('weekly_reviews').select('*').order('week_starting', { ascending: false });
     setReviews(data || []);
     const weekStart = formatDateLocal(getWeekStart(currentDate));
     const current = data?.find(r => r.week_starting === weekStart);
-    if (current) {
-      setCurrentReview({ wins: current.wins || '', improvements: current.improvements || '', focus: current.next_week_focus || '' });
-    } else {
-      setCurrentReview({ wins: '', improvements: '', focus: '' });
-    }
+    if (current) setCurrentReview({ wins: current.wins || '', improvements: current.improvements || '', focus: current.next_week_focus || '' });
+    else setCurrentReview({ wins: '', improvements: '', focus: '' });
   };
-
   const loadMealPlan = async () => {
     const { data } = await supabase.from('meal_plans').select('*');
     const map = {};
@@ -1640,76 +1294,62 @@ const CommandCenter = () => {
     setTimeout(() => setToast(null), 2000);
   };
 
-  const saveMeeting = async (meeting) => {
-    const dateStr = formatDateLocal(currentDate);
-    const [hours, minutes] = meeting.start_time.split(':');
-    const startMinutes = parseInt(hours) * 60 + parseInt(minutes);
-    const endMinutes = startMinutes + parseInt(meeting.duration);
+  const saveMeeting = async (m) => {
     const data = {
-      date: meeting.date || dateStr,
-      title: meeting.title,
-      start_time: meeting.start_time,
-      duration: parseInt(meeting.duration),
-      job: meeting.job,
-      start_minutes: startMinutes,
-      end_minutes: endMinutes,
-      recurrence: meeting.recurrence || 'none',
-      recurrence_end: meeting.recurrence_end || null
+      date: m.date || formatDateLocal(currentDate),
+      title: m.title,
+      start_time: m.start_time,
+      duration: parseInt(m.duration),
+      job: m.job,
+      icon: m.icon || '📅',
+      start_minutes: minutesFromTime(m.start_time),
+      end_minutes: minutesFromTime(m.start_time) + parseInt(m.duration),
+      recurrence: m.recurrence || 'none',
+      recurrence_end: m.recurrence_end || null
     };
-    if (meeting.id) {
-      await supabase.from('command_meetings').update(data).eq('id', meeting.id);
-      showToast('Meeting updated');
-    } else {
-      await supabase.from('command_meetings').insert([data]);
-      showToast('Meeting added');
-    }
+    if (m.id) await supabase.from('command_meetings').update(data).eq('id', m.id);
+    else await supabase.from('command_meetings').insert([data]);
+    showToast(m.id ? 'Updated' : 'Added');
     setMeetingModal(null);
     loadMeetings();
+    if (m._fromInbox) deleteInboxItem(m._fromInbox);
   };
 
   const deleteMeeting = async (id) => {
     await supabase.from('command_meetings').delete().eq('id', id);
     setMeetingModal(null);
-    showToast('Meeting deleted');
+    showToast('Deleted');
     loadMeetings();
   };
 
-  const saveTask = async (task) => {
-    const dateStr = formatDateLocal(currentDate);
+  const saveTask = async (t) => {
     const data = {
-      date: task.date || dateStr,
-      title: task.title,
-      context: task.context || 'general',
-      completed: task.completed || false
+      date: t.date || formatDateLocal(currentDate),
+      title: t.title,
+      context: t.context || 'general',
+      completed: t.completed || false
     };
-    if (task.id) {
-      await supabase.from('command_tasks').update(data).eq('id', task.id);
-    } else {
-      await supabase.from('command_tasks').insert([data]);
-    }
+    if (t.id) await supabase.from('command_tasks').update(data).eq('id', t.id);
+    else await supabase.from('command_tasks').insert([data]);
+    setTaskModal(null);
     loadTasks();
   };
 
-  const updateTaskCategory = async (taskId, newCategory) => {
-    await supabase.from('command_tasks').update({ context: newCategory }).eq('id', taskId);
-    loadTasks();
-    showToast('Category updated');
-  };
-
-  const toggleTask = async (task) => {
-    await supabase.from('command_tasks').update({ completed: !task.completed }).eq('id', task.id);
+  const toggleTask = async (t) => {
+    await supabase.from('command_tasks').update({ completed: !t.completed }).eq('id', t.id);
     loadTasks();
   };
 
   const deleteTask = async (id) => {
     await supabase.from('command_tasks').delete().eq('id', id);
-    showToast('Task deleted');
+    setTaskModal(null);
+    showToast('Deleted');
     loadTasks();
   };
 
-  const addQuickTask = (title) => {
+  const addQuickTask = (title, ctx) => {
     if (!title.trim()) return;
-    saveTask({ title, date: formatDateLocal(currentDate), context: newTaskCategory });
+    saveTask({ title, date: formatDateLocal(currentDate), context: ctx || newTaskCategory });
     showToast('Task added');
   };
 
@@ -1719,31 +1359,7 @@ const CommandCenter = () => {
     const items = lines.map(text => ({ text: text.trim() }));
     await supabase.from('inbox_items').insert(items);
     setBrainDumpText('');
-    showToast(`Added ${items.length} item${items.length > 1 ? 's' : ''} to inbox`);
-    loadInbox();
-  };
-
-  const convertInboxToTask = async (item, categoryOverride = null) => {
-    const dateStr = item.due_date || formatDateLocal(currentDate);
-    const category = categoryOverride || item.category || 'general';
-    await supabase.from('command_tasks').insert([{
-      date: dateStr,
-      title: item.text,
-      context: category,
-      completed: false
-    }]);
-    await supabase.from('inbox_items').delete().eq('id', item.id);
-    showToast('Converted to task');
-    loadAll();
-  };
-
-  const convertInboxToMeeting = (item) => {
-    setMeetingModal({ title: item.text, start_time: '09:00', duration: 60, job: 'green', _fromInbox: item.id });
-  };
-
-  const deleteInboxItem = async (id) => {
-    await supabase.from('inbox_items').delete().eq('id', id);
-    showToast('Item removed');
+    showToast(`Added ${items.length}`);
     loadInbox();
   };
 
@@ -1752,20 +1368,31 @@ const CommandCenter = () => {
     loadInbox();
   };
 
+  const convertInboxToTask = async (item) => {
+    const dateStr = item.due_date || formatDateLocal(currentDate);
+    await supabase.from('command_tasks').insert([{ date: dateStr, title: item.text, context: item.category || 'general', completed: false }]);
+    await supabase.from('inbox_items').delete().eq('id', item.id);
+    showToast('Made task');
+    loadAll();
+  };
+
+  const convertInboxToMeeting = (item) => {
+    const cat = item.category ? getCategoryById(item.category) : null;
+    setMeetingModal({ title: item.text, start_time: '09:00', duration: 60, job: cat?.color || 'mint', icon: cat?.icon || '📅', _fromInbox: item.id });
+  };
+
+  const deleteInboxItem = async (id) => {
+    await supabase.from('inbox_items').delete().eq('id', id);
+    showToast('Removed');
+    loadInbox();
+  };
+
   const saveReview = async () => {
     const weekStart = formatDateLocal(getWeekStart(currentDate));
     const existing = reviews.find(r => r.week_starting === weekStart);
-    const data = {
-      week_starting: weekStart,
-      wins: currentReview.wins,
-      improvements: currentReview.improvements,
-      next_week_focus: currentReview.focus
-    };
-    if (existing) {
-      await supabase.from('weekly_reviews').update(data).eq('id', existing.id);
-    } else {
-      await supabase.from('weekly_reviews').insert([data]);
-    }
+    const data = { week_starting: weekStart, wins: currentReview.wins, improvements: currentReview.improvements, next_week_focus: currentReview.focus };
+    if (existing) await supabase.from('weekly_reviews').update(data).eq('id', existing.id);
+    else await supabase.from('weekly_reviews').insert([data]);
     showToast('Review saved');
     loadReviews();
   };
@@ -1774,81 +1401,14 @@ const CommandCenter = () => {
     const existing = mealPlan[date] || {};
     const updated = { ...existing, [mealType]: value };
     const { data } = await supabase.from('meal_plans').select('*').eq('date', date).maybeSingle();
-    if (data) {
-      await supabase.from('meal_plans').update({ meals: updated }).eq('id', data.id);
-    } else {
-      await supabase.from('meal_plans').insert([{ date, meals: updated }]);
-    }
+    if (data) await supabase.from('meal_plans').update({ meals: updated }).eq('id', data.id);
+    else await supabase.from('meal_plans').insert([{ date, meals: updated }]);
     setMealPlan({ ...mealPlan, [date]: updated });
   };
 
-  const loadReview = (review) => {
-    setCurrentDate(new Date(review.week_starting + 'T00:00:00'));
-    setCurrentReview({ wins: review.wins || '', improvements: review.improvements || '', focus: review.next_week_focus || '' });
-  };
-
-  const generateTimeSlots = () => {
-    const slots = [];
-    for (let hour = 7; hour <= 22; hour++) {
-      for (let min of [0, 30]) {
-        slots.push(`${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}`);
-      }
-    }
-    return slots;
-  };
-
-  const timeSlots = generateTimeSlots();
   const todayDateStr = formatDateLocal(currentDate);
-  // Check if a recurring meeting occurs on a specific date
-  const meetingOccursOn = (meeting, dateStr) => {
-    if (!meeting.recurrence || meeting.recurrence === 'none') {
-      return meeting.date === dateStr;
-    }
-    const meetingDate = new Date(meeting.date + 'T00:00:00');
-    const checkDate = new Date(dateStr + 'T00:00:00');
-    if (checkDate < meetingDate) return false;
-    if (meeting.recurrence_end) {
-      const endDate = new Date(meeting.recurrence_end + 'T00:00:00');
-      if (checkDate > endDate) return false;
-    }
-    const dayDiff = Math.floor((checkDate - meetingDate) / (1000 * 60 * 60 * 24));
-    switch (meeting.recurrence) {
-      case 'daily': return true;
-      case 'weekdays': return checkDate.getDay() >= 1 && checkDate.getDay() <= 5;
-      case 'weekly': return dayDiff % 7 === 0;
-      case 'biweekly': return dayDiff % 14 === 0;
-      case 'monthly': return checkDate.getDate() === meetingDate.getDate();
-      default: return false;
-    }
-  };
-
-  // Get all meetings for a specific date (including recurring instances)
-  const getMeetingsForDate = (dateStr) => {
-    return meetings.filter(m => meetingOccursOn(m, dateStr));
-  };
-
-  const todayMeetings = getMeetingsForDate(todayDateStr);
-  const todayTasks = tasks.filter(t => t.date === todayDateStr);
-  const filteredTasks = filterCategory ? todayTasks.filter(t => t.context === filterCategory) : todayTasks;
-
-  // Dashboard stats
-  const taskCountByCategory = {};
-  CATEGORIES.forEach(c => {
-    taskCountByCategory[c.id] = tasks.filter(t => t.context === c.id && !t.completed).length;
-  });
-
-  const todayPendingTasks = todayTasks.filter(t => !t.completed).length;
-  const todayCompletedTasks = todayTasks.filter(t => t.completed).length;
-
-  const navigateDate = (direction) => {
-    const d = new Date(currentDate);
-    if (view === 'day') d.setDate(d.getDate() + direction);
-    else if (view === 'week') d.setDate(d.getDate() + (direction * 7));
-    else if (view === 'month') d.setMonth(d.getMonth() + direction);
-    else d.setDate(d.getDate() + direction);
-    setCurrentDate(d);
-  };
-
+  const dayMeetings = meetings.filter(m => meetingOccursOn(m, todayDateStr));
+  const dayTasks = tasks.filter(t => t.date === todayDateStr);
   const greetingTime = () => {
     const h = new Date().getHours();
     if (h < 12) return 'Good morning';
@@ -1856,703 +1416,750 @@ const CommandCenter = () => {
     return 'Good evening';
   };
 
+  // 7-day pill nav
+  const weekDays = [];
+  for (let i = -3; i <= 3; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() + i);
+    weekDays.push(d);
+  }
+
   return (
     <div className="app">
-      <header className="header">
-        <div className="header-content">
-          <h1><span>⚡</span>Command Center</h1>
-          <div className="date-nav">
-            <button onClick={() => navigateDate(-1)}>←</button>
-            <span className="current-date">
-              {view === 'dashboard' && currentDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
-              {view === 'day' && currentDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
-              {view === 'week' && `Week of ${getWeekStart(currentDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`}
-              {view === 'month' && currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-              {view === 'inbox' && 'Brain Dump'}
-              {view === 'review' && 'Weekly Review'}
-            </span>
-            <button onClick={() => navigateDate(1)}>→</button>
-            <button onClick={() => setCurrentDate(new Date())}>Today</button>
+      <header className="top-bar">
+        <div className="greeting">
+          <div>
+            <div className="greeting-text">{greetingTime()}, Jessa</div>
+            <div className="greeting-sub">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</div>
           </div>
-          <div className="header-actions">
-            <button className="icon-btn" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
-              {theme === 'light' ? '🌙' : '☀️'}
-            </button>
-            <button className={`icon-btn ${privacyMode ? 'active' : ''}`} onClick={() => setPrivacyMode(!privacyMode)}>
-              {privacyMode ? '🔒' : '👁️'}
-            </button>
-          </div>
+        </div>
+        <div className="top-actions">
+          <button className="icon-btn" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
+            {theme === 'light' ? '🌙' : '☀️'}
+          </button>
+          <button className={`icon-btn ${privacyMode ? 'active' : ''}`} onClick={() => setPrivacyMode(!privacyMode)}>
+            {privacyMode ? '🔒' : '👁️'}
+          </button>
         </div>
       </header>
 
-      <div className="tabs">
-        <div className="tabs-content">
-          <button className={`tab-btn ${view === 'inbox' ? 'active' : ''}`} onClick={() => setView('inbox')}>
-            📥 Inbox {inboxItems.length > 0 && <span className="inbox-badge">{inboxItems.length}</span>}
-          </button>
-          <button className={`tab-btn ${view === 'dashboard' ? 'active' : ''}`} onClick={() => setView('dashboard')}>🏠 Home</button>
-          <button className={`tab-btn ${view === 'day' ? 'active' : ''}`} onClick={() => setView('day')}>📅 Day</button>
-          <button className={`tab-btn ${view === 'week' ? 'active' : ''}`} onClick={() => setView('week')}>📆 Week</button>
-          <button className={`tab-btn ${view === 'month' ? 'active' : ''}`} onClick={() => setView('month')}>🗓️ Month</button>
-          <button className={`tab-btn ${view === 'review' ? 'active' : ''}`} onClick={() => setView('review')}>📋 Review</button>
+      {(view === 'today' || view === 'week' || view === 'month') && (
+        <div className="date-nav-pills">
+          {weekDays.map((d, i) => {
+            const isToday = d.toDateString() === new Date().toDateString();
+            const isSelected = formatDateLocal(d) === formatDateLocal(currentDate);
+            return (
+              <div
+                key={i}
+                className={`date-pill ${isToday ? 'today' : ''} ${isSelected && !isToday ? 'selected' : ''}`}
+                onClick={() => setCurrentDate(d)}
+              >
+                <div className="pill-dow">{d.toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 3)}</div>
+                <div className="pill-num">{d.getDate()}</div>
+              </div>
+            );
+          })}
         </div>
-      </div>
-
-      <main className="main">
-        {view === 'dashboard' && (
-          <>
-            <div className="welcome-card">
-              <h2>{greetingTime()}.</h2>
-              <p>You have <strong>{todayPendingTasks} pending task{todayPendingTasks !== 1 ? 's' : ''}</strong> and <strong>{todayMeetings.length} meeting{todayMeetings.length !== 1 ? 's' : ''}</strong> today. {inboxItems.length > 0 && `${inboxItems.length} item${inboxItems.length > 1 ? 's' : ''} waiting in your inbox.`}</p>
-            </div>
-
-            <div className="stat-grid">
-              <div className="stat-card" onClick={() => setView('day')}>
-                <div className="stat-label">Today's Tasks</div>
-                <div className="stat-value">{todayPendingTasks}</div>
-                <div className="stat-sub">{todayCompletedTasks} completed</div>
-              </div>
-              <div className="stat-card" onClick={() => setView('day')}>
-                <div className="stat-label">Today's Meetings</div>
-                <div className="stat-value">{todayMeetings.length}</div>
-                <div className="stat-sub">
-                  {todayMeetings.filter(m => m.job === 'green').length} green · {todayMeetings.filter(m => m.job === 'blue').length} blue
-                </div>
-              </div>
-              <div className="stat-card" onClick={() => setView('inbox')}>
-                <div className="stat-label">Inbox</div>
-                <div className="stat-value">{inboxItems.length}</div>
-                <div className="stat-sub">to process</div>
-              </div>
-              <div className="stat-card" onClick={() => setView('review')}>
-                <div className="stat-label">Reviews Done</div>
-                <div className="stat-value">{reviews.length}</div>
-                <div className="stat-sub">weeks tracked</div>
-              </div>
-            </div>
-
-            <div className="dashboard-grid">
-              <div>
-                <div className="card" style={{ marginBottom: '1.5rem' }}>
-                  <div className="section-title">
-                    <span className="section-title-text">📋 Today's Tasks</span>
-                    <button className="btn-ghost" onClick={() => setView('day')}>View all →</button>
-                  </div>
-                  {todayPendingTasks === 0 ? (
-                    <p className="empty-state">All clear for today. 🎉</p>
-                  ) : (
-                    todayTasks.filter(t => !t.completed).slice(0, 5).map(task => {
-                      const cat = getCategoryById(task.context);
-                      return (
-                        <div key={task.id} className="task-item" style={{ borderLeftColor: cat.color }}>
-                          <div className="checkbox-wrapper">
-                            <input type="checkbox" checked={task.completed} onChange={() => toggleTask(task)} />
-                            <span className="checkbox-display"></span>
-                          </div>
-                          <div className="task-content">
-                            <TaskTitle task={task} onSave={saveTask} />
-                            <div className="task-meta">
-                              <CategoryBadge category={task.context} onChange={(newCat) => updateTaskCategory(task.id, newCat)} />
-                            </div>
-                          </div>
-                          <div className="task-actions">
-                            <button className="btn-ghost" onClick={() => deleteTask(task.id)}>🗑️</button>
-                          </div>
-                        </div>
-                      );
-                    })
-                  )}
-
-                  <QuickAddTask
-                    category={newTaskCategory}
-                    onCategoryChange={setNewTaskCategory}
-                    onAdd={addQuickTask}
-                    placeholder="Quick add task..."
-                  />
-                </div>
-
-                {inboxItems.length > 0 && (
-                  <div className="card">
-                    <div className="section-title">
-                      <span className="section-title-text">📥 Recent Inbox</span>
-                      <button className="btn-ghost" onClick={() => setView('inbox')}>View all →</button>
-                    </div>
-                    <div className="recent-list">
-                      {inboxItems.slice(0, 5).map(item => (
-                        <div key={item.id} className="dashboard-list-item">
-                          <span className="item-text">{item.text}</span>
-                          <button className="inbox-action" onClick={() => convertInboxToTask(item)}>→ Task</button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <div className="categories-card">
-                  <div className="section-title">
-                    <span className="section-title-text">🏷️ Categories</span>
-                  </div>
-                  <div className="category-list">
-                    {CATEGORIES.map(cat => (
-                      <div
-                        key={cat.id}
-                        className="category-row"
-                        style={{ borderLeftColor: cat.color }}
-                        onClick={() => { setFilterCategory(cat.id); setView('day'); }}
-                      >
-                        <div className="category-info">
-                          <span className="category-icon">{cat.icon}</span>
-                          <span className="category-name">{cat.label}</span>
-                        </div>
-                        <span className="category-count">{taskCountByCategory[cat.id] || 0}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </>
-        )}
-
-        {view === 'day' && (
-          <>
-            <div className="cal-title-bar">
-              <div className="cal-title">{currentDate.toLocaleDateString('en-US', { month: 'short' })}</div>
-            </div>
-            <div className="day-view">
-              <div className="day-header-bar" style={{ background: 'transparent', borderBottom: '1px solid var(--border)', padding: '0.75rem 1rem' }}>
-                <div className="cal-day-subtitle" style={{ padding: 0 }}>
-                  <span className="cal-day-num">{currentDate.getDate()}</span>
-                  <span className="cal-day-name">{currentDate.toLocaleDateString('en-US', { weekday: 'long' })}</span>
-                  <span className="cal-week-num">WK {Math.ceil((((currentDate - new Date(currentDate.getFullYear(), 0, 1)) / 86400000) + new Date(currentDate.getFullYear(), 0, 1).getDay() + 1) / 7)}</span>
-                </div>
-              </div>
-              <div className="day-grid-wrapper">
-                <div className="time-column">
-                  {timeSlots.map(time => (<div key={time} className="time-slot">{time}</div>))}
-                </div>
-                <div className="events-container">
-                  <div className="events-grid" style={{ position: 'relative', height: `${timeSlots.length * 60}px` }}>
-                    {timeSlots.map((time, idx) => (
-                      <div
-                        key={time}
-                        className="event-row"
-                        style={{ position: 'absolute', top: `${idx * 60}px`, left: 0, right: 0, height: '60px' }}
-                      ></div>
-                    ))}
-                    {computeMeetingLayouts(todayMeetings).map((meeting, idx) => {
-                      const startSlotIdx = (meeting._start - 7 * 60) / 30;
-                      const top = startSlotIdx * 60 + 2;
-                      const height = (meeting.duration / 30) * 60 - 4;
-                      const widthPct = 100 / meeting._totalCols;
-                      const leftPct = meeting._col * widthPct;
-                      return (
-                        <div
-                          key={meeting.id || idx}
-                          className={`meeting-block color-${meeting.job} ${privacyMode ? 'privacy-blur' : ''}`}
-                          style={{
-                            top: `${top}px`,
-                            height: `${height}px`,
-                            left: `calc(${leftPct}% + 4px)`,
-                            width: `calc(${widthPct}% - 8px)`,
-                            right: 'auto'
-                          }}
-                          onClick={() => setMeetingModal(meeting)}
-                        >
-                          <div className="meeting-time">{meeting.start_time} • {meeting.duration}min</div>
-                          <div className="meeting-title">{meeting.title}</div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="tasks-panel">
-              <div className="section-title">
-                <span className="section-title-text">📋 Tasks for this day</span>
-                {filterCategory && (
-                  <button className="btn-ghost" onClick={() => setFilterCategory(null)}>✕ Clear filter</button>
-                )}
-              </div>
-
-              <QuickAddTask
-                category={newTaskCategory}
-                onCategoryChange={setNewTaskCategory}
-                onAdd={addQuickTask}
-                placeholder="Add a task..."
-                className="task-input-wrapper"
-              />
-
-              {/* Category filter chips */}
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
-                {CATEGORIES.map(cat => {
-                  const count = todayTasks.filter(t => t.context === cat.id).length;
-                  if (count === 0) return null;
-                  const active = filterCategory === cat.id;
-                  return (
-                    <button
-                      key={cat.id}
-                      onClick={() => setFilterCategory(active ? null : cat.id)}
-                      style={{
-                        padding: '0.3rem 0.6rem',
-                        borderRadius: '4px',
-                        border: `1px solid ${active ? cat.color : 'var(--border)'}`,
-                        background: active ? cat.bg : 'var(--surface-alt)',
-                        color: active ? cat.text : 'var(--text-secondary)',
-                        fontSize: '0.75rem',
-                        cursor: 'pointer',
-                        fontWeight: 500
-                      }}
-                    >
-                      {cat.icon} {cat.label} · {count}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {filteredTasks.length === 0 ? (
-                <p className="empty-state">{filterCategory ? 'No tasks in this category for today.' : 'No tasks for this day. Add one above or convert from inbox.'}</p>
-              ) : (
-                filteredTasks.map(task => {
-                  const cat = getCategoryById(task.context);
-                  return (
-                    <div key={task.id} className={`task-item ${task.completed ? 'completed' : ''}`} style={{ borderLeftColor: cat.color }}>
-                      <div className="checkbox-wrapper">
-                        <input type="checkbox" checked={task.completed} onChange={() => toggleTask(task)} />
-                        <span className="checkbox-display"></span>
-                      </div>
-                      <div className="task-content">
-                        <TaskTitle task={task} onSave={saveTask} />
-                        <div className="task-meta">
-                          <CategoryBadge category={task.context} onChange={(newCat) => updateTaskCategory(task.id, newCat)} />
-                        </div>
-                      </div>
-                      <div className="task-actions">
-                        <button className="btn-ghost" onClick={() => deleteTask(task.id)}>🗑️</button>
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </>
-        )}
-
-        {view === 'week' && (
-          <>
-            <div className="cal-title-bar">
-              <div className="cal-title">{getWeekStart(currentDate).toLocaleDateString('en-US', { month: 'short' })}</div>
-            </div>
-            <div className="card" style={{ padding: '0.75rem' }}>
-              <div className="week-header-row">
-                <div className="week-header-cell"></div>
-                {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
-                  <div key={i} className="week-header-cell">{d}</div>
-                ))}
-              </div>
-              <div className="week-day-row">
-                {(() => {
-                  const weekStart = getWeekStart(currentDate);
-                  const monday = new Date(weekStart);
-                  monday.setDate(monday.getDate() + 1);
-                  const wkNum = Math.ceil((((monday - new Date(monday.getFullYear(), 0, 1)) / 86400000) + new Date(monday.getFullYear(), 0, 1).getDay() + 1) / 7);
-                  return (
-                    <>
-                      <div className="week-num-cell">WK<br/>{wkNum}</div>
-                      {Array.from({ length: 7 }, (_, i) => {
-                        const d = new Date(monday);
-                        d.setDate(d.getDate() + i);
-                        const dateStr = formatDateLocal(d);
-                        const dayMeetings = getMeetingsForDate(dateStr);
-                        const dayTasks = tasks.filter(t => t.date === dateStr && !t.completed);
-                        const isToday = d.toDateString() === new Date().toDateString();
-                        const isSelected = d.toDateString() === currentDate.toDateString();
-                        return (
-                          <div
-                            key={dateStr}
-                            className={`week-day-cell ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}`}
-                            onClick={() => { setCurrentDate(d); setView('day'); }}
-                          >
-                            <div className="week-day-num">{d.getDate()}</div>
-                            {dayMeetings.slice(0, 5).map((m, idx) => (
-                              <div key={`m-${idx}`} className={`cell-event color-${m.job}`}>
-                                {privacyMode ? '••••' : m.title}
-                              </div>
-                            ))}
-                            {dayTasks.slice(0, 3).map((t, idx) => (
-                              <div key={`t-${idx}`} className="cell-event task-event">
-                                {t.title}
-                              </div>
-                            ))}
-                            {(dayMeetings.length + dayTasks.length) > 8 && (
-                              <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '2px' }}>
-                                +{(dayMeetings.length + dayTasks.length) - 8} more
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </>
-                  );
-                })()}
-              </div>
-            </div>
-          </>
-        )}
-
-        {view === 'month' && (
-          <>
-            <div className="cal-title-bar">
-              <div className="cal-title">{currentDate.toLocaleDateString('en-US', { month: 'short' })}</div>
-            </div>
-            <div className="card" style={{ padding: '0.75rem' }}>
-              {(() => {
-                const year = currentDate.getFullYear();
-                const month = currentDate.getMonth();
-                // Start week on Monday like Samsung
-                const firstDay = new Date(year, month, 1);
-                const lastDay = new Date(year, month + 1, 0);
-                const startOffset = (firstDay.getDay() + 6) % 7; // Monday = 0
-                const days = [];
-                for (let i = startOffset; i > 0; i--) {
-                  const d = new Date(year, month, 1 - i);
-                  days.push({ date: d, otherMonth: true });
-                }
-                for (let i = 1; i <= lastDay.getDate(); i++) {
-                  days.push({ date: new Date(year, month, i), otherMonth: false });
-                }
-                while (days.length % 7 !== 0) {
-                  const last = days[days.length - 1].date;
-                  const next = new Date(last);
-                  next.setDate(next.getDate() + 1);
-                  days.push({ date: next, otherMonth: true });
-                }
-
-                // Group into weeks
-                const weeks = [];
-                for (let i = 0; i < days.length; i += 7) {
-                  weeks.push(days.slice(i, i + 7));
-                }
-
-                return (
-                  <>
-                    <div style={{ display: 'grid', gridTemplateColumns: '32px repeat(7, 1fr)', gap: '0', borderBottom: '1px solid var(--border)' }}>
-                      <div className="week-header-cell"></div>
-                      {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => (
-                        <div key={i} className="week-header-cell">{d}</div>
-                      ))}
-                    </div>
-                    {weeks.map((week, wIdx) => {
-                      const monday = week[0].date;
-                      const wkNum = Math.ceil((((monday - new Date(monday.getFullYear(), 0, 1)) / 86400000) + new Date(monday.getFullYear(), 0, 1).getDay() + 1) / 7);
-                      return (
-                        <div key={wIdx} style={{ display: 'grid', gridTemplateColumns: '32px repeat(7, 1fr)', gap: '0', borderBottom: '1px solid var(--border)' }}>
-                          <div className="week-num-cell">{wkNum}</div>
-                          {week.map(({ date, otherMonth }) => {
-                            const dateStr = formatDateLocal(date);
-                            const dayMeetings = getMeetingsForDate(dateStr);
-                            const dayTasks = tasks.filter(t => t.date === dateStr && !t.completed);
-                            const isToday = date.toDateString() === new Date().toDateString();
-                            const isSelected = date.toDateString() === currentDate.toDateString();
-                            return (
-                              <div
-                                key={dateStr}
-                                className={`month-day ${otherMonth ? 'other-month' : ''} ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}`}
-                                onClick={() => { setCurrentDate(date); setView('day'); }}
-                                style={{ minHeight: '80px', borderLeft: '1px solid var(--border)' }}
-                              >
-                                <div className="month-day-num">{date.getDate()}</div>
-                                <div className="month-day-events">
-                                  {dayMeetings.slice(0, 3).map((m, i) => (
-                                    <div key={`m-${i}`} className={`month-day-event-row color-${m.job}`}>
-                                      {privacyMode ? '••••' : m.title}
-                                    </div>
-                                  ))}
-                                  {dayTasks.slice(0, 2).map((t, i) => (
-                                    <div key={`t-${i}`} className="month-day-event-row task-row">
-                                      {t.title}
-                                    </div>
-                                  ))}
-                                  {(dayMeetings.length + dayTasks.length) > 5 && (
-                                    <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)', padding: '0 0.3rem' }}>
-                                      +{(dayMeetings.length + dayTasks.length) - 5}
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      );
-                    })}
-                  </>
-                );
-              })()}
-            </div>
-          </>
-        )}
-
-        {view === 'inbox' && (
-          <div className="card">
-            <div className="section-title">
-              <span className="section-title-text">📥 Inbox</span>
-              <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>
-                {inboxItems.length} item{inboxItems.length !== 1 ? 's' : ''}
-              </span>
-            </div>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.875rem' }}>
-              Capture fast. Tap any item to add category, priority, due date — when you have time.
-            </p>
-
-            <div className="brain-dump-area">
-              <textarea
-                value={brainDumpText}
-                onChange={(e) => setBrainDumpText(e.target.value)}
-                placeholder="Dump everything here. One thought per line. Don't filter, just capture..."
-              />
-              <div className="brain-dump-actions">
-                <button className="btn btn-ghost" onClick={() => setBrainDumpText('')}>Clear</button>
-                <button className="btn btn-primary" onClick={addInboxItem}>Add to Inbox</button>
-              </div>
-            </div>
-
-            {inboxItems.length > 0 && (
-              <div className="inbox-filters">
-                <button className={`filter-chip ${inboxFilter === 'all' ? 'active' : ''}`} onClick={() => setInboxFilter('all')}>All</button>
-                <button className={`filter-chip ${inboxFilter === 'starred' ? 'active' : ''}`} onClick={() => setInboxFilter('starred')}>⭐ Starred</button>
-                <button className={`filter-chip ${inboxFilter === 'high' ? 'active' : ''}`} onClick={() => setInboxFilter('high')}>🔴 High Priority</button>
-                <button className={`filter-chip ${inboxFilter === 'today' ? 'active' : ''}`} onClick={() => setInboxFilter('today')}>📅 Due Today</button>
-                <button className={`filter-chip ${inboxFilter === 'unsorted' ? 'active' : ''}`} onClick={() => setInboxFilter('unsorted')}>🆕 Unsorted</button>
-                <select className="sort-select" value={inboxSort} onChange={(e) => setInboxSort(e.target.value)}>
-                  <option value="newest">Newest first</option>
-                  <option value="oldest">Oldest first</option>
-                  <option value="priority">By priority</option>
-                  <option value="due">By due date</option>
-                </select>
-              </div>
-            )}
-
-            {(() => {
-              let filtered = [...inboxItems];
-
-              // Apply filter
-              if (inboxFilter === 'starred') filtered = filtered.filter(i => i.starred);
-              else if (inboxFilter === 'high') filtered = filtered.filter(i => i.priority === 'high');
-              else if (inboxFilter === 'today') {
-                const today = formatDateLocal(new Date());
-                filtered = filtered.filter(i => i.due_date === today);
-              }
-              else if (inboxFilter === 'unsorted') filtered = filtered.filter(i => !i.category && !i.priority && !i.due_date);
-
-              // Apply sort
-              if (inboxSort === 'oldest') filtered.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-              else if (inboxSort === 'newest') filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-              else if (inboxSort === 'priority') {
-                const order = { high: 0, medium: 1, low: 2, null: 3, undefined: 3 };
-                filtered.sort((a, b) => (order[a.priority] ?? 3) - (order[b.priority] ?? 3));
-              }
-              else if (inboxSort === 'due') {
-                filtered.sort((a, b) => {
-                  if (!a.due_date && !b.due_date) return 0;
-                  if (!a.due_date) return 1;
-                  if (!b.due_date) return -1;
-                  return new Date(a.due_date) - new Date(b.due_date);
-                });
-              }
-
-              if (filtered.length === 0) {
-                return <p className="empty-state">{inboxFilter !== 'all' ? 'No items match this filter.' : 'Inbox is empty. Capture thoughts above when they come.'}</p>;
-              }
-
-              return filtered.map(item => {
-                const isExpanded = expandedInboxId === item.id;
-                const todayStr = formatDateLocal(new Date());
-                const isOverdue = item.due_date && item.due_date < todayStr;
-                const isDueToday = item.due_date === todayStr;
-                const cat = item.category ? getCategoryById(item.category) : null;
-
-                let itemClass = 'inbox-item';
-                if (isExpanded) itemClass += ' expanded';
-                if (item.starred) itemClass += ' starred';
-                if (item.priority === 'high') itemClass += ' priority-high';
-                else if (item.priority === 'medium') itemClass += ' priority-medium';
-                else if (item.priority === 'low') itemClass += ' priority-low';
-
-                return (
-                  <div key={item.id} className={itemClass}>
-                    <div className="inbox-item-row">
-                      <div
-                        className="inbox-item-checkbox"
-                        title="Mark complete (deletes item)"
-                        onClick={(e) => { e.stopPropagation(); deleteInboxItem(item.id); }}
-                      ></div>
-                      <div className="inbox-item-main" onClick={() => setExpandedInboxId(isExpanded ? null : item.id)}>
-                        <div className="inbox-item-title">{item.text}</div>
-                        <div className="inbox-item-meta">
-                          {cat && (
-                            <span className="inbox-meta-pill" style={{ background: cat.bg, color: cat.text, borderColor: cat.color }}>
-                              {cat.icon} {cat.label}
-                            </span>
-                          )}
-                          {item.priority && (
-                            <span className={`inbox-meta-pill priority-${item.priority}`}>
-                              {item.priority === 'high' ? '🔴' : item.priority === 'medium' ? '🟡' : '🟢'} {item.priority}
-                            </span>
-                          )}
-                          {item.due_date && (
-                            <span className={`inbox-meta-pill ${isOverdue ? 'due-overdue' : isDueToday ? 'due-today' : ''}`}>
-                              📅 {new Date(item.due_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                              {isOverdue && ' · OVERDUE'}
-                              {isDueToday && ' · TODAY'}
-                            </span>
-                          )}
-                          {!cat && !item.priority && !item.due_date && (
-                            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>tap to add details</span>
-                          )}
-                        </div>
-                      </div>
-                      <button
-                        className={`star-btn ${item.starred ? 'starred' : ''}`}
-                        onClick={(e) => { e.stopPropagation(); updateInboxItem(item.id, { starred: !item.starred }); }}
-                      >
-                        {item.starred ? '⭐' : '☆'}
-                      </button>
-                    </div>
-
-                    {isExpanded && (
-                      <div className="inbox-item-expand">
-                        <div className="inbox-detail-row">
-                          <label>Category</label>
-                          <select
-                            value={item.category || ''}
-                            onChange={(e) => updateInboxItem(item.id, { category: e.target.value || null })}
-                          >
-                            <option value="">None</option>
-                            {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}
-                          </select>
-                        </div>
-                        <div className="inbox-detail-row">
-                          <label>Priority</label>
-                          <select
-                            value={item.priority || ''}
-                            onChange={(e) => updateInboxItem(item.id, { priority: e.target.value || null })}
-                          >
-                            <option value="">None</option>
-                            <option value="high">🔴 High</option>
-                            <option value="medium">🟡 Medium</option>
-                            <option value="low">🟢 Low</option>
-                          </select>
-                        </div>
-                        <div className="inbox-detail-row">
-                          <label>Due Date</label>
-                          <input
-                            type="date"
-                            value={item.due_date || ''}
-                            onChange={(e) => updateInboxItem(item.id, { due_date: e.target.value || null })}
-                          />
-                        </div>
-                        <div className="inbox-detail-row">
-                          <label>Notes</label>
-                          <textarea
-                            placeholder="Optional notes..."
-                            defaultValue={item.notes || ''}
-                            onBlur={(e) => updateInboxItem(item.id, { notes: e.target.value || null })}
-                          />
-                        </div>
-                        <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginTop: '0.5rem', justifyContent: 'flex-end' }}>
-                          <button className="inbox-action" onClick={() => convertInboxToTask(item)}>→ Make Task</button>
-                          <button className="inbox-action" onClick={() => convertInboxToMeeting(item)}>→ Make Meeting</button>
-                          <button className="inbox-action danger" onClick={() => deleteInboxItem(item.id)}>Delete</button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              });
-            })()}
-          </div>
-        )}
-
-        {view === 'review' && (
-          <div className="card">
-            <div className="section-title">
-              <span className="section-title-text">📋 Weekly Review</span>
-              <button className="btn btn-primary" onClick={saveReview}>Save Review</button>
-            </div>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.875rem' }}>
-              Week of {getWeekStart(currentDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-            </p>
-
-            <div className="review-section">
-              <h3>✨ This Week's Wins</h3>
-              <textarea value={currentReview.wins} onChange={(e) => setCurrentReview({ ...currentReview, wins: e.target.value })} placeholder="What went well this week?" />
-            </div>
-            <div className="review-section">
-              <h3>🔧 Areas to Improve</h3>
-              <textarea value={currentReview.improvements} onChange={(e) => setCurrentReview({ ...currentReview, improvements: e.target.value })} placeholder="What could have gone better?" />
-            </div>
-            <div className="review-section">
-              <h3>🎯 Next Week's Focus</h3>
-              <textarea value={currentReview.focus} onChange={(e) => setCurrentReview({ ...currentReview, focus: e.target.value })} placeholder="Top 3 priorities?" />
-            </div>
-            <div className="review-section">
-              <h3>🍽️ Meal Plan - Next Week</h3>
-              <div className="meal-plan-grid">
-                {Array.from({ length: 7 }, (_, i) => {
-                  const d = new Date(getWeekStart(currentDate));
-                  d.setDate(d.getDate() + i + 7);
-                  const dateStr = formatDateLocal(d);
-                  const meals = mealPlan[dateStr] || {};
-                  return (
-                    <div key={dateStr} className="meal-day">
-                      <h4>{d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</h4>
-                      <input type="text" className="meal-input" placeholder="Breakfast" value={meals.breakfast || ''} onChange={(e) => saveMeal(dateStr, 'breakfast', e.target.value)} />
-                      <input type="text" className="meal-input" placeholder="Lunch" value={meals.lunch || ''} onChange={(e) => saveMeal(dateStr, 'lunch', e.target.value)} />
-                      <input type="text" className="meal-input" placeholder="Dinner" value={meals.dinner || ''} onChange={(e) => saveMeal(dateStr, 'dinner', e.target.value)} />
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {reviews.length > 0 && (
-              <div>
-                <h3 style={{ fontFamily: 'Syne', fontSize: '1.125rem', fontWeight: 700, marginBottom: '1rem', color: 'var(--text-primary)' }}>📚 Past Reviews</h3>
-                {reviews.map(r => (
-                  <div key={r.id} className="review-card" onClick={() => loadReview(r)}>
-                    <div className="review-card-date">
-                      Week of {new Date(r.week_starting + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                    </div>
-                    <div className="review-card-preview">
-                      {r.next_week_focus?.substring(0, 100) || r.wins?.substring(0, 100) || 'Click to view...'}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </main>
-
-      {(view === 'day' || view === 'week' || view === 'month') && (
-        <button
-          className="fab"
-          onClick={() => setMeetingModal({ start_time: '09:00', duration: 60, job: 'green' })}
-          title="Add meeting"
-        >+</button>
       )}
 
-      {meetingModal && (<MeetingModal meeting={meetingModal} onSave={saveMeeting} onDelete={deleteMeeting} onClose={() => setMeetingModal(null)} deleteInboxItem={deleteInboxItem} />)}
+      <div className="content">
+        {view === 'today' && <TodayView dayMeetings={dayMeetings} dayTasks={dayTasks} privacyMode={privacyMode} setMeetingModal={setMeetingModal} setTaskModal={setTaskModal} toggleTask={toggleTask} currentDate={currentDate} addQuickTask={addQuickTask} />}
+        {view === 'week' && <WeekView meetings={meetings} tasks={tasks} currentDate={currentDate} setCurrentDate={setCurrentDate} setView={setView} privacyMode={privacyMode} />}
+        {view === 'month' && <MonthView meetings={meetings} tasks={tasks} currentDate={currentDate} setCurrentDate={setCurrentDate} setView={setView} />}
+        {view === 'inbox' && (
+          <InboxView
+            inboxItems={inboxItems}
+            brainDumpText={brainDumpText}
+            setBrainDumpText={setBrainDumpText}
+            addInboxItem={addInboxItem}
+            inboxFilter={inboxFilter}
+            setInboxFilter={setInboxFilter}
+            inboxSort={inboxSort}
+            setInboxSort={setInboxSort}
+            expandedInboxId={expandedInboxId}
+            setExpandedInboxId={setExpandedInboxId}
+            updateInboxItem={updateInboxItem}
+            convertInboxToTask={convertInboxToTask}
+            convertInboxToMeeting={convertInboxToMeeting}
+            deleteInboxItem={deleteInboxItem}
+          />
+        )}
+        {view === 'review' && (
+          <ReviewView
+            currentReview={currentReview}
+            setCurrentReview={setCurrentReview}
+            saveReview={saveReview}
+            currentDate={currentDate}
+            mealPlan={mealPlan}
+            saveMeal={saveMeal}
+            reviews={reviews}
+            setCurrentDate={setCurrentDate}
+          />
+        )}
+      </div>
+
+      {(view === 'today' || view === 'week' || view === 'month') && (
+        <button className="fab" onClick={() => setMeetingModal({ start_time: '09:00', duration: 60, job: 'mint', icon: '📅' })}>+</button>
+      )}
+
+      <nav className="tab-bar">
+        <button className={`tab-btn ${view === 'inbox' ? 'active' : ''} ${inboxItems.length > 0 ? 'has-badge' : ''}`} data-count={inboxItems.length} onClick={() => setView('inbox')}>
+          <div className="tab-icon">📥</div>
+          <div>Inbox</div>
+        </button>
+        <button className={`tab-btn ${view === 'today' ? 'active' : ''}`} onClick={() => setView('today')}>
+          <div className="tab-icon">📅</div>
+          <div>Today</div>
+        </button>
+        <button className={`tab-btn ${view === 'week' ? 'active' : ''}`} onClick={() => setView('week')}>
+          <div className="tab-icon">📆</div>
+          <div>Week</div>
+        </button>
+        <button className={`tab-btn ${view === 'month' ? 'active' : ''}`} onClick={() => setView('month')}>
+          <div className="tab-icon">🗓️</div>
+          <div>Month</div>
+        </button>
+        <button className={`tab-btn ${view === 'review' ? 'active' : ''}`} onClick={() => setView('review')}>
+          <div className="tab-icon">📋</div>
+          <div>Review</div>
+        </button>
+      </nav>
+
+      {meetingModal && <MeetingModal meeting={meetingModal} onSave={saveMeeting} onDelete={deleteMeeting} onClose={() => setMeetingModal(null)} />}
+      {taskModal && <TaskModal task={taskModal} onSave={saveTask} onDelete={deleteTask} onClose={() => setTaskModal(null)} />}
       {toast && <div className="toast">{toast}</div>}
     </div>
   );
 };
 
-ReactDOM.render(<CommandCenter />, document.getElementById('root'));
+const TodayView = ({ dayMeetings, dayTasks, privacyMode, setMeetingModal, setTaskModal, toggleTask, currentDate, addQuickTask }) => {
+  const isToday = currentDate.toDateString() === new Date().toDateString();
+  const pendingTasks = dayTasks.filter(t => !t.completed);
+  const completedTasks = dayTasks.filter(t => t.completed);
+
+  return (
+    <>
+      <div className="page-title-area">
+        <div className="page-title">
+          {isToday ? 'Today' : currentDate.toLocaleDateString('en-US', { weekday: 'long' })}
+        </div>
+        <div className="page-subtitle">
+          {currentDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} · {dayMeetings.length} meeting{dayMeetings.length !== 1 ? 's' : ''} · {pendingTasks.length} task{pendingTasks.length !== 1 ? 's' : ''}
+        </div>
+      </div>
+
+      {dayMeetings.length === 0 && dayTasks.length === 0 ? (
+        <div className="empty-state">
+          <div className="empty-state-icon">✨</div>
+          <div className="empty-state-title">All clear</div>
+          <div className="empty-state-text">No meetings or tasks scheduled. Tap + to add something.</div>
+        </div>
+      ) : (
+        <div className="timeline">
+          {[...computeMeetingLayouts(dayMeetings).map(m => ({ ...m, _type: 'meeting', _sortKey: minutesFromTime(m.start_time) })),
+            ...pendingTasks.map(t => ({ ...t, _type: 'task', _sortKey: 99999 }))]
+            .sort((a, b) => a._sortKey - b._sortKey)
+            .map((item, idx) => {
+              if (item._type === 'meeting') {
+                return (
+                  <div key={`m-${item.id}`} className="timeline-row">
+                    <div className="timeline-time">
+                      {item.start_time}
+                    </div>
+                    <div
+                      className={`event-card color-${item.job} ${privacyMode ? 'privacy-blur' : ''}`}
+                      onClick={() => setMeetingModal(item)}
+                    >
+                      <div className="event-duration-bar"></div>
+                      <div className="event-icon">{item.icon || '📅'}</div>
+                      <div className="event-content">
+                        <div className="event-title">{item.title}</div>
+                        <div className="event-meta">
+                          <span>{item.duration}min</span>
+                          {item.recurrence && item.recurrence !== 'none' && <span>· 🔁</span>}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+              const cat = getCategoryById(item.context);
+              return (
+                <div key={`t-${item.id}`} className="timeline-row">
+                  <div className="timeline-time">·</div>
+                  <div
+                    className={`event-card color-${cat.color}`}
+                    onClick={() => setTaskModal(item)}
+                  >
+                    <div className="event-duration-bar"></div>
+                    <div
+                      className="event-icon"
+                      onClick={(e) => { e.stopPropagation(); toggleTask(item); }}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      ⭕
+                    </div>
+                    <div className="event-content">
+                      <div className="event-title">{item.title}</div>
+                      <div className="event-meta">
+                        <span>{cat.label}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+
+          {completedTasks.length > 0 && (
+            <>
+              <div className="section-heading"><h2 style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>✅ Completed ({completedTasks.length})</h2></div>
+              {completedTasks.map(item => {
+                const cat = getCategoryById(item.context);
+                return (
+                  <div key={`d-${item.id}`} className="timeline-row" style={{ opacity: 0.5 }}>
+                    <div className="timeline-time">·</div>
+                    <div className={`event-card color-${cat.color}`} onClick={() => setTaskModal(item)} style={{ minHeight: '44px' }}>
+                      <div className="event-duration-bar"></div>
+                      <div className="event-icon" onClick={(e) => { e.stopPropagation(); toggleTask(item); }} style={{ cursor: 'pointer' }}>✓</div>
+                      <div className="event-content">
+                        <div className="event-title" style={{ textDecoration: 'line-through' }}>{item.title}</div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </>
+          )}
+        </div>
+      )}
+
+      <div className="quick-add" style={{ marginTop: '1.25rem' }}>
+        <input
+          type="text"
+          placeholder="Quick add task..."
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && e.target.value.trim()) {
+              addQuickTask(e.target.value);
+              e.target.value = '';
+            }
+          }}
+        />
+        <button onClick={(e) => {
+          const input = e.target.previousElementSibling;
+          if (input.value.trim()) {
+            addQuickTask(input.value);
+            input.value = '';
+          }
+        }}>+</button>
+      </div>
+    </>
+  );
+};
+
+const WeekView = ({ meetings, tasks, currentDate, setCurrentDate, setView, privacyMode }) => {
+  const weekStart = getWeekStart(currentDate);
+
+  return (
+    <>
+      <div className="page-title-area">
+        <div className="page-title">This Week</div>
+        <div className="page-subtitle">
+          Week of {weekStart.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
+        </div>
+      </div>
+
+      <div className="timeline">
+        {Array.from({ length: 7 }, (_, i) => {
+          const d = new Date(weekStart);
+          d.setDate(d.getDate() + i);
+          const dateStr = formatDateLocal(d);
+          const dayMeetings = meetings.filter(m => meetingOccursOn(m, dateStr));
+          const dayTasks = tasks.filter(t => t.date === dateStr && !t.completed);
+          const isToday = d.toDateString() === new Date().toDateString();
+
+          if (dayMeetings.length === 0 && dayTasks.length === 0) return null;
+
+          return (
+            <div key={i} style={{ marginBottom: '1.25rem' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'baseline',
+                  gap: '0.5rem',
+                  padding: '0.25rem 0 0.6rem',
+                  cursor: 'pointer',
+                  borderBottom: '1px solid var(--border-soft)',
+                  marginBottom: '0.6rem'
+                }}
+                onClick={() => { setCurrentDate(d); setView('today'); }}
+              >
+                <div style={{ fontFamily: 'Plus Jakarta Sans', fontSize: '1.1rem', fontWeight: 700, color: isToday ? 'var(--accent)' : 'var(--text)' }}>
+                  {d.toLocaleDateString('en-US', { weekday: 'long' })}
+                </div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                  {d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', paddingLeft: '0.5rem' }}>
+                {dayMeetings.map(m => (
+                  <div key={m.id} className={`event-card color-${m.job} ${privacyMode ? 'privacy-blur' : ''}`} style={{ minHeight: '44px' }}>
+                    <div className="event-duration-bar"></div>
+                    <div className="event-icon" style={{ width: '32px', height: '32px', fontSize: '0.95rem' }}>{m.icon || '📅'}</div>
+                    <div className="event-content">
+                      <div className="event-title" style={{ fontSize: '0.85rem' }}>{m.title}</div>
+                      <div className="event-meta" style={{ fontSize: '0.7rem' }}>{m.start_time} · {m.duration}min</div>
+                    </div>
+                  </div>
+                ))}
+                {dayTasks.map(t => {
+                  const cat = getCategoryById(t.context);
+                  return (
+                    <div key={t.id} className={`event-card color-${cat.color}`} style={{ minHeight: '44px' }}>
+                      <div className="event-duration-bar"></div>
+                      <div className="event-icon" style={{ width: '32px', height: '32px', fontSize: '0.95rem' }}>⭕</div>
+                      <div className="event-content">
+                        <div className="event-title" style={{ fontSize: '0.85rem' }}>{t.title}</div>
+                        <div className="event-meta" style={{ fontSize: '0.7rem' }}>{cat.label}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+
+        {Array.from({ length: 7 }, (_, i) => {
+          const d = new Date(weekStart);
+          d.setDate(d.getDate() + i);
+          const dateStr = formatDateLocal(d);
+          const dayMeetings = meetings.filter(m => meetingOccursOn(m, dateStr));
+          const dayTasks = tasks.filter(t => t.date === dateStr && !t.completed);
+          return dayMeetings.length === 0 && dayTasks.length === 0 ? d : null;
+        }).filter(Boolean).length === 7 && (
+          <div className="empty-state">
+            <div className="empty-state-icon">🌿</div>
+            <div className="empty-state-title">Wide open week</div>
+            <div className="empty-state-text">Nothing scheduled. Plenty of room to plan.</div>
+          </div>
+        )}
+      </div>
+    </>
+  );
+};
+
+const MonthView = ({ meetings, tasks, currentDate, setCurrentDate, setView }) => {
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const startOffset = firstDay.getDay();
+  const days = [];
+  for (let i = startOffset; i > 0; i--) {
+    const d = new Date(year, month, 1 - i);
+    days.push({ date: d, otherMonth: true });
+  }
+  for (let i = 1; i <= lastDay.getDate(); i++) {
+    days.push({ date: new Date(year, month, i), otherMonth: false });
+  }
+  while (days.length % 7 !== 0) {
+    const last = days[days.length - 1].date;
+    const next = new Date(last);
+    next.setDate(next.getDate() + 1);
+    days.push({ date: next, otherMonth: true });
+  }
+
+  const navigateMonth = (dir) => {
+    const d = new Date(currentDate);
+    d.setMonth(d.getMonth() + dir);
+    setCurrentDate(d);
+  };
+
+  return (
+    <>
+      <div className="page-title-area" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '0.5rem' }}>
+        <div>
+          <div className="page-title">{currentDate.toLocaleDateString('en-US', { month: 'long' })}</div>
+          <div className="page-subtitle">{currentDate.getFullYear()}</div>
+        </div>
+        <div style={{ display: 'flex', gap: '0.4rem' }}>
+          <button className="icon-btn" onClick={() => navigateMonth(-1)}>‹</button>
+          <button className="icon-btn" onClick={() => setCurrentDate(new Date())}>•</button>
+          <button className="icon-btn" onClick={() => navigateMonth(1)}>›</button>
+        </div>
+      </div>
+
+      <div className="month-grid">
+        {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (<div key={i} className="month-day-head">{d}</div>))}
+        {days.map(({ date, otherMonth }, idx) => {
+          const dateStr = formatDateLocal(date);
+          const dayMeetings = meetings.filter(m => meetingOccursOn(m, dateStr));
+          const dayTasks = tasks.filter(t => t.date === dateStr && !t.completed);
+          const isToday = date.toDateString() === new Date().toDateString();
+          const isSelected = !isToday && date.toDateString() === currentDate.toDateString();
+          return (
+            <div
+              key={idx}
+              className={`month-cell ${otherMonth ? 'other-month' : ''} ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}`}
+              onClick={() => { setCurrentDate(date); setView('today'); }}
+            >
+              <div className="month-cell-num">{date.getDate()}</div>
+              <div className="month-cell-events">
+                {dayMeetings.slice(0, 3).map((m, i) => (<div key={`m-${i}`} className={`month-event-pill color-${m.job}`}></div>))}
+                {dayTasks.length > 0 && dayMeetings.length < 3 && Array.from({ length: Math.min(dayTasks.length, 3 - dayMeetings.length) }).map((_, i) => {
+                  const cat = getCategoryById(dayTasks[i].context);
+                  return <div key={`t-${i}`} className={`month-event-pill color-${cat.color}`}></div>;
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </>
+  );
+};
+
+const InboxView = ({ inboxItems, brainDumpText, setBrainDumpText, addInboxItem, inboxFilter, setInboxFilter, inboxSort, setInboxSort, expandedInboxId, setExpandedInboxId, updateInboxItem, convertInboxToTask, convertInboxToMeeting, deleteInboxItem }) => {
+
+  const filtered = useMemo(() => {
+    let f = [...inboxItems];
+    if (inboxFilter === 'starred') f = f.filter(i => i.starred);
+    else if (inboxFilter === 'high') f = f.filter(i => i.priority === 'high');
+    else if (inboxFilter === 'today') {
+      const today = formatDateLocal(new Date());
+      f = f.filter(i => i.due_date === today);
+    } else if (inboxFilter === 'unsorted') {
+      f = f.filter(i => !i.category && !i.priority && !i.due_date);
+    }
+    if (inboxSort === 'oldest') f.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    else if (inboxSort === 'newest') f.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    else if (inboxSort === 'priority') {
+      const ord = { high: 0, medium: 1, low: 2 };
+      f.sort((a, b) => (ord[a.priority] ?? 3) - (ord[b.priority] ?? 3));
+    } else if (inboxSort === 'due') {
+      f.sort((a, b) => {
+        if (!a.due_date && !b.due_date) return 0;
+        if (!a.due_date) return 1;
+        if (!b.due_date) return -1;
+        return new Date(a.due_date) - new Date(b.due_date);
+      });
+    }
+    return f;
+  }, [inboxItems, inboxFilter, inboxSort]);
+
+  return (
+    <>
+      <div className="page-title-area">
+        <div className="page-title">Inbox</div>
+        <div className="page-subtitle">{inboxItems.length} item{inboxItems.length !== 1 ? 's' : ''} · capture first, organize later</div>
+      </div>
+
+      <div className="brain-dump">
+        <div className="brain-dump-label">⚡ Brain Dump</div>
+        <textarea
+          value={brainDumpText}
+          onChange={(e) => setBrainDumpText(e.target.value)}
+          placeholder="Drop everything here. One thought per line. Don't filter — just capture..."
+        />
+        <div className="brain-dump-actions">
+          <button className="btn btn-ghost" onClick={() => setBrainDumpText('')}>Clear</button>
+          <button className="btn btn-primary" onClick={addInboxItem}>Capture</button>
+        </div>
+      </div>
+
+      {inboxItems.length > 0 && (
+        <div className="filter-row">
+          <button className={`chip ${inboxFilter === 'all' ? 'active' : ''}`} onClick={() => setInboxFilter('all')}>All</button>
+          <button className={`chip ${inboxFilter === 'starred' ? 'active' : ''}`} onClick={() => setInboxFilter('starred')}>⭐</button>
+          <button className={`chip ${inboxFilter === 'high' ? 'active' : ''}`} onClick={() => setInboxFilter('high')}>🔴 High</button>
+          <button className={`chip ${inboxFilter === 'today' ? 'active' : ''}`} onClick={() => setInboxFilter('today')}>📅 Today</button>
+          <button className={`chip ${inboxFilter === 'unsorted' ? 'active' : ''}`} onClick={() => setInboxFilter('unsorted')}>🆕 Unsorted</button>
+          <select className="sort-select" value={inboxSort} onChange={(e) => setInboxSort(e.target.value)}>
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+            <option value="priority">Priority</option>
+            <option value="due">Due date</option>
+          </select>
+        </div>
+      )}
+
+      {filtered.length === 0 ? (
+        <div className="empty-state">
+          <div className="empty-state-icon">📭</div>
+          <div className="empty-state-title">{inboxFilter !== 'all' ? 'No matches' : 'Inbox empty'}</div>
+          <div className="empty-state-text">{inboxFilter !== 'all' ? 'Try a different filter.' : 'Drop thoughts above when they come.'}</div>
+        </div>
+      ) : (
+        <div className="inbox-list">
+          {filtered.map(item => {
+            const isExpanded = expandedInboxId === item.id;
+            const today = formatDateLocal(new Date());
+            const isOverdue = item.due_date && item.due_date < today;
+            const isDueToday = item.due_date === today;
+            const cat = item.category ? getCategoryById(item.category) : null;
+
+            return (
+              <div key={item.id} className={`inbox-card ${isExpanded ? 'expanded' : ''} ${item.starred ? 'starred' : ''}`}>
+                <div className="inbox-card-row">
+                  <div
+                    className="inbox-circle"
+                    onClick={(e) => { e.stopPropagation(); convertInboxToTask(item); }}
+                    title="Mark complete - converts to task"
+                  ></div>
+                  <div className="inbox-main" onClick={() => setExpandedInboxId(isExpanded ? null : item.id)}>
+                    <div className="inbox-title">{item.text}</div>
+                    <div className="inbox-pills">
+                      {cat && <span className="inbox-pill" style={{ background: `var(--c-${cat.color}-bg)`, color: `var(--c-${cat.color})` }}>{cat.icon} {cat.label}</span>}
+                      {item.priority && <span className={`inbox-pill ${item.priority}`}>{item.priority === 'high' ? '🔴' : item.priority === 'medium' ? '🟡' : '🟢'} {item.priority}</span>}
+                      {item.due_date && (
+                        <span className={`inbox-pill ${isOverdue ? 'due-overdue' : isDueToday ? 'due-today' : 'due-future'}`}>
+                          📅 {new Date(item.due_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                          {isOverdue && ' · OVERDUE'}{isDueToday && ' · TODAY'}
+                        </span>
+                      )}
+                      {!cat && !item.priority && !item.due_date && <span className="inbox-tag-empty">tap to organize</span>}
+                    </div>
+                  </div>
+                  <button className={`star-btn ${item.starred ? 'starred' : ''}`} onClick={(e) => { e.stopPropagation(); updateInboxItem(item.id, { starred: !item.starred }); }}>
+                    {item.starred ? '⭐' : '☆'}
+                  </button>
+                </div>
+
+                {isExpanded && (
+                  <div className="inbox-expand">
+                    <div className="detail-row">
+                      <label>Category</label>
+                      <select value={item.category || ''} onChange={(e) => updateInboxItem(item.id, { category: e.target.value || null })}>
+                        <option value="">None</option>
+                        {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}
+                      </select>
+                    </div>
+                    <div className="detail-row">
+                      <label>Priority</label>
+                      <select value={item.priority || ''} onChange={(e) => updateInboxItem(item.id, { priority: e.target.value || null })}>
+                        <option value="">None</option>
+                        <option value="high">🔴 High</option>
+                        <option value="medium">🟡 Medium</option>
+                        <option value="low">🟢 Low</option>
+                      </select>
+                    </div>
+                    <div className="detail-row">
+                      <label>Due</label>
+                      <input type="date" value={item.due_date || ''} onChange={(e) => updateInboxItem(item.id, { due_date: e.target.value || null })} />
+                    </div>
+                    <div className="detail-row">
+                      <label>Notes</label>
+                      <textarea placeholder="Optional details..." defaultValue={item.notes || ''} onBlur={(e) => updateInboxItem(item.id, { notes: e.target.value || null })} />
+                    </div>
+                    <div className="expand-actions">
+                      <button className="btn btn-soft" onClick={() => convertInboxToTask(item)}>→ Task</button>
+                      <button className="btn btn-soft" onClick={() => convertInboxToMeeting(item)}>→ Meeting</button>
+                      <button className="btn btn-danger" onClick={() => deleteInboxItem(item.id)}>Delete</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </>
+  );
+};
+
+const ReviewView = ({ currentReview, setCurrentReview, saveReview, currentDate, mealPlan, saveMeal, reviews, setCurrentDate }) => {
+  return (
+    <>
+      <div className="page-title-area" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <div>
+          <div className="page-title">Weekly Review</div>
+          <div className="page-subtitle">Week of {getWeekStart(currentDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
+        </div>
+        <button className="btn btn-primary" onClick={saveReview}>Save</button>
+      </div>
+
+      <div className="review-section">
+        <h3>✨ Wins</h3>
+        <textarea value={currentReview.wins} onChange={(e) => setCurrentReview({ ...currentReview, wins: e.target.value })} placeholder="What went well this week?" />
+      </div>
+      <div className="review-section">
+        <h3>🔧 Improve</h3>
+        <textarea value={currentReview.improvements} onChange={(e) => setCurrentReview({ ...currentReview, improvements: e.target.value })} placeholder="What could be better?" />
+      </div>
+      <div className="review-section">
+        <h3>🎯 Focus next week</h3>
+        <textarea value={currentReview.focus} onChange={(e) => setCurrentReview({ ...currentReview, focus: e.target.value })} placeholder="Top 3 priorities" />
+      </div>
+
+      <div className="review-section">
+        <h3>🍽️ Meal Plan · Next Week</h3>
+        <div className="meal-grid">
+          {Array.from({ length: 7 }, (_, i) => {
+            const d = new Date(getWeekStart(currentDate));
+            d.setDate(d.getDate() + i + 7);
+            const dateStr = formatDateLocal(d);
+            const meals = mealPlan[dateStr] || {};
+            return (
+              <div key={dateStr} className="meal-day">
+                <h4>{d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</h4>
+                <input type="text" className="meal-input" placeholder="Breakfast" value={meals.breakfast || ''} onChange={(e) => saveMeal(dateStr, 'breakfast', e.target.value)} />
+                <input type="text" className="meal-input" placeholder="Lunch" value={meals.lunch || ''} onChange={(e) => saveMeal(dateStr, 'lunch', e.target.value)} />
+                <input type="text" className="meal-input" placeholder="Dinner" value={meals.dinner || ''} onChange={(e) => saveMeal(dateStr, 'dinner', e.target.value)} />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {reviews.length > 0 && (
+        <div className="review-section">
+          <h3>📚 Past Reviews</h3>
+          {reviews.map(r => (
+            <div key={r.id} className="review-history-card" onClick={() => {
+              setCurrentDate(new Date(r.week_starting + 'T00:00:00'));
+              setCurrentReview({ wins: r.wins || '', improvements: r.improvements || '', focus: r.next_week_focus || '' });
+            }}>
+              <div className="review-history-date">{new Date(r.week_starting + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</div>
+              <div className="review-history-preview">{r.next_week_focus?.substring(0, 100) || r.wins?.substring(0, 100) || '—'}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  );
+};
+
+const MeetingModal = ({ meeting, onSave, onDelete, onClose }) => {
+  const [data, setData] = useState({
+    id: meeting.id,
+    title: meeting.title || '',
+    start_time: meeting.start_time || '09:00',
+    duration: meeting.duration || 60,
+    job: meeting.job || 'mint',
+    icon: meeting.icon || '📅',
+    date: meeting.date,
+    recurrence: meeting.recurrence || 'none',
+    recurrence_end: meeting.recurrence_end || '',
+    _fromInbox: meeting._fromInbox
+  });
+
+  const handleSave = () => {
+    if (!data.title.trim()) return;
+    onSave(data);
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-handle"></div>
+        <h2>{data.id ? 'Edit Event' : 'New Event'}</h2>
+        <div className="form-group">
+          <label>Title</label>
+          <input type="text" value={data.title} onChange={(e) => setData({ ...data, title: e.target.value })} placeholder="Event title" autoFocus />
+        </div>
+        <div className="form-row">
+          <div className="form-group">
+            <label>Time</label>
+            <input type="time" value={data.start_time} onChange={(e) => setData({ ...data, start_time: e.target.value })} />
+          </div>
+          <div className="form-group">
+            <label>Duration</label>
+            <input type="number" value={data.duration} onChange={(e) => setData({ ...data, duration: parseInt(e.target.value) || 60 })} min="15" step="15" />
+          </div>
+        </div>
+        <div className="form-group">
+          <label>Color</label>
+          <div className="color-grid">
+            {COLORS.map(c => (
+              <div
+                key={c.id}
+                className={`color-swatch ${data.job === c.id ? 'selected' : ''}`}
+                style={{ background: `var(--c-${c.id})` }}
+                onClick={() => setData({ ...data, job: c.id })}
+                title={c.label}
+              ></div>
+            ))}
+          </div>
+        </div>
+        <div className="form-group">
+          <label>Icon</label>
+          <div className="icon-grid">
+            {ICONS.map(ico => (
+              <div key={ico} className={`icon-pick ${data.icon === ico ? 'selected' : ''}`} onClick={() => setData({ ...data, icon: ico })}>{ico}</div>
+            ))}
+          </div>
+        </div>
+        <div className="form-group">
+          <label>🔁 Repeat</label>
+          <select value={data.recurrence} onChange={(e) => setData({ ...data, recurrence: e.target.value })}>
+            <option value="none">Does not repeat</option>
+            <option value="daily">Daily</option>
+            <option value="weekdays">Weekdays</option>
+            <option value="weekly">Weekly</option>
+            <option value="biweekly">Every 2 weeks</option>
+            <option value="monthly">Monthly</option>
+          </select>
+        </div>
+        {data.recurrence !== 'none' && (
+          <div className="form-group">
+            <label>End repeat (optional)</label>
+            <input type="date" value={data.recurrence_end} onChange={(e) => setData({ ...data, recurrence_end: e.target.value })} />
+          </div>
+        )}
+        <div className="modal-actions spread">
+          {data.id ? <button className="btn btn-danger" onClick={() => onDelete(data.id)}>Delete</button> : <div></div>}
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button className="btn btn-soft" onClick={onClose}>Cancel</button>
+            <button className="btn btn-primary" onClick={handleSave}>Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const TaskModal = ({ task, onSave, onDelete, onClose }) => {
+  const [data, setData] = useState({
+    id: task.id,
+    title: task.title || '',
+    context: task.context || 'general',
+    completed: task.completed || false,
+    date: task.date
+  });
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-handle"></div>
+        <h2>{data.id ? 'Edit Task' : 'New Task'}</h2>
+        <div className="form-group">
+          <label>Task</label>
+          <input type="text" value={data.title} onChange={(e) => setData({ ...data, title: e.target.value })} autoFocus />
+        </div>
+        <div className="form-group">
+          <label>Category</label>
+          <select value={data.context} onChange={(e) => setData({ ...data, context: e.target.value })}>
+            {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}
+          </select>
+        </div>
+        <div className="form-group">
+          <label>Date</label>
+          <input type="date" value={data.date} onChange={(e) => setData({ ...data, date: e.target.value })} />
+        </div>
+        <div className="modal-actions spread">
+          {data.id ? <button className="btn btn-danger" onClick={() => onDelete(data.id)}>Delete</button> : <div></div>}
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button className="btn btn-soft" onClick={onClose}>Cancel</button>
+            <button className="btn btn-primary" onClick={() => onSave(data)}>Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+ReactDOM.render(<App />, document.getElementById('root'));
 </script>
 </body>
 </html>
