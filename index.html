@@ -2722,6 +2722,217 @@ const App = () => {
 
 
 // =================== HOME ===================
+// =================== WEATHER ===================
+const WMO_CODES = {
+  0: { emoji: '☀️', label: 'Clear', emojiNight: '🌙' },
+  1: { emoji: '🌤️', label: 'Mostly clear', emojiNight: '🌙' },
+  2: { emoji: '⛅', label: 'Partly cloudy' },
+  3: { emoji: '☁️', label: 'Overcast' },
+  45: { emoji: '🌫️', label: 'Fog' },
+  48: { emoji: '🌫️', label: 'Icy fog' },
+  51: { emoji: '🌦️', label: 'Light drizzle' },
+  53: { emoji: '🌦️', label: 'Drizzle' },
+  55: { emoji: '🌧️', label: 'Heavy drizzle' },
+  56: { emoji: '🌧️', label: 'Freezing drizzle' },
+  57: { emoji: '🌧️', label: 'Freezing drizzle' },
+  61: { emoji: '🌧️', label: 'Light rain' },
+  63: { emoji: '🌧️', label: 'Rain' },
+  65: { emoji: '🌧️', label: 'Heavy rain' },
+  66: { emoji: '🌧️', label: 'Freezing rain' },
+  67: { emoji: '🌧️', label: 'Freezing rain' },
+  71: { emoji: '🌨️', label: 'Light snow' },
+  73: { emoji: '🌨️', label: 'Snow' },
+  75: { emoji: '❄️', label: 'Heavy snow' },
+  77: { emoji: '🌨️', label: 'Snow grains' },
+  80: { emoji: '🌦️', label: 'Rain showers' },
+  81: { emoji: '🌧️', label: 'Showers' },
+  82: { emoji: '⛈️', label: 'Heavy showers' },
+  85: { emoji: '🌨️', label: 'Snow showers' },
+  86: { emoji: '🌨️', label: 'Snow showers' },
+  95: { emoji: '⛈️', label: 'Thunderstorm' },
+  96: { emoji: '⛈️', label: 'Hail storm' },
+  99: { emoji: '⛈️', label: 'Hail storm' }
+};
+
+const getWeatherIcon = (code, isDay = true) => {
+  const w = WMO_CODES[code] || { emoji: '🌡️', label: 'Unknown' };
+  return { emoji: !isDay && w.emojiNight ? w.emojiNight : w.emoji, label: w.label };
+};
+
+// =================== WEATHER STORE (shared singleton) ===================
+let _weather = (() => {
+  try {
+    const cached = JSON.parse(localStorage.getItem('cc-weather') || 'null');
+    if (cached && Date.now() - cached.fetchedAt < 30 * 60 * 1000) return cached;
+  } catch (e) {}
+  return null;
+})();
+let _weatherFetching = false;
+const _weatherListeners = new Set();
+const _notifyWeather = () => _weatherListeners.forEach(fn => fn());
+
+const fetchWeatherIfNeeded = (force = false) => {
+  if (_weatherFetching) return;
+  if (_weather && !force) return;
+  _weatherFetching = true;
+  _notifyWeather();
+
+  const run = async (lat, lng) => {
+    try {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,weather_code,is_day,wind_speed_10m,relative_humidity_2m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&temperature_unit=fahrenheit&wind_speed_unit=mph&forecast_days=4`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Weather fetch failed');
+      const json = await res.json();
+      let locName = '';
+      try {
+        const gres = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`);
+        const g = await gres.json();
+        locName = g.city || g.locality || g.principalSubdivision || '';
+      } catch (e) {}
+      _weather = {
+        temp: Math.round(json.current.temperature_2m),
+        code: json.current.weather_code,
+        isDay: json.current.is_day === 1,
+        wind: Math.round(json.current.wind_speed_10m),
+        humidity: Math.round(json.current.relative_humidity_2m),
+        location: locName,
+        forecast: json.daily.time.slice(0, 4).map((date, i) => ({
+          date,
+          high: Math.round(json.daily.temperature_2m_max[i]),
+          low: Math.round(json.daily.temperature_2m_min[i]),
+          code: json.daily.weather_code[i]
+        })),
+        fetchedAt: Date.now(),
+        error: null
+      };
+      localStorage.setItem('cc-weather', JSON.stringify(_weather));
+    } catch (e) {
+      _weather = { error: e.message || 'Failed to load', fetchedAt: Date.now() };
+    } finally {
+      _weatherFetching = false;
+      _notifyWeather();
+    }
+  };
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => run(pos.coords.latitude, pos.coords.longitude),
+      () => run(47.6, -122.2),
+      { timeout: 6000, maximumAge: 600000 }
+    );
+  } else {
+    run(47.6, -122.2);
+  }
+};
+
+const useWeather = () => {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const update = () => setTick(t => t + 1);
+    _weatherListeners.add(update);
+    fetchWeatherIfNeeded();
+    return () => _weatherListeners.delete(update);
+  }, []);
+  return {
+    data: _weather && !_weather.error ? _weather : null,
+    loading: _weatherFetching && !_weather,
+    error: _weather && _weather.error ? _weather.error : null,
+    refresh: () => {
+      _weather = null;
+      localStorage.removeItem('cc-weather');
+      fetchWeatherIfNeeded(true);
+    }
+  };
+};
+
+// =================== WEATHER CARD (Home) ===================
+const WeatherCard = () => {
+  const { data, loading, error, refresh } = useWeather();
+
+  if (loading) {
+    return (
+      <div className="home-card">
+        <div className="home-card-head"><div className="home-card-title">🌡️ Weather</div></div>
+        <div className="home-card-body"><div className="home-empty">Loading…</div></div>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="home-card">
+        <div className="home-card-head">
+          <div className="home-card-title">🌡️ Weather</div>
+          <button className="home-card-link" onClick={refresh}>Retry</button>
+        </div>
+        <div className="home-card-body"><div className="home-empty">{error || 'Could not load weather'}</div></div>
+      </div>
+    );
+  }
+
+  const { temp, code, isDay, wind, humidity, location, forecast } = data;
+  const w = getWeatherIcon(code, isDay);
+  const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  return (
+    <div className="home-card">
+      <div className="home-card-head">
+        <div className="home-card-title">🌡️ Weather{location ? ` · ${location}` : ''}</div>
+        <button className="home-card-link" onClick={refresh} title="Refresh">↻</button>
+      </div>
+      <div className="home-card-body">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', padding: '0.4rem 0' }}>
+          <div style={{ fontSize: '2.75rem', lineHeight: 1 }}>{w.emoji}</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontFamily: 'Plus Jakarta Sans, sans-serif', fontSize: '2rem', fontWeight: 700, lineHeight: 1, color: 'var(--text)' }}>{temp}°</div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--text-soft)', marginTop: '0.2rem' }}>{w.label}</div>
+            <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: '0.1rem' }}>💨 {wind} mph · 💧 {humidity}%</div>
+          </div>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border-soft)', paddingTop: '0.6rem', marginTop: 'auto', gap: '0.25rem' }}>
+          {forecast.map((f, i) => {
+            const fw = getWeatherIcon(f.code, true);
+            const d = new Date(f.date + 'T00:00:00');
+            return (
+              <div key={f.date} style={{ textAlign: 'center', flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: '0.62rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.4px' }}>{i === 0 ? 'Today' : dayNames[d.getDay()]}</div>
+                <div style={{ fontSize: '1.1rem', margin: '2px 0' }}>{fw.emoji}</div>
+                <div style={{ fontSize: '0.7rem', color: 'var(--text-soft)', fontWeight: 600 }}>
+                  {f.high}°<span style={{ color: 'var(--text-muted)', fontWeight: 400, marginLeft: 3 }}>{f.low}°</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// =================== WEATHER PILL (compact, for Today header) ===================
+const WeatherPill = () => {
+  const { data, loading } = useWeather();
+  if (loading || !data) return null;
+  const w = getWeatherIcon(data.code, data.isDay);
+  return (
+    <div style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '0.4rem',
+      padding: '0.35rem 0.75rem',
+      background: 'var(--bg-soft)',
+      borderRadius: '14px',
+      fontSize: '0.85rem',
+      fontWeight: 600,
+      color: 'var(--text)',
+      border: '1px solid var(--border-soft)'
+    }} title={`${w.label}${data.location ? ' · ' + data.location : ''}`}>
+      <span style={{ fontSize: '1.05rem', lineHeight: 1 }}>{w.emoji}</span>
+      <span style={{ fontVariantNumeric: 'tabular-nums' }}>{data.temp}°</span>
+    </div>
+  );
+};
+
 const HomeView = ({ projects, todayTasks, todayMeetings, inboxItems, pinnedNote, scratchPad, scratchSaved, updateScratch, setView, setActiveProjectId, setTaskModal, setMeetingModal, toggleTask, setActiveNoteId, createNote, notes, getProjectById }) => {
   const pendingTasks = todayTasks.filter(t => !t.completed);
   const recentNotes = notes.slice(0, 5);
@@ -2729,6 +2940,7 @@ const HomeView = ({ projects, todayTasks, todayMeetings, inboxItems, pinnedNote,
   return (
     <>
       <div className="home-grid">
+        <WeatherCard />
         <div className="home-card">
           <div className="home-card-head">
             <div className="home-card-title">📋 Today's Tasks</div>
@@ -2899,10 +3111,13 @@ const TodayView = ({ todayTasks, todayMeetings, setTaskModal, setMeetingModal, t
           <div className="page-title">{isToday ? 'Today' : currentDate.toLocaleDateString('en-US', { weekday: 'long' })}</div>
           <div className="page-subtitle">{currentDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} · {pending.length} task{pending.length !== 1 ? 's' : ''} · {todayMeetings.length} meeting{todayMeetings.length !== 1 ? 's' : ''}</div>
         </div>
-        <div style={{ display: 'flex', gap: '0.4rem' }}>
-          <button className="icon-btn" onClick={() => navigateDay(-1)}>‹</button>
-          <button className="icon-btn" onClick={() => setCurrentDate(new Date())} title="Today">•</button>
-          <button className="icon-btn" onClick={() => navigateDay(1)}>›</button>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          {isToday && <WeatherPill />}
+          <div style={{ display: 'flex', gap: '0.4rem' }}>
+            <button className="icon-btn" onClick={() => navigateDay(-1)}>‹</button>
+            <button className="icon-btn" onClick={() => setCurrentDate(new Date())} title="Today">•</button>
+            <button className="icon-btn" onClick={() => navigateDay(1)}>›</button>
+          </div>
         </div>
       </div>
 
