@@ -1164,7 +1164,7 @@ const COLORS = [
 
 const ICONS = ['💼', '📊', '🧪', '⚗️', '📞', '💻', '✏️', '📝', '🏃', '💪', '🧘', '🍽️', '🍳', '☕', '👨‍👩‍👧', '🎂', '🎁', '✈️', '🎵', '🎬', '📚', '🇰🇷', '📈', '💰', '🛒', '🏠', '🐕', '⛪', '💊', '🦷', '✂️', '💅', '⏰', '🎯', '🎨', '🌟', '❤️', '🔥', '⚡', '💡', '📌', '✅'];
 
-const CATEGORIES = [
+const DEFAULT_CATEGORIES = [
   { id: 'work-mint',     label: 'Work · Mint',          icon: '💼', color: 'mint' },
   { id: 'work-sky',      label: 'Work · Sky',           icon: '🧪', color: 'sky' },
   { id: 'trading',       label: 'Trading',              icon: '📈', color: 'amber' },
@@ -1175,7 +1175,23 @@ const CATEGORIES = [
   { id: 'general',       label: 'General',              icon: '📌', color: 'slate' }
 ];
 
-const getCategoryById = (id) => CATEGORIES.find(c => c.id === id) || CATEGORIES[CATEGORIES.length - 1];
+// Categories are loaded from Supabase or fall back to defaults
+let _categoriesCache = DEFAULT_CATEGORIES;
+const setCategoriesCache = (cats) => { _categoriesCache = cats; };
+const CATEGORIES = new Proxy({}, {
+  get(_target, prop) {
+    if (prop === 'length') return _categoriesCache.length;
+    if (prop === 'map') return (...args) => _categoriesCache.map(...args);
+    if (prop === 'filter') return (...args) => _categoriesCache.filter(...args);
+    if (prop === 'find') return (...args) => _categoriesCache.find(...args);
+    if (prop === 'forEach') return (...args) => _categoriesCache.forEach(...args);
+    if (prop === Symbol.iterator) return _categoriesCache[Symbol.iterator].bind(_categoriesCache);
+    if (typeof prop === 'string' && !isNaN(parseInt(prop))) return _categoriesCache[parseInt(prop)];
+    return _categoriesCache[prop];
+  }
+});
+
+const getCategoryById = (id) => _categoriesCache.find(c => c.id === id) || _categoriesCache[_categoriesCache.length - 1] || DEFAULT_CATEGORIES[DEFAULT_CATEGORIES.length - 1];
 
 const formatDateLocal = (date) => {
   const y = date.getFullYear();
@@ -1250,6 +1266,13 @@ const App = () => {
   const [inboxSort, setInboxSort] = useState('newest');
   const [expandedInboxId, setExpandedInboxId] = useState(null);
   const [newTaskCategory, setNewTaskCategory] = useState('general');
+  const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showImport, setShowImport] = useState(false);
+  const [editingCategory, setEditingCategory] = useState(null);
+
+  // Keep CATEGORIES proxy in sync with state
+  useEffect(() => { setCategoriesCache(categories); }, [categories]);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -1259,7 +1282,61 @@ const App = () => {
   useEffect(() => { loadAll(); }, []);
 
   const loadAll = async () => {
-    await Promise.all([loadMeetings(), loadTasks(), loadInbox(), loadReviews(), loadMealPlan()]);
+    await Promise.all([loadMeetings(), loadTasks(), loadInbox(), loadReviews(), loadMealPlan(), loadCategories()]);
+  };
+
+  const loadCategories = async () => {
+    const { data, error } = await supabase.from('cc_categories').select('*').order('sort_order');
+    if (error || !data || data.length === 0) {
+      // Initialize with defaults if table is empty
+      if (!error) {
+        const seeded = DEFAULT_CATEGORIES.map((c, i) => ({ ...c, sort_order: i }));
+        await supabase.from('cc_categories').insert(seeded);
+        setCategories(DEFAULT_CATEGORIES);
+      } else {
+        setCategories(DEFAULT_CATEGORIES);
+      }
+      return;
+    }
+    setCategories(data);
+  };
+
+  const saveCategory = async (cat) => {
+    if (cat.id && categories.find(c => c.id === cat.id)) {
+      await supabase.from('cc_categories').update({
+        label: cat.label, icon: cat.icon, color: cat.color, sort_order: cat.sort_order
+      }).eq('id', cat.id);
+      showToast('Category updated');
+    } else {
+      const newId = cat.id || cat.label.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30) + '-' + Date.now().toString(36).slice(-4);
+      await supabase.from('cc_categories').insert([{
+        id: newId, label: cat.label, icon: cat.icon, color: cat.color,
+        sort_order: cat.sort_order ?? categories.length
+      }]);
+      showToast('Category added');
+    }
+    setEditingCategory(null);
+    loadCategories();
+  };
+
+  const deleteCategory = async (id) => {
+    await supabase.from('cc_categories').delete().eq('id', id);
+    showToast('Category deleted');
+    setEditingCategory(null);
+    loadCategories();
+  };
+
+  const moveCategory = async (id, direction) => {
+    const sorted = [...categories];
+    const idx = sorted.findIndex(c => c.id === id);
+    const swapIdx = idx + direction;
+    if (swapIdx < 0 || swapIdx >= sorted.length) return;
+    [sorted[idx], sorted[swapIdx]] = [sorted[swapIdx], sorted[idx]];
+    // Persist new order
+    for (let i = 0; i < sorted.length; i++) {
+      await supabase.from('cc_categories').update({ sort_order: i }).eq('id', sorted[i].id);
+    }
+    loadCategories();
   };
 
   const loadMeetings = async () => {
@@ -1440,6 +1517,7 @@ const App = () => {
           <button className={`icon-btn ${privacyMode ? 'active' : ''}`} onClick={() => setPrivacyMode(!privacyMode)}>
             {privacyMode ? '🔒' : '👁️'}
           </button>
+          <button className="icon-btn" onClick={() => setShowSettings(true)} title="Settings">⚙️</button>
         </div>
       </header>
 
@@ -1527,6 +1605,48 @@ const App = () => {
 
       {meetingModal && <MeetingModal meeting={meetingModal} onSave={saveMeeting} onDelete={deleteMeeting} onClose={() => setMeetingModal(null)} />}
       {taskModal && <TaskModal task={taskModal} onSave={saveTask} onDelete={deleteTask} onClose={() => setTaskModal(null)} />}
+      {showSettings && (
+        <SettingsModal
+          categories={categories}
+          onClose={() => setShowSettings(false)}
+          onEditCategory={(c) => setEditingCategory(c)}
+          onMoveCategory={moveCategory}
+          onShowImport={() => { setShowSettings(false); setShowImport(true); }}
+          theme={theme}
+          setTheme={setTheme}
+        />
+      )}
+      {editingCategory && (
+        <CategoryEditModal
+          category={editingCategory}
+          onSave={saveCategory}
+          onDelete={deleteCategory}
+          onClose={() => setEditingCategory(null)}
+        />
+      )}
+      {showImport && (
+        <ImportMeetingsModal
+          onClose={() => setShowImport(false)}
+          onImport={async (meetings) => {
+            for (const m of meetings) {
+              await supabase.from('command_meetings').insert([{
+                date: m.date,
+                title: m.title,
+                start_time: m.start_time,
+                duration: m.duration,
+                job: m.job || 'mint',
+                icon: m.icon || '📅',
+                start_minutes: minutesFromTime(m.start_time),
+                end_minutes: minutesFromTime(m.start_time) + m.duration,
+                recurrence: 'none'
+              }]);
+            }
+            showToast(`Imported ${meetings.length} meeting${meetings.length !== 1 ? 's' : ''}`);
+            setShowImport(false);
+            loadMeetings();
+          }}
+        />
+      )}
       {toast && <div className="toast">{toast}</div>}
     </div>
   );
@@ -2114,6 +2234,388 @@ const MeetingModal = ({ meeting, onSave, onDelete, onClose }) => {
             <button className="btn btn-primary" onClick={handleSave}>Save</button>
           </div>
         </div>
+      </div>
+    </div>
+  );
+};
+
+// =============== Settings Modal ===============
+const SettingsModal = ({ categories, onClose, onEditCategory, onMoveCategory, onShowImport, theme, setTheme }) => {
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '560px' }}>
+        <div className="modal-handle"></div>
+        <h2>⚙️ Settings</h2>
+
+        <div className="settings-section">
+          <h3>Appearance</h3>
+          <div className="settings-row">
+            <div>
+              <div className="setting-label">Dark mode</div>
+              <div className="setting-desc">Switch between light and dark theme</div>
+            </div>
+            <div
+              className={`toggle-switch ${theme === 'dark' ? 'on' : ''}`}
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            ></div>
+          </div>
+        </div>
+
+        <div className="settings-section">
+          <h3>Tools</h3>
+          <div className="settings-row" onClick={onShowImport} style={{ cursor: 'pointer' }}>
+            <div>
+              <div className="setting-label">📋 Import meetings from text</div>
+              <div className="setting-desc">Paste your work calendar text to auto-create meetings</div>
+            </div>
+            <div style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>›</div>
+          </div>
+        </div>
+
+        <div className="settings-section">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+            <h3 style={{ margin: 0 }}>Categories</h3>
+            <button className="btn btn-soft" style={{ padding: '0.4rem 0.7rem', fontSize: '0.75rem' }} onClick={() => onEditCategory({ label: '', icon: '📌', color: 'slate' })}>+ New</button>
+          </div>
+          <div className="cat-list">
+            {categories.map((cat, idx) => (
+              <div key={cat.id} className="cat-row" onClick={() => onEditCategory(cat)}>
+                <div className="cat-icon-wrap" style={{ background: `var(--c-${cat.color})` }}>
+                  {cat.icon}
+                </div>
+                <div className="cat-text">
+                  <div className="cat-name">{cat.label}</div>
+                  <div className="cat-count">{cat.color}</div>
+                </div>
+                <div style={{ display: 'flex', gap: '0.25rem' }}>
+                  <button className="btn-ghost" onClick={(e) => { e.stopPropagation(); onMoveCategory(cat.id, -1); }} disabled={idx === 0} style={{ opacity: idx === 0 ? 0.3 : 1 }}>↑</button>
+                  <button className="btn-ghost" onClick={(e) => { e.stopPropagation(); onMoveCategory(cat.id, 1); }} disabled={idx === categories.length - 1} style={{ opacity: idx === categories.length - 1 ? 0.3 : 1 }}>↓</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="modal-actions">
+          <button className="btn btn-primary" onClick={onClose}>Done</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// =============== Category Edit Modal ===============
+const CategoryEditModal = ({ category, onSave, onDelete, onClose }) => {
+  const [data, setData] = useState({
+    id: category.id,
+    label: category.label || '',
+    icon: category.icon || '📌',
+    color: category.color || 'slate',
+    sort_order: category.sort_order
+  });
+
+  const handleSave = () => {
+    if (!data.label.trim()) return;
+    onSave(data);
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-handle"></div>
+        <h2>{data.id ? 'Edit Category' : 'New Category'}</h2>
+
+        <div className="form-group">
+          <label>Name</label>
+          <input
+            type="text"
+            value={data.label}
+            onChange={(e) => setData({ ...data, label: e.target.value })}
+            placeholder="e.g. Korean Lessons"
+            autoFocus
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Color</label>
+          <div className="color-grid">
+            {COLORS.map(c => (
+              <div
+                key={c.id}
+                className={`color-swatch ${data.color === c.id ? 'selected' : ''}`}
+                style={{ background: `var(--c-${c.id})` }}
+                onClick={() => setData({ ...data, color: c.id })}
+                title={c.label}
+              ></div>
+            ))}
+          </div>
+        </div>
+
+        <div className="form-group">
+          <label>Icon</label>
+          <div className="icon-grid">
+            {ICONS.map(ico => (
+              <div key={ico} className={`icon-pick ${data.icon === ico ? 'selected' : ''}`} onClick={() => setData({ ...data, icon: ico })}>{ico}</div>
+            ))}
+          </div>
+        </div>
+
+        <div className="modal-actions spread">
+          {data.id ? (
+            <button className="btn btn-danger" onClick={() => {
+              if (window.confirm('Delete this category? Tasks using it will keep their reference but show as uncategorized.')) {
+                onDelete(data.id);
+              }
+            }}>Delete</button>
+          ) : <div></div>}
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button className="btn btn-soft" onClick={onClose}>Cancel</button>
+            <button className="btn btn-primary" onClick={handleSave}>Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// =============== Import Meetings Modal ===============
+const parseMeetingText = (text, defaultDate) => {
+  // Try to parse common calendar formats
+  // Expected patterns:
+  // "9:00 AM - 10:00 AM   Meeting Title"
+  // "9:00 AM   Meeting Title (1 hr)"
+  // "Meeting Title  9:00 AM - 10:00 AM"
+  // "9:00 AM - Meeting Title"
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  const meetings = [];
+
+  // Regex patterns
+  const timeRangePattern = /(\d{1,2}):?(\d{2})?\s*(AM|PM|am|pm)?\s*[-–—to]+\s*(\d{1,2}):?(\d{2})?\s*(AM|PM|am|pm)?/;
+  const singleTimePattern = /(\d{1,2}):?(\d{2})?\s*(AM|PM|am|pm)/;
+  const datePattern = /(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?|(\w+day),?\s*(\w+)\s+(\d{1,2})|(\w+)\s+(\d{1,2})/;
+  const durationPattern = /\(([0-9.]+)\s*(hr|hrs|hour|hours|min|mins|minutes)\)/i;
+
+  let currentDate = defaultDate;
+
+  for (const line of lines) {
+    // Skip very short lines
+    if (line.length < 4) continue;
+
+    // Try to detect a date heading line (e.g. "Monday, October 6" or "10/6")
+    const dateMatch = line.match(datePattern);
+    if (dateMatch && !line.match(singleTimePattern)) {
+      try {
+        const parsed = new Date(line + (line.match(/\d{4}/) ? '' : ` ${new Date().getFullYear()}`));
+        if (!isNaN(parsed.getTime())) {
+          currentDate = formatDateLocal(parsed);
+          continue;
+        }
+      } catch (e) {}
+    }
+
+    // Try to find a time range
+    const rangeMatch = line.match(timeRangePattern);
+    let startTime = null;
+    let duration = 60;
+
+    if (rangeMatch) {
+      const [, h1, m1, ap1, h2, m2, ap2] = rangeMatch;
+      const startH = parseInt(h1);
+      const startM = parseInt(m1 || '0');
+      const endH = parseInt(h2);
+      const endM = parseInt(m2 || '0');
+      const startAp = (ap1 || ap2 || '').toLowerCase();
+      const endAp = (ap2 || ap1 || '').toLowerCase();
+
+      let s24 = startH;
+      if (startAp === 'pm' && startH < 12) s24 += 12;
+      if (startAp === 'am' && startH === 12) s24 = 0;
+      let e24 = endH;
+      if (endAp === 'pm' && endH < 12) e24 += 12;
+      if (endAp === 'am' && endH === 12) e24 = 0;
+
+      startTime = `${String(s24).padStart(2, '0')}:${String(startM).padStart(2, '0')}`;
+      duration = (e24 * 60 + endM) - (s24 * 60 + startM);
+      if (duration <= 0) duration = 60;
+    } else {
+      const singleMatch = line.match(singleTimePattern);
+      if (singleMatch) {
+        const [, h, m, ap] = singleMatch;
+        let h24 = parseInt(h);
+        const ap_l = ap.toLowerCase();
+        if (ap_l === 'pm' && h24 < 12) h24 += 12;
+        if (ap_l === 'am' && h24 === 12) h24 = 0;
+        startTime = `${String(h24).padStart(2, '0')}:${String(parseInt(m || '0')).padStart(2, '0')}`;
+        const durMatch = line.match(durationPattern);
+        if (durMatch) {
+          const num = parseFloat(durMatch[1]);
+          const unit = durMatch[2].toLowerCase();
+          duration = unit.startsWith('h') ? num * 60 : num;
+        }
+      }
+    }
+
+    if (!startTime) continue;
+
+    // Extract title - everything that isn't time or date
+    let title = line
+      .replace(timeRangePattern, '')
+      .replace(singleTimePattern, '')
+      .replace(durationPattern, '')
+      .replace(/^[\s\-–—:|]+|[\s\-–—:|]+$/g, '')
+      .trim();
+
+    if (title.length < 2) continue;
+
+    meetings.push({
+      date: currentDate,
+      title,
+      start_time: startTime,
+      duration: Math.round(duration),
+      job: 'mint',
+      icon: '📅'
+    });
+  }
+
+  return meetings;
+};
+
+const ImportMeetingsModal = ({ onClose, onImport }) => {
+  const [text, setText] = useState('');
+  const [parsed, setParsed] = useState([]);
+  const [defaultDate, setDefaultDate] = useState(formatDateLocal(new Date()));
+  const [step, setStep] = useState('paste'); // paste | review
+
+  const handleParse = () => {
+    const result = parseMeetingText(text, defaultDate);
+    if (result.length === 0) {
+      alert("Couldn't find any meetings in that text. Make sure each meeting has a time like '9:00 AM - 10:00 AM' or '2:30 PM (1 hr)'.");
+      return;
+    }
+    setParsed(result);
+    setStep('review');
+  };
+
+  const updateParsed = (idx, updates) => {
+    const updated = [...parsed];
+    updated[idx] = { ...updated[idx], ...updates };
+    setParsed(updated);
+  };
+
+  const removeParsed = (idx) => {
+    setParsed(parsed.filter((_, i) => i !== idx));
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px' }}>
+        <div className="modal-handle"></div>
+        <h2>📋 Import Meetings</h2>
+
+        {step === 'paste' && (
+          <>
+            <p style={{ color: 'var(--text-soft)', fontSize: '0.85rem', marginBottom: '1rem', lineHeight: 1.5 }}>
+              Copy your work calendar (Outlook, Google Cal, etc.) and paste below. The app will detect meetings with times like <strong>"9:00 AM - 10:00 AM"</strong> or <strong>"2:30 PM (1 hr)"</strong>.
+            </p>
+
+            <div className="form-group">
+              <label>Default date (used if no date in text)</label>
+              <input type="date" value={defaultDate} onChange={(e) => setDefaultDate(e.target.value)} />
+            </div>
+
+            <div className="form-group">
+              <label>Paste calendar text</label>
+              <textarea
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder={`Examples that work:
+
+Monday, October 6
+9:00 AM - 10:00 AM   Team Standup
+10:30 AM - 11:30 AM  1:1 with Sarah
+2:00 PM (30 min)     Sprint Planning
+
+Or just times:
+9:00 AM - Team Standup
+2:30 PM - 3:00 PM Quick check-in`}
+                style={{ minHeight: '200px', fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem' }}
+              />
+            </div>
+
+            <div className="modal-actions">
+              <button className="btn btn-soft" onClick={onClose}>Cancel</button>
+              <button className="btn btn-primary" onClick={handleParse} disabled={!text.trim()}>Parse Meetings</button>
+            </div>
+          </>
+        )}
+
+        {step === 'review' && (
+          <>
+            <p style={{ color: 'var(--text-soft)', fontSize: '0.85rem', marginBottom: '1rem' }}>
+              Found <strong>{parsed.length}</strong> meeting{parsed.length !== 1 ? 's' : ''}. Review, edit, or remove before importing.
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '400px', overflowY: 'auto', marginBottom: '1rem' }}>
+              {parsed.map((m, idx) => (
+                <div key={idx} style={{ background: 'var(--bg-soft)', border: '1px solid var(--border)', borderRadius: '12px', padding: '0.75rem' }}>
+                  <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '0.5rem' }}>
+                    <input
+                      type="text"
+                      value={m.title}
+                      onChange={(e) => updateParsed(idx, { title: e.target.value })}
+                      style={{ flex: 1, padding: '0.4rem 0.6rem', border: '1px solid var(--border)', borderRadius: '6px', fontSize: '0.85rem', background: 'var(--bg-card)', color: 'var(--text)', fontFamily: 'inherit' }}
+                    />
+                    <button className="btn btn-ghost" style={{ color: 'var(--c-coral)' }} onClick={() => removeParsed(idx)}>✕</button>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.4rem' }}>
+                    <input
+                      type="date"
+                      value={m.date}
+                      onChange={(e) => updateParsed(idx, { date: e.target.value })}
+                      style={{ padding: '0.3rem', border: '1px solid var(--border)', borderRadius: '6px', fontSize: '0.75rem', background: 'var(--bg-card)', color: 'var(--text)', fontFamily: 'inherit' }}
+                    />
+                    <input
+                      type="time"
+                      value={m.start_time}
+                      onChange={(e) => updateParsed(idx, { start_time: e.target.value })}
+                      style={{ padding: '0.3rem', border: '1px solid var(--border)', borderRadius: '6px', fontSize: '0.75rem', background: 'var(--bg-card)', color: 'var(--text)', fontFamily: 'inherit' }}
+                    />
+                    <input
+                      type="number"
+                      value={m.duration}
+                      step="15"
+                      onChange={(e) => updateParsed(idx, { duration: parseInt(e.target.value) || 60 })}
+                      style={{ padding: '0.3rem', border: '1px solid var(--border)', borderRadius: '6px', fontSize: '0.75rem', background: 'var(--bg-card)', color: 'var(--text)', fontFamily: 'inherit' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.3rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+                    {COLORS.map(c => (
+                      <div
+                        key={c.id}
+                        onClick={() => updateParsed(idx, { job: c.id })}
+                        style={{
+                          width: '24px',
+                          height: '24px',
+                          borderRadius: '6px',
+                          background: `var(--c-${c.id})`,
+                          cursor: 'pointer',
+                          border: m.job === c.id ? '2px solid var(--text)' : '2px solid transparent'
+                        }}
+                      ></div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="modal-actions spread">
+              <button className="btn btn-soft" onClick={() => setStep('paste')}>← Back</button>
+              <button className="btn btn-primary" onClick={() => onImport(parsed)} disabled={parsed.length === 0}>
+                Import {parsed.length} meeting{parsed.length !== 1 ? 's' : ''}
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
