@@ -27,31 +27,13 @@
   --text-muted: #9B9388;
   --accent: #FF7A59;
   --accent-soft: #FFE8E0;
-
-  /* Structured-style vibrant category colors */
-  --c-coral: #FF7A6B;
-  --c-coral-bg: #FFE5E0;
-  --c-mint: #5DCFA0;
-  --c-mint-bg: #DCF4E8;
-  --c-sky: #6BB7E8;
-  --c-sky-bg: #DCEAF6;
-  --c-lavender: #A892E8;
-  --c-lavender-bg: #E8DEF7;
-  --c-amber: #F5B544;
-  --c-amber-bg: #FCEBC8;
-  --c-rose: #E8859A;
-  --c-rose-bg: #FAE0E5;
-  --c-teal: #4FBDBA;
-  --c-teal-bg: #D5EFEE;
-  --c-slate: #8A8A8A;
-  --c-slate-bg: #ECECEC;
-
   --radius-sm: 10px;
   --radius: 16px;
   --radius-lg: 24px;
   --shadow-sm: 0 1px 2px rgba(31, 27, 22, 0.06);
   --shadow: 0 4px 16px rgba(31, 27, 22, 0.08);
   --shadow-lg: 0 12px 32px rgba(31, 27, 22, 0.12);
+  --sidebar-w: 240px;
 }
 
 [data-theme="dark"] {
@@ -84,7 +66,14 @@ body {
 input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
 input[type=number] { -moz-appearance: textfield; }
 
-.app { min-height: 100vh; padding-bottom: 100px; }
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============= MOBILE LAYOUT (default) ============= */
+.app-shell { padding-bottom: 100px; }
 
 /* Top header */
 .top-bar {
@@ -94,7 +83,6 @@ input[type=number] { -moz-appearance: textfield; }
   align-items: center;
 }
 
-.greeting { display: flex; align-items: center; gap: 0.6rem; }
 .greeting-text {
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-weight: 700;
@@ -194,23 +182,22 @@ input[type=number] { -moz-appearance: textfield; }
   background: var(--accent-soft);
   border-color: var(--accent);
 }
-.date-pill.selected:not(.today) .pill-num { color: var(--accent); }
+.date-pill.selected:not(.today) .pill-num,
 .date-pill.selected:not(.today) .pill-dow { color: var(--accent); }
 
-/* Tabs */
+/* Bottom tabs (mobile) */
 .tab-bar {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  background: var(--bg-card);
+  background: rgba(255, 255, 255, 0.95);
   border-top: 1px solid var(--border);
   padding: 0.5rem 1rem 1rem;
   display: flex;
   justify-content: space-around;
   z-index: 100;
   backdrop-filter: blur(20px);
-  background: rgba(255, 255, 255, 0.95);
 }
 
 [data-theme="dark"] .tab-bar { background: rgba(37, 34, 30, 0.95); }
@@ -243,7 +230,7 @@ input[type=number] { -moz-appearance: textfield; }
   position: absolute;
   top: 4px;
   right: calc(50% - 18px);
-  background: var(--c-coral);
+  background: #FF7A6B;
   color: white;
   font-size: 0.6rem;
   padding: 1px 5px;
@@ -254,13 +241,291 @@ input[type=number] { -moz-appearance: textfield; }
 }
 
 /* Content container */
-.content { padding: 0 1.25rem; max-width: 700px; margin: 0 auto; }
+.content { padding: 0 1.25rem; max-width: 700px; margin: 0 auto; width: 100%; }
 
-/* Visual timeline (Structured-inspired) */
-.timeline {
-  position: relative;
-  padding: 0.5rem 0;
+/* ============= DESKTOP LAYOUT ============= */
+@media (min-width: 900px) {
+  .app-shell {
+    display: grid;
+    grid-template-columns: var(--sidebar-w) 1fr;
+    padding-bottom: 0;
+    min-height: 100vh;
+  }
+
+  .tab-bar {
+    position: relative;
+    border-top: none;
+    border-right: 1px solid var(--border);
+    background: var(--bg);
+    padding: 1.25rem 0.75rem;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 0.25rem;
+    backdrop-filter: none;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    overflow-y: auto;
+  }
+
+  [data-theme="dark"] .tab-bar { background: var(--bg); }
+
+  .tab-bar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0 0.6rem 1.25rem;
+    margin-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  .tab-bar-brand-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .tab-bar-brand-text {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .tab-btn {
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 0.6rem 0.85rem;
+    gap: 0.65rem;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-align: left;
+  }
+
+  .tab-btn .tab-icon { font-size: 1.05rem; }
+  .tab-btn.active { background: var(--accent-soft); color: var(--accent); }
+  .tab-btn.active .tab-icon { transform: none; }
+  .tab-btn.has-badge::after {
+    position: static;
+    margin-left: auto;
+  }
+
+  .top-bar { padding: 1.5rem 2rem 0.75rem; }
+  .page-title-area { padding: 0.5rem 2rem 1.25rem; }
+  .content { padding: 0 2rem; max-width: 1100px; }
+  .date-nav-pills { padding: 0 2rem 1rem; }
+
+  .app-shell-main {
+    overflow-x: hidden;
+  }
+
+  .home-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
+
+@media (min-width: 1200px) {
+  :root { --sidebar-w: 260px; }
+  .home-grid { grid-template-columns: 1fr 1fr 1fr; }
+}
+
+.show-mobile { display: block; }
+.hide-mobile { display: none; }
+
+@media (min-width: 900px) {
+  .show-mobile { display: none; }
+  .hide-mobile { display: block; }
+}
+
+/* Buttons */
+.btn {
+  padding: 0.65rem 1rem;
+  border: none;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.btn-primary { background: var(--text); color: white; }
+.btn-primary:hover { background: #000; transform: translateY(-1px); }
+
+.btn-soft { background: var(--bg-soft); color: var(--text-soft); border: 1px solid var(--border); }
+.btn-soft:hover { background: var(--border-soft); }
+
+.btn-ghost { background: transparent; color: var(--text-muted); border: none; padding: 0.4rem 0.7rem; font-size: 0.8rem; cursor: pointer; }
+.btn-ghost:hover { color: var(--text); }
+
+.btn-danger { background: #FF7A6B; color: white; }
+.btn-danger:hover { background: #E5685A; }
+
+/* ============= HOME (Evernote-inspired) ============= */
+.home-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.home-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  min-height: 240px;
+}
+
+.home-card.scratch-pad {
+  background: linear-gradient(135deg, #FFF8DC, #FFFAEC);
+  border-color: #F5DC8A;
+}
+
+[data-theme="dark"] .home-card.scratch-pad {
+  background: linear-gradient(135deg, #2A2820, #25221E);
+  border-color: #524826;
+}
+
+.home-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.home-card-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.home-card-action {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 600;
+}
+
+.home-card-action:hover { color: var(--accent); }
+
+.home-card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.home-empty {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-style: italic;
+  padding: 1rem 0;
+  text-align: center;
+}
+
+.home-list-item {
+  padding: 0.65rem 0.75rem;
+  background: var(--bg-soft);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border-left: 3px solid var(--border);
+  transition: all 0.15s;
+}
+
+.home-list-item:hover { background: var(--border-soft); }
+
+.home-list-item .home-list-text {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-list-item .home-list-meta {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.scratch-textarea {
+  flex: 1;
+  width: 100%;
+  border: none;
+  background: transparent;
+  resize: none;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--text);
+  min-height: 150px;
+}
+
+.scratch-textarea:focus { outline: none; }
+.scratch-save-status {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+.home-pinned-card {
+  background: var(--bg-soft);
+  border-radius: 10px;
+  padding: 1rem;
+  cursor: pointer;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-left: 3px solid var(--accent);
+}
+
+.home-pinned-card:hover { background: var(--border-soft); }
+
+.home-pinned-title {
+  font-weight: 700;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.95rem;
+  margin-bottom: 0.4rem;
+}
+
+.home-pinned-preview {
+  flex: 1;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+}
+
+/* ============= TIMELINE (Today view) ============= */
+.timeline { position: relative; padding: 0.5rem 0; }
 
 .timeline-row {
   display: grid;
@@ -280,30 +545,6 @@ input[type=number] { -moz-appearance: textfield; }
   font-variant-numeric: tabular-nums;
 }
 
-.timeline-time.now {
-  color: var(--accent);
-  font-weight: 700;
-}
-
-.timeline-empty-slot {
-  background: transparent;
-  border: 1.5px dashed var(--border);
-  border-radius: var(--radius);
-  min-height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-muted);
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  opacity: 0;
-}
-
-.timeline-row:hover .timeline-empty-slot { opacity: 1; }
-.timeline-empty-slot:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
-
-/* Timeline event card */
 .event-card {
   border-radius: var(--radius);
   padding: 0.85rem 1rem;
@@ -361,46 +602,8 @@ input[type=number] { -moz-appearance: textfield; }
   width: 4px;
 }
 
-/* Color variants */
-.color-coral { background: var(--c-coral-bg); }
-.color-coral .event-duration-bar { background: var(--c-coral); }
-.color-coral .event-icon { background: var(--c-coral); color: white; }
-
-.color-mint { background: var(--c-mint-bg); }
-.color-mint .event-duration-bar { background: var(--c-mint); }
-.color-mint .event-icon { background: var(--c-mint); color: white; }
-
-.color-sky { background: var(--c-sky-bg); }
-.color-sky .event-duration-bar { background: var(--c-sky); }
-.color-sky .event-icon { background: var(--c-sky); color: white; }
-
-.color-lavender { background: var(--c-lavender-bg); }
-.color-lavender .event-duration-bar { background: var(--c-lavender); }
-.color-lavender .event-icon { background: var(--c-lavender); color: white; }
-
-.color-amber { background: var(--c-amber-bg); }
-.color-amber .event-duration-bar { background: var(--c-amber); }
-.color-amber .event-icon { background: var(--c-amber); color: white; }
-
-.color-rose { background: var(--c-rose-bg); }
-.color-rose .event-duration-bar { background: var(--c-rose); }
-.color-rose .event-icon { background: var(--c-rose); color: white; }
-
-.color-teal { background: var(--c-teal-bg); }
-.color-teal .event-duration-bar { background: var(--c-teal); }
-.color-teal .event-icon { background: var(--c-teal); color: white; }
-
-.color-slate { background: var(--c-slate-bg); }
-.color-slate .event-duration-bar { background: var(--c-slate); }
-.color-slate .event-icon { background: var(--c-slate); color: white; }
-
 /* Empty state */
-.empty-state {
-  text-align: center;
-  padding: 3rem 1rem;
-  color: var(--text-muted);
-}
-
+.empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-muted); }
 .empty-state-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
 .empty-state-title { font-weight: 700; color: var(--text-soft); margin-bottom: 0.25rem; font-size: 1rem; }
 .empty-state-text { font-size: 0.85rem; }
@@ -427,49 +630,22 @@ input[type=number] { -moz-appearance: textfield; }
   font-weight: 300;
 }
 
+@media (min-width: 900px) { .fab { bottom: 1.5rem; right: 1.5rem; } }
+
 .fab:hover { transform: scale(1.05); }
 
-/* Stats cards */
-.stats-row {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.75rem;
-  margin-bottom: 1.25rem;
-}
-
-.stat-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
-
-.stat-icon-wrap {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-  margin-bottom: 0.5rem;
-}
-
-.stat-label { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-.stat-value { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; color: var(--text); margin-top: 0.15rem; line-height: 1; }
-.stat-sub { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem; }
-
-/* Inbox - GTD style */
+/* ============= INBOX ============= */
 .brain-dump {
-  background: linear-gradient(135deg, var(--c-amber-bg), #FFF5DC);
-  border: 2px dashed var(--c-amber);
+  background: linear-gradient(135deg, #FCEBC8, #FFF5DC);
+  border: 2px dashed #F5B544;
   border-radius: var(--radius);
   padding: 1.25rem;
   margin-bottom: 1.25rem;
+}
+
+[data-theme="dark"] .brain-dump {
+  background: linear-gradient(135deg, #2D2820, #2A2520);
+  border-color: #6B5230;
 }
 
 .brain-dump-label {
@@ -495,36 +671,8 @@ input[type=number] { -moz-appearance: textfield; }
 
 .brain-dump textarea:focus { outline: none; }
 .brain-dump textarea::placeholder { color: #B58105; }
-
 .brain-dump-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.75rem; }
 
-.btn {
-  padding: 0.65rem 1rem;
-  border: none;
-  border-radius: 10px;
-  font-family: inherit;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.btn-primary { background: var(--text); color: white; }
-.btn-primary:hover { background: #000; transform: translateY(-1px); }
-
-.btn-soft { background: var(--bg-soft); color: var(--text-soft); border: 1px solid var(--border); }
-.btn-soft:hover { background: var(--border-soft); }
-
-.btn-ghost { background: transparent; color: var(--text-muted); border: none; padding: 0.4rem 0.7rem; font-size: 0.8rem; cursor: pointer; }
-.btn-ghost:hover { color: var(--text); }
-
-.btn-danger { background: var(--c-coral); color: white; }
-.btn-danger:hover { background: #E5685A; }
-
-/* Inbox items */
 .inbox-list { display: flex; flex-direction: column; gap: 0.5rem; }
 
 .inbox-card {
@@ -538,13 +686,9 @@ input[type=number] { -moz-appearance: textfield; }
 
 .inbox-card:hover { border-color: var(--text-muted); }
 .inbox-card.expanded { border-color: var(--accent); box-shadow: var(--shadow); }
-.inbox-card.starred { background: linear-gradient(135deg, #FFFAF0, var(--bg-card)); border-color: var(--c-amber); }
+.inbox-card.starred { background: linear-gradient(135deg, #FFFAF0, var(--bg-card)); border-color: #F5B544; }
 
-.inbox-card-row {
-  display: flex;
-  gap: 0.75rem;
-  align-items: flex-start;
-}
+.inbox-card-row { display: flex; gap: 0.75rem; align-items: flex-start; }
 
 .inbox-circle {
   width: 22px;
@@ -558,18 +702,10 @@ input[type=number] { -moz-appearance: textfield; }
   transition: all 0.2s;
 }
 
-.inbox-circle:hover { border-color: var(--c-mint); background: var(--c-mint-bg); }
+.inbox-circle:hover { border-color: #5DCFA0; background: #DCF4E8; }
 
 .inbox-main { flex: 1; min-width: 0; }
-
-.inbox-title {
-  font-weight: 600;
-  color: var(--text);
-  font-size: 0.95rem;
-  word-break: break-word;
-  line-height: 1.35;
-}
-
+.inbox-title { font-weight: 600; color: var(--text); font-size: 0.95rem; word-break: break-word; line-height: 1.35; }
 .inbox-pills { display: flex; gap: 0.4rem; margin-top: 0.5rem; flex-wrap: wrap; align-items: center; }
 
 .inbox-pill {
@@ -582,11 +718,11 @@ input[type=number] { -moz-appearance: textfield; }
   font-weight: 600;
 }
 
-.inbox-pill.high { background: var(--c-coral-bg); color: #B83A2C; }
-.inbox-pill.medium { background: var(--c-amber-bg); color: #8B6F2A; }
-.inbox-pill.low { background: var(--c-mint-bg); color: #2D7A56; }
-.inbox-pill.due-overdue { background: var(--c-coral-bg); color: #B83A2C; font-weight: 700; }
-.inbox-pill.due-today { background: var(--c-amber-bg); color: #8B6F2A; font-weight: 700; }
+.inbox-pill.high { background: #FFE5E0; color: #B83A2C; }
+.inbox-pill.medium { background: #FCEBC8; color: #8B6F2A; }
+.inbox-pill.low { background: #DCF4E8; color: #2D7A56; }
+.inbox-pill.due-overdue { background: #FFE5E0; color: #B83A2C; font-weight: 700; }
+.inbox-pill.due-today { background: #FCEBC8; color: #8B6F2A; font-weight: 700; }
 .inbox-pill.due-future { background: var(--bg-soft); color: var(--text-soft); border: 1px solid var(--border); }
 
 .inbox-tag-empty { font-size: 0.7rem; color: var(--text-muted); font-style: italic; }
@@ -600,7 +736,7 @@ input[type=number] { -moz-appearance: textfield; }
   line-height: 1;
   opacity: 0.35;
   transition: opacity 0.2s;
-  color: var(--c-amber);
+  color: #F5B544;
   flex-shrink: 0;
 }
 
@@ -639,13 +775,8 @@ input[type=number] { -moz-appearance: textfield; }
 }
 
 .detail-row textarea { min-height: 60px; resize: vertical; }
-
-.detail-row input:focus,
-.detail-row select:focus,
-.detail-row textarea:focus {
-  outline: none;
-  border-color: var(--accent);
-  background: var(--bg-card);
+.detail-row input:focus, .detail-row select:focus, .detail-row textarea:focus {
+  outline: none; border-color: var(--accent); background: var(--bg-card);
 }
 
 .expand-actions {
@@ -714,42 +845,457 @@ input[type=number] { -moz-appearance: textfield; }
   letter-spacing: -0.01em;
 }
 
-/* Categories sidebar / list */
-.cat-list { display: flex; flex-direction: column; gap: 0.4rem; }
-
-.cat-row {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
+/* ============= NOTES ============= */
+.notes-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
 }
 
-.cat-row:hover { border-color: var(--text-muted); }
+@media (min-width: 900px) {
+  .notes-layout {
+    grid-template-columns: 280px 1fr;
+    height: calc(100vh - 200px);
+  }
+}
 
-.cat-icon-wrap {
-  width: 36px;
-  height: 36px;
+.notes-sidebar {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.notes-search {
+  width: 100%;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--border);
   border-radius: 10px;
+  background: var(--bg-soft);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.notes-search:focus { outline: none; border-color: var(--accent); background: var(--bg-card); }
+
+.notebook-section {
+  margin-bottom: 0.5rem;
+}
+
+.notebook-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.notebook-add-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  padding: 0;
+  line-height: 1;
+}
+.notebook-add-btn:hover { color: var(--accent); }
+
+.notebook-item {
+  padding: 0.5rem 0.6rem;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-soft);
+  transition: all 0.15s;
+  border-left: 3px solid transparent;
+}
+
+.notebook-item:hover { background: var(--bg-soft); }
+.notebook-item.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.notebook-item .nb-count {
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.notebook-item.active .nb-count { color: var(--accent); }
+
+.note-list-item {
+  background: var(--bg-soft);
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 0.7rem 0.85rem;
+  cursor: pointer;
+  margin-bottom: 0.4rem;
+  border-left: 3px solid;
+  transition: all 0.15s;
+}
+
+.note-list-item:hover { background: var(--border-soft); }
+.note-list-item.active { background: var(--bg-card); border-color: var(--accent); box-shadow: var(--shadow-sm); }
+
+.note-list-title {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text);
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.note-list-preview {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.note-list-meta {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.note-tag-pill {
+  font-size: 0.65rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.note-pinned {
+  font-size: 0.85rem;
+  color: var(--accent);
+}
+
+.notes-editor {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 500px;
+}
+
+.notes-editor-toolbar {
+  display: flex;
+  gap: 0.4rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.toolbar-btn {
+  background: transparent;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--text-soft);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-family: inherit;
+  font-weight: 700;
+}
+
+.toolbar-btn:hover { background: var(--bg-soft); color: var(--text); }
+.toolbar-btn.active { background: var(--accent-soft); color: var(--accent); }
+
+.toolbar-divider {
+  width: 1px;
+  height: 24px;
+  background: var(--border);
+  margin: 0 0.25rem;
+}
+
+.note-title-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+.note-title-input:focus { outline: none; }
+
+.note-meta-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.note-body-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 300px;
+}
+
+.note-body-input {
+  flex: 1;
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text);
+  resize: none;
+  min-height: 280px;
+}
+
+.note-body-input:focus { outline: none; }
+
+.note-preview {
+  flex: 1;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: var(--text);
+  overflow-y: auto;
+}
+
+.note-preview h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.6rem; font-weight: 800; margin: 1rem 0 0.5rem; letter-spacing: -0.02em; }
+.note-preview h2 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.3rem; font-weight: 700; margin: 0.85rem 0 0.4rem; letter-spacing: -0.01em; }
+.note-preview h3 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.1rem; font-weight: 700; margin: 0.7rem 0 0.3rem; }
+.note-preview p { margin-bottom: 0.65rem; }
+.note-preview ul, .note-preview ol { margin: 0.5rem 0 0.75rem 1.5rem; }
+.note-preview li { margin-bottom: 0.25rem; }
+.note-preview code {
+  background: var(--bg-soft);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-family: 'ui-monospace', monospace;
+}
+.note-preview pre {
+  background: var(--bg-soft);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 0.5rem 0;
+}
+.note-preview pre code { background: transparent; padding: 0; }
+.note-preview a { color: var(--accent); }
+.note-preview blockquote {
+  border-left: 3px solid var(--border);
+  padding-left: 1rem;
+  color: var(--text-muted);
+  margin: 0.5rem 0;
+}
+
+.notes-empty-editor {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  flex: 1;
+  color: var(--text-muted);
+  text-align: center;
+  gap: 0.5rem;
+}
+
+/* ============= MONTH VIEW ============= */
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-top: 0.5rem;
+}
+
+.month-day-head {
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0.4rem 0;
+}
+
+.month-cell {
+  aspect-ratio: 0.9;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 0.4rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transition: all 0.15s;
+  overflow: hidden;
+}
+
+.month-cell:hover { border-color: var(--text-muted); }
+.month-cell.today { background: var(--text); color: white; }
+.month-cell.today .month-cell-num { color: white; font-weight: 800; }
+.month-cell.other-month { opacity: 0.4; }
+.month-cell.selected { border: 2px solid var(--accent); }
+
+.month-cell-num {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.month-cell-events { display: flex; flex-direction: column; gap: 2px; }
+.month-event-pill { height: 4px; border-radius: 2px; }
+
+/* ============= QUICK ADD TASK ============= */
+.quick-add {
+  display: flex;
+  gap: 0.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.quick-add input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 0.5rem 0.75rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+.quick-add input:focus { outline: none; }
+
+.quick-add button {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--text);
   color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  font-weight: 300;
   flex-shrink: 0;
 }
 
-.cat-text { flex: 1; }
-.cat-name { font-weight: 600; font-size: 0.9rem; color: var(--text); }
-.cat-count { font-size: 0.7rem; color: var(--text-muted); }
+/* ============= REVIEW ============= */
+.review-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
 
-.cat-arrow { color: var(--text-muted); font-size: 1rem; }
+.review-section h3 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
 
-/* Modal */
+.review-section textarea {
+  width: 100%;
+  min-height: 90px;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  resize: vertical;
+  background: var(--bg-soft);
+  color: var(--text);
+}
+
+.review-section textarea:focus { outline: none; border-color: var(--accent); background: var(--bg-card); }
+
+.meal-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+@media (min-width: 700px) {
+  .meal-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.meal-day {
+  background: var(--bg-soft);
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  padding: 0.85rem;
+}
+
+.meal-day h4 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text-soft);
+  margin-bottom: 0.5rem;
+}
+
+.meal-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin-bottom: 0.4rem;
+  font-family: inherit;
+  background: var(--bg-card);
+  color: var(--text);
+}
+
+.meal-input:focus { outline: none; border-color: var(--accent); }
+
+.review-history-card {
+  background: var(--bg-soft);
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+}
+
+.review-history-card:hover { border-color: var(--accent); }
+.review-history-date { font-weight: 700; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text); margin-bottom: 0.2rem; font-size: 0.9rem; }
+.review-history-preview { font-size: 0.8rem; color: var(--text-muted); }
+
+/* ============= MODAL ============= */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -831,28 +1377,63 @@ input[type=number] { -moz-appearance: textfield; }
 
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
 
-/* Color picker grid */
-.color-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.5rem;
-}
-
-.color-swatch {
-  aspect-ratio: 1;
-  border-radius: 12px;
-  cursor: pointer;
+/* ============= COLOR PICKER (full custom) ============= */
+.color-picker {
   display: flex;
+  gap: 0.75rem;
   align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-  color: white;
-  border: 2px solid transparent;
-  transition: all 0.15s;
+  flex-wrap: wrap;
 }
 
-.color-swatch:hover { transform: scale(1.05); }
-.color-swatch.selected { border-color: var(--text); box-shadow: 0 0 0 3px var(--bg-card); transform: scale(1.05); }
+.color-preview {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.color-input-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 200px;
+}
+
+.color-hex-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: 'ui-monospace', monospace;
+  font-size: 0.85rem;
+  background: var(--bg-soft);
+  color: var(--text);
+  text-transform: uppercase;
+}
+
+.color-hex-input:focus { outline: none; border-color: var(--accent); }
+
+.color-presets {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 0.4rem;
+}
+
+.color-preset {
+  aspect-ratio: 1;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.15s;
+}
+
+.color-preset:hover { transform: scale(1.1); }
+.color-preset.selected { border-color: var(--text); transform: scale(1.1); }
+
+.color-native-picker { width: 50px; height: 50px; padding: 0; border: none; cursor: pointer; }
 
 .icon-grid {
   display: grid;
@@ -884,210 +1465,7 @@ input[type=number] { -moz-appearance: textfield; }
 .modal-actions { display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem; }
 .modal-actions.spread { justify-content: space-between; }
 
-/* Quick add task */
-.quick-add {
-  display: flex;
-  gap: 0.5rem;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.quick-add input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  padding: 0.5rem 0.75rem;
-  font-family: inherit;
-  font-size: 0.9rem;
-  color: var(--text);
-}
-
-.quick-add input:focus { outline: none; }
-
-.quick-add button {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: var(--text);
-  color: white;
-  border: none;
-  cursor: pointer;
-  font-size: 1.2rem;
-  font-weight: 300;
-  flex-shrink: 0;
-}
-
-/* Review */
-.review-section {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 1.25rem;
-  margin-bottom: 1rem;
-}
-
-.review-section h3 {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text);
-  margin-bottom: 0.75rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.review-section textarea {
-  width: 100%;
-  min-height: 90px;
-  padding: 0.75rem;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  font-family: inherit;
-  font-size: 0.9rem;
-  resize: vertical;
-  background: var(--bg-soft);
-  color: var(--text);
-}
-
-.review-section textarea:focus { outline: none; border-color: var(--accent); background: var(--bg-card); }
-
-.meal-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.75rem;
-}
-
-.meal-day {
-  background: var(--bg-soft);
-  border: 1px solid var(--border-soft);
-  border-radius: 12px;
-  padding: 0.85rem;
-}
-
-.meal-day h4 {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-weight: 600;
-  font-size: 0.85rem;
-  color: var(--text-soft);
-  margin-bottom: 0.5rem;
-}
-
-.meal-input {
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  font-size: 0.85rem;
-  margin-bottom: 0.4rem;
-  font-family: inherit;
-  background: var(--bg-card);
-  color: var(--text);
-}
-
-.meal-input:focus { outline: none; border-color: var(--accent); }
-
-.review-history-card {
-  background: var(--bg-soft);
-  border: 1px solid var(--border-soft);
-  border-radius: 12px;
-  padding: 0.85rem 1rem;
-  margin-bottom: 0.5rem;
-  cursor: pointer;
-}
-
-.review-history-card:hover { border-color: var(--accent); }
-
-.review-history-date { font-weight: 700; font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text); margin-bottom: 0.2rem; font-size: 0.9rem; }
-.review-history-preview { font-size: 0.8rem; color: var(--text-muted); }
-
-/* Toast */
-.toast {
-  position: fixed;
-  bottom: 110px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--text);
-  color: var(--bg-card);
-  padding: 0.75rem 1.25rem;
-  border-radius: 14px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  z-index: 2000;
-  box-shadow: var(--shadow-lg);
-  animation: slideUp 0.3s ease;
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translate(-50%, 12px); }
-  to { opacity: 1; transform: translate(-50%, 0); }
-}
-
-/* Month view */
-.month-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
-  margin-top: 0.5rem;
-}
-
-.month-day-head {
-  text-align: center;
-  font-size: 0.7rem;
-  color: var(--text-muted);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 0.4rem 0;
-}
-
-.month-cell {
-  aspect-ratio: 0.9;
-  background: var(--bg-card);
-  border: 1px solid var(--border-soft);
-  border-radius: 10px;
-  padding: 0.4rem;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  transition: all 0.15s;
-  overflow: hidden;
-}
-
-.month-cell:hover { border-color: var(--text-muted); }
-.month-cell.today { background: var(--text); color: white; }
-.month-cell.today .month-cell-num { color: white; font-weight: 800; }
-.month-cell.other-month { opacity: 0.4; }
-.month-cell.selected { border: 2px solid var(--accent); }
-
-.month-cell-num {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.month-cell-events { display: flex; flex-direction: column; gap: 2px; }
-
-.month-event-pill {
-  height: 4px;
-  border-radius: 2px;
-}
-
-.month-event-pill.color-coral { background: var(--c-coral); }
-.month-event-pill.color-mint { background: var(--c-mint); }
-.month-event-pill.color-sky { background: var(--c-sky); }
-.month-event-pill.color-lavender { background: var(--c-lavender); }
-.month-event-pill.color-amber { background: var(--c-amber); }
-.month-event-pill.color-rose { background: var(--c-rose); }
-.month-event-pill.color-teal { background: var(--c-teal); }
-.month-event-pill.color-slate { background: var(--c-slate); }
-
-/* Settings page */
+/* ============= SETTINGS ============= */
 .settings-section { margin-bottom: 1.5rem; }
 .settings-section h3 {
   font-family: 'Plus Jakarta Sans', sans-serif;
@@ -1125,7 +1503,7 @@ input[type=number] { -moz-appearance: textfield; }
   flex-shrink: 0;
 }
 
-.toggle-switch.on { background: var(--c-mint); }
+.toggle-switch.on { background: #5DCFA0; }
 .toggle-switch::after {
   content: '';
   position: absolute;
@@ -1139,59 +1517,140 @@ input[type=number] { -moz-appearance: textfield; }
 }
 
 .toggle-switch.on::after { left: 20px; }
+
+.cat-list { display: flex; flex-direction: column; gap: 0.4rem; }
+
+.cat-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cat-row:hover { border-color: var(--text-muted); }
+
+.cat-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: white;
+  flex-shrink: 0;
+}
+
+.cat-text { flex: 1; }
+.cat-name { font-weight: 600; font-size: 0.9rem; color: var(--text); }
+.cat-count { font-size: 0.7rem; color: var(--text-muted); font-family: 'ui-monospace', monospace; }
+
+/* ============= TOAST ============= */
+.toast {
+  position: fixed;
+  bottom: 110px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--text);
+  color: var(--bg-card);
+  padding: 0.75rem 1.25rem;
+  border-radius: 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  z-index: 2000;
+  box-shadow: var(--shadow-lg);
+  animation: slideUp 0.3s ease;
+}
+
+@media (min-width: 900px) { .toast { bottom: 1.5rem; left: auto; right: 1.5rem; transform: none; } }
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translate(-50%, 12px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* Tag pill (notes) */
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: var(--bg-soft);
+  color: var(--text-soft);
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+.tag-pill:hover { border-color: var(--text-muted); }
+.tag-pill.removable::after { content: '×'; margin-left: 0.2rem; opacity: 0.6; }
 </style>
 </head>
 <body>
 <div id="root"></div>
 
 <script type="text/babel">
-const { useState, useEffect, useMemo } = React;
+const { useState, useEffect, useMemo, useRef } = React;
 
 const SUPABASE_URL = 'https://irmtvjxlntozigbqxhvm.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlybXR2anhsbnRvemlnYnF4aHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4NTkzMTQsImV4cCI6MjA5MjQzNTMxNH0.nyIZx7Z0GnHEIlZpBlN6TzHHsf7tGuhdvWECdpcQ-a0';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const COLORS = [
-  { id: 'coral', label: 'Coral', icon: '🌸' },
-  { id: 'mint', label: 'Mint', icon: '🌿' },
-  { id: 'sky', label: 'Sky', icon: '☁️' },
-  { id: 'lavender', label: 'Lavender', icon: '🪻' },
-  { id: 'amber', label: 'Amber', icon: '🌟' },
-  { id: 'rose', label: 'Rose', icon: '💗' },
-  { id: 'teal', label: 'Teal', icon: '🌊' },
-  { id: 'slate', label: 'Slate', icon: '⚫' }
+// Color palette presets (still available, but custom hex picker is primary)
+const COLOR_PRESETS = [
+  '#FF7A6B', '#5DCFA0', '#6BB7E8', '#A892E8',
+  '#F5B544', '#E8859A', '#4FBDBA', '#8A8A8A',
+  '#FF9F50', '#7FE0A8', '#94CCEC', '#C5A8E8',
+  '#FFD17A', '#F0B7C5', '#7FCFCC', '#B8B8B8'
 ];
-
-const ICONS = ['💼', '📊', '🧪', '⚗️', '📞', '💻', '✏️', '📝', '🏃', '💪', '🧘', '🍽️', '🍳', '☕', '👨‍👩‍👧', '🎂', '🎁', '✈️', '🎵', '🎬', '📚', '🇰🇷', '📈', '💰', '🛒', '🏠', '🐕', '⛪', '💊', '🦷', '✂️', '💅', '⏰', '🎯', '🎨', '🌟', '❤️', '🔥', '⚡', '💡', '📌', '✅'];
 
 const DEFAULT_CATEGORIES = [
-  { id: 'work-mint',     label: 'Work · Mint',          icon: '💼', color: 'mint' },
-  { id: 'work-sky',      label: 'Work · Sky',           icon: '🧪', color: 'sky' },
-  { id: 'trading',       label: 'Trading',              icon: '📈', color: 'amber' },
-  { id: 'health',        label: 'Health & Gym',         icon: '💪', color: 'rose' },
-  { id: 'kids',          label: 'Kids',                 icon: '👨‍👩‍👧', color: 'coral' },
-  { id: 'learning',      label: 'Korean / Learning',    icon: '📚', color: 'lavender' },
-  { id: 'home',          label: 'Home & Meals',         icon: '🏠', color: 'teal' },
-  { id: 'general',       label: 'General',              icon: '📌', color: 'slate' }
+  { id: 'work-mint',  label: 'Work · Mint',       icon: '💼', color: '#5DCFA0' },
+  { id: 'work-sky',   label: 'Work · Sky',        icon: '🧪', color: '#6BB7E8' },
+  { id: 'trading',    label: 'Trading',           icon: '📈', color: '#F5B544' },
+  { id: 'health',     label: 'Health & Gym',      icon: '💪', color: '#E8859A' },
+  { id: 'kids',       label: 'Kids',              icon: '👨‍👩‍👧', color: '#FF7A6B' },
+  { id: 'learning',   label: 'Korean / Learning', icon: '📚', color: '#A892E8' },
+  { id: 'home',       label: 'Home & Meals',      icon: '🏠', color: '#4FBDBA' },
+  { id: 'general',    label: 'General',           icon: '📌', color: '#8A8A8A' }
 ];
 
-// Categories are loaded from Supabase or fall back to defaults
+const ICONS = ['💼', '📊', '🧪', '⚗️', '📞', '💻', '✏️', '📝', '🏃', '💪', '🧘', '🍽️', '🍳', '☕', '👨‍👩‍👧', '🎂', '🎁', '✈️', '🎵', '🎬', '📚', '🇰🇷', '📈', '💰', '🛒', '🏠', '🐕', '⛪', '💊', '🦷', '✂️', '💅', '⏰', '🎯', '🎨', '🌟', '❤️', '🔥', '⚡', '💡', '📌', '✅', '📓', '📔', '📕', '📗', '📘', '📙'];
+
 let _categoriesCache = DEFAULT_CATEGORIES;
 const setCategoriesCache = (cats) => { _categoriesCache = cats; };
-const CATEGORIES = new Proxy({}, {
-  get(_target, prop) {
-    if (prop === 'length') return _categoriesCache.length;
-    if (prop === 'map') return (...args) => _categoriesCache.map(...args);
-    if (prop === 'filter') return (...args) => _categoriesCache.filter(...args);
-    if (prop === 'find') return (...args) => _categoriesCache.find(...args);
-    if (prop === 'forEach') return (...args) => _categoriesCache.forEach(...args);
-    if (prop === Symbol.iterator) return _categoriesCache[Symbol.iterator].bind(_categoriesCache);
-    if (typeof prop === 'string' && !isNaN(parseInt(prop))) return _categoriesCache[parseInt(prop)];
-    return _categoriesCache[prop];
-  }
-});
-
 const getCategoryById = (id) => _categoriesCache.find(c => c.id === id) || _categoriesCache[_categoriesCache.length - 1] || DEFAULT_CATEGORIES[DEFAULT_CATEGORIES.length - 1];
+
+// Convert hex to soft background
+const hexToSoftBg = (hex) => {
+  if (!hex || !hex.startsWith('#')) hex = '#8A8A8A';
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  // Mix toward white at ~85% white
+  const sr = Math.round(r * 0.18 + 255 * 0.82);
+  const sg = Math.round(g * 0.18 + 255 * 0.82);
+  const sb = Math.round(b * 0.18 + 255 * 0.82);
+  return `rgb(${sr}, ${sg}, ${sb})`;
+};
+
+const hexToTextColor = (hex) => {
+  if (!hex || !hex.startsWith('#')) hex = '#8A8A8A';
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  // Darken
+  const tr = Math.round(r * 0.5);
+  const tg = Math.round(g * 0.5);
+  const tb = Math.round(b * 0.5);
+  return `rgb(${tr}, ${tg}, ${tb})`;
+};
 
 const formatDateLocal = (date) => {
   const y = date.getFullYear();
@@ -1213,7 +1672,6 @@ const minutesFromTime = (t) => {
   return parseInt(h) * 60 + parseInt(m);
 };
 
-// Compute meeting layouts (overlap support)
 const computeMeetingLayouts = (meetings) => {
   if (!meetings.length) return [];
   const enriched = meetings.map(m => ({ ...m, _start: minutesFromTime(m.start_time), _end: minutesFromTime(m.start_time) + m.duration }));
@@ -1226,7 +1684,6 @@ const computeMeetingLayouts = (meetings) => {
   });
 };
 
-// Recurrence check
 const meetingOccursOn = (meeting, dateStr) => {
   if (!meeting.recurrence || meeting.recurrence === 'none') return meeting.date === dateStr;
   const meetingDate = new Date(meeting.date + 'T00:00:00');
@@ -1247,14 +1704,131 @@ const meetingOccursOn = (meeting, dateStr) => {
   }
 };
 
+// =============== Markdown renderer (basic) ===============
+const renderMarkdown = (text) => {
+  if (!text) return '';
+  let html = text;
+  // Escape HTML
+  html = html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  // Code blocks (must come before inline code)
+  html = html.replace(/```([\s\S]*?)```/g, (_, code) => `<pre><code>${code.trim()}</code></pre>`);
+  // Headers
+  html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+  html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+  // Blockquotes
+  html = html.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
+  // Bold + italic
+  html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  // Inline code
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+  // Links
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  // Strikethrough
+  html = html.replace(/~~(.+?)~~/g, '<del>$1</del>');
+  // Lists
+  const lines = html.split('\n');
+  let inUl = false, inOl = false;
+  const processed = [];
+  for (let line of lines) {
+    if (/^\s*[-*+] (.+)/.test(line)) {
+      if (!inUl) { processed.push('<ul>'); inUl = true; }
+      if (inOl) { processed.push('</ol>'); inOl = false; }
+      processed.push('<li>' + line.replace(/^\s*[-*+] /, '') + '</li>');
+    } else if (/^\s*\d+\. (.+)/.test(line)) {
+      if (!inOl) { processed.push('<ol>'); inOl = true; }
+      if (inUl) { processed.push('</ul>'); inUl = false; }
+      processed.push('<li>' + line.replace(/^\s*\d+\. /, '') + '</li>');
+    } else {
+      if (inUl) { processed.push('</ul>'); inUl = false; }
+      if (inOl) { processed.push('</ol>'); inOl = false; }
+      processed.push(line);
+    }
+  }
+  if (inUl) processed.push('</ul>');
+  if (inOl) processed.push('</ol>');
+  html = processed.join('\n');
+  // Paragraphs (lines that aren't already block elements)
+  html = html.split(/\n\n+/).map(block => {
+    const trimmed = block.trim();
+    if (!trimmed) return '';
+    if (/^<(h[1-6]|ul|ol|pre|blockquote)/.test(trimmed)) return trimmed;
+    return '<p>' + trimmed.replace(/\n/g, '<br/>') + '</p>';
+  }).join('\n');
+  return html;
+};
+
+// =============== Color Picker Component ===============
+const ColorPicker = ({ value, onChange }) => {
+  const [hex, setHex] = useState(value || '#8A8A8A');
+
+  useEffect(() => { setHex(value || '#8A8A8A'); }, [value]);
+
+  const handleHexChange = (val) => {
+    setHex(val);
+    if (/^#[0-9A-Fa-f]{6}$/.test(val)) onChange(val.toUpperCase());
+  };
+
+  return (
+    <div>
+      <div className="color-picker">
+        <input
+          type="color"
+          value={hex}
+          onChange={(e) => { setHex(e.target.value.toUpperCase()); onChange(e.target.value.toUpperCase()); }}
+          className="color-native-picker"
+          style={{ borderRadius: '12px', overflow: 'hidden', background: hex }}
+          title="Color wheel"
+        />
+        <div className="color-input-stack">
+          <input
+            type="text"
+            value={hex}
+            onChange={(e) => handleHexChange(e.target.value)}
+            className="color-hex-input"
+            placeholder="#RRGGBB"
+            maxLength={7}
+          />
+        </div>
+      </div>
+      <div style={{ marginTop: '0.75rem' }}>
+        <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600, marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Presets</div>
+        <div className="color-presets">
+          {COLOR_PRESETS.map(c => (
+            <div
+              key={c}
+              className={`color-preset ${hex.toUpperCase() === c.toUpperCase() ? 'selected' : ''}`}
+              style={{ background: c }}
+              onClick={() => { setHex(c); onChange(c); }}
+              title={c}
+            ></div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// =============== Main App ===============
 const App = () => {
-  const [view, setView] = useState('inbox');
+  const [view, setView] = useState('home');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [meetings, setMeetings] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [inboxItems, setInboxItems] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [mealPlan, setMealPlan] = useState({});
+  const [notes, setNotes] = useState([]);
+  const [notebooks, setNotebooks] = useState([]);
+  const [scratchPad, setScratchPad] = useState('');
+  const [scratchSaved, setScratchSaved] = useState(true);
+  const [pinnedNoteId, setPinnedNoteId] = useState(null);
+  const [activeNoteId, setActiveNoteId] = useState(null);
+  const [selectedNotebookId, setSelectedNotebookId] = useState('all');
+  const [noteSearch, setNoteSearch] = useState('');
+  const [previewMode, setPreviewMode] = useState(false);
   const [privacyMode, setPrivacyMode] = useState(false);
   const [theme, setTheme] = useState(localStorage.getItem('cc-theme') || 'light');
   const [toast, setToast] = useState(null);
@@ -1270,73 +1844,35 @@ const App = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
+  const [showNotebookModal, setShowNotebookModal] = useState(null);
 
-  // Keep CATEGORIES proxy in sync with state
-  useEffect(() => { setCategoriesCache(categories); }, [categories]);
+  const scratchSaveTimer = useRef(null);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('cc-theme', theme);
   }, [theme]);
 
+  useEffect(() => { setCategoriesCache(categories); }, [categories]);
+
   useEffect(() => { loadAll(); }, []);
 
+  // Auto-save scratch pad with debounce
+  useEffect(() => {
+    if (scratchSaveTimer.current) clearTimeout(scratchSaveTimer.current);
+    if (!scratchSaved) {
+      scratchSaveTimer.current = setTimeout(() => {
+        saveScratchPad(scratchPad);
+      }, 800);
+    }
+    return () => { if (scratchSaveTimer.current) clearTimeout(scratchSaveTimer.current); };
+  }, [scratchPad, scratchSaved]);
+
   const loadAll = async () => {
-    await Promise.all([loadMeetings(), loadTasks(), loadInbox(), loadReviews(), loadMealPlan(), loadCategories()]);
-  };
-
-  const loadCategories = async () => {
-    const { data, error } = await supabase.from('cc_categories').select('*').order('sort_order');
-    if (error || !data || data.length === 0) {
-      // Initialize with defaults if table is empty
-      if (!error) {
-        const seeded = DEFAULT_CATEGORIES.map((c, i) => ({ ...c, sort_order: i }));
-        await supabase.from('cc_categories').insert(seeded);
-        setCategories(DEFAULT_CATEGORIES);
-      } else {
-        setCategories(DEFAULT_CATEGORIES);
-      }
-      return;
-    }
-    setCategories(data);
-  };
-
-  const saveCategory = async (cat) => {
-    if (cat.id && categories.find(c => c.id === cat.id)) {
-      await supabase.from('cc_categories').update({
-        label: cat.label, icon: cat.icon, color: cat.color, sort_order: cat.sort_order
-      }).eq('id', cat.id);
-      showToast('Category updated');
-    } else {
-      const newId = cat.id || cat.label.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30) + '-' + Date.now().toString(36).slice(-4);
-      await supabase.from('cc_categories').insert([{
-        id: newId, label: cat.label, icon: cat.icon, color: cat.color,
-        sort_order: cat.sort_order ?? categories.length
-      }]);
-      showToast('Category added');
-    }
-    setEditingCategory(null);
-    loadCategories();
-  };
-
-  const deleteCategory = async (id) => {
-    await supabase.from('cc_categories').delete().eq('id', id);
-    showToast('Category deleted');
-    setEditingCategory(null);
-    loadCategories();
-  };
-
-  const moveCategory = async (id, direction) => {
-    const sorted = [...categories];
-    const idx = sorted.findIndex(c => c.id === id);
-    const swapIdx = idx + direction;
-    if (swapIdx < 0 || swapIdx >= sorted.length) return;
-    [sorted[idx], sorted[swapIdx]] = [sorted[swapIdx], sorted[idx]];
-    // Persist new order
-    for (let i = 0; i < sorted.length; i++) {
-      await supabase.from('cc_categories').update({ sort_order: i }).eq('id', sorted[i].id);
-    }
-    loadCategories();
+    await Promise.all([
+      loadMeetings(), loadTasks(), loadInbox(), loadReviews(), loadMealPlan(),
+      loadCategories(), loadNotebooks(), loadNotes(), loadAppState()
+    ]);
   };
 
   const loadMeetings = async () => {
@@ -1365,12 +1901,42 @@ const App = () => {
     data?.forEach(m => { map[m.date] = m.meals; });
     setMealPlan(map);
   };
+  const loadCategories = async () => {
+    const { data, error } = await supabase.from('cc_categories').select('*').order('sort_order');
+    if (error || !data || data.length === 0) {
+      if (!error) {
+        const seeded = DEFAULT_CATEGORIES.map((c, i) => ({ ...c, sort_order: i }));
+        await supabase.from('cc_categories').insert(seeded);
+        setCategories(DEFAULT_CATEGORIES);
+      } else {
+        setCategories(DEFAULT_CATEGORIES);
+      }
+      return;
+    }
+    setCategories(data);
+  };
+  const loadNotebooks = async () => {
+    const { data } = await supabase.from('cc_notebooks').select('*').order('sort_order');
+    setNotebooks(data || []);
+  };
+  const loadNotes = async () => {
+    const { data } = await supabase.from('cc_notes').select('*').order('updated_at', { ascending: false });
+    setNotes(data || []);
+  };
+  const loadAppState = async () => {
+    const { data } = await supabase.from('cc_app_state').select('*').limit(1);
+    if (data && data[0]) {
+      setScratchPad(data[0].scratch_pad || '');
+      setPinnedNoteId(data[0].pinned_note_id || null);
+    }
+  };
 
   const showToast = (msg) => {
     setToast(msg);
     setTimeout(() => setToast(null), 2000);
   };
 
+  // ============= Meetings =============
   const saveMeeting = async (m) => {
     const data = {
       date: m.date || formatDateLocal(currentDate),
@@ -1399,6 +1965,7 @@ const App = () => {
     loadMeetings();
   };
 
+  // ============= Tasks =============
   const saveTask = async (t) => {
     const data = {
       date: t.date || formatDateLocal(currentDate),
@@ -1430,6 +1997,7 @@ const App = () => {
     showToast('Task added');
   };
 
+  // ============= Inbox =============
   const addInboxItem = async () => {
     if (!brainDumpText.trim()) return;
     const lines = brainDumpText.split('\n').filter(l => l.trim());
@@ -1455,7 +2023,7 @@ const App = () => {
 
   const convertInboxToMeeting = (item) => {
     const cat = item.category ? getCategoryById(item.category) : null;
-    setMeetingModal({ title: item.text, start_time: '09:00', duration: 60, job: cat?.color || 'mint', icon: cat?.icon || '📅', _fromInbox: item.id });
+    setMeetingModal({ title: item.text, start_time: '09:00', duration: 60, job: cat?.color || '#5DCFA0', icon: cat?.icon || '📅', _fromInbox: item.id });
   };
 
   const deleteInboxItem = async (id) => {
@@ -1464,6 +2032,7 @@ const App = () => {
     loadInbox();
   };
 
+  // ============= Review =============
   const saveReview = async () => {
     const weekStart = formatDateLocal(getWeekStart(currentDate));
     const existing = reviews.find(r => r.week_starting === weekStart);
@@ -1483,9 +2052,118 @@ const App = () => {
     setMealPlan({ ...mealPlan, [date]: updated });
   };
 
+  // ============= Categories =============
+  const saveCategory = async (cat) => {
+    if (cat.id && categories.find(c => c.id === cat.id)) {
+      await supabase.from('cc_categories').update({ label: cat.label, icon: cat.icon, color: cat.color, sort_order: cat.sort_order }).eq('id', cat.id);
+      showToast('Updated');
+    } else {
+      const newId = (cat.label.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30)) + '-' + Date.now().toString(36).slice(-4);
+      await supabase.from('cc_categories').insert([{ id: newId, label: cat.label, icon: cat.icon, color: cat.color, sort_order: cat.sort_order ?? categories.length }]);
+      showToast('Added');
+    }
+    setEditingCategory(null);
+    loadCategories();
+  };
+
+  const deleteCategory = async (id) => {
+    await supabase.from('cc_categories').delete().eq('id', id);
+    showToast('Deleted');
+    setEditingCategory(null);
+    loadCategories();
+  };
+
+  const moveCategory = async (id, direction) => {
+    const sorted = [...categories];
+    const idx = sorted.findIndex(c => c.id === id);
+    const swapIdx = idx + direction;
+    if (swapIdx < 0 || swapIdx >= sorted.length) return;
+    [sorted[idx], sorted[swapIdx]] = [sorted[swapIdx], sorted[idx]];
+    for (let i = 0; i < sorted.length; i++) {
+      await supabase.from('cc_categories').update({ sort_order: i }).eq('id', sorted[i].id);
+    }
+    loadCategories();
+  };
+
+  // ============= Notes =============
+  const createNote = async (notebookId = null) => {
+    const data = {
+      title: 'Untitled note',
+      body: '',
+      notebook_id: notebookId,
+      tags: [],
+      color: null
+    };
+    const { data: created } = await supabase.from('cc_notes').insert([data]).select();
+    if (created && created[0]) {
+      setActiveNoteId(created[0].id);
+      setView('notes');
+      loadNotes();
+    }
+  };
+
+  const updateNote = async (id, updates) => {
+    await supabase.from('cc_notes').update({ ...updates, updated_at: new Date().toISOString() }).eq('id', id);
+    loadNotes();
+  };
+
+  const deleteNote = async (id) => {
+    await supabase.from('cc_notes').delete().eq('id', id);
+    if (activeNoteId === id) setActiveNoteId(null);
+    if (pinnedNoteId === id) {
+      await supabase.from('cc_app_state').update({ pinned_note_id: null }).eq('id', 1);
+      setPinnedNoteId(null);
+    }
+    showToast('Deleted');
+    loadNotes();
+  };
+
+  const togglePinnedNote = async (noteId) => {
+    const newPinned = pinnedNoteId === noteId ? null : noteId;
+    await supabase.from('cc_app_state').upsert([{ id: 1, pinned_note_id: newPinned, scratch_pad: scratchPad }]);
+    setPinnedNoteId(newPinned);
+    showToast(newPinned ? 'Pinned' : 'Unpinned');
+  };
+
+  const saveNotebook = async (nb) => {
+    if (nb.id) {
+      await supabase.from('cc_notebooks').update({ name: nb.name, color: nb.color, icon: nb.icon }).eq('id', nb.id);
+      showToast('Updated');
+    } else {
+      const newId = (nb.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 30)) + '-' + Date.now().toString(36).slice(-4);
+      await supabase.from('cc_notebooks').insert([{ id: newId, name: nb.name, color: nb.color || '#8A8A8A', icon: nb.icon || '📓', sort_order: notebooks.length }]);
+      showToast('Notebook created');
+    }
+    setShowNotebookModal(null);
+    loadNotebooks();
+  };
+
+  const deleteNotebook = async (id) => {
+    // Move notes in this notebook to no notebook
+    await supabase.from('cc_notes').update({ notebook_id: null }).eq('notebook_id', id);
+    await supabase.from('cc_notebooks').delete().eq('id', id);
+    if (selectedNotebookId === id) setSelectedNotebookId('all');
+    showToast('Deleted');
+    setShowNotebookModal(null);
+    loadAll();
+  };
+
+  // ============= Scratch pad =============
+  const saveScratchPad = async (text) => {
+    await supabase.from('cc_app_state').upsert([{ id: 1, scratch_pad: text, pinned_note_id: pinnedNoteId }]);
+    setScratchSaved(true);
+  };
+
+  const updateScratch = (text) => {
+    setScratchPad(text);
+    setScratchSaved(false);
+  };
+
+  // ============= Computed =============
   const todayDateStr = formatDateLocal(currentDate);
   const dayMeetings = meetings.filter(m => meetingOccursOn(m, todayDateStr));
   const dayTasks = tasks.filter(t => t.date === todayDateStr);
+
   const greetingTime = () => {
     const h = new Date().getHours();
     if (h < 12) return 'Good morning';
@@ -1493,7 +2171,6 @@ const App = () => {
     return 'Good evening';
   };
 
-  // 7-day pill nav
   const weekDays = [];
   for (let i = -3; i <= 3; i++) {
     const d = new Date();
@@ -1501,86 +2178,31 @@ const App = () => {
     weekDays.push(d);
   }
 
+  const activeNote = notes.find(n => n.id === activeNoteId);
+  const pinnedNote = notes.find(n => n.id === pinnedNoteId);
+
+  const filteredNotes = useMemo(() => {
+    let f = [...notes];
+    if (selectedNotebookId === 'unfiled') f = f.filter(n => !n.notebook_id);
+    else if (selectedNotebookId !== 'all') f = f.filter(n => n.notebook_id === selectedNotebookId);
+    if (noteSearch.trim()) {
+      const q = noteSearch.toLowerCase();
+      f = f.filter(n => (n.title || '').toLowerCase().includes(q) || (n.body || '').toLowerCase().includes(q));
+    }
+    return f;
+  }, [notes, selectedNotebookId, noteSearch]);
+
   return (
-    <div className="app">
-      <header className="top-bar">
-        <div className="greeting">
-          <div>
-            <div className="greeting-text">{greetingTime()}, Jessa</div>
-            <div className="greeting-sub">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</div>
-          </div>
-        </div>
-        <div className="top-actions">
-          <button className="icon-btn" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
-            {theme === 'light' ? '🌙' : '☀️'}
-          </button>
-          <button className={`icon-btn ${privacyMode ? 'active' : ''}`} onClick={() => setPrivacyMode(!privacyMode)}>
-            {privacyMode ? '🔒' : '👁️'}
-          </button>
-          <button className="icon-btn" onClick={() => setShowSettings(true)} title="Settings">⚙️</button>
-        </div>
-      </header>
-
-      {(view === 'today' || view === 'week' || view === 'month') && (
-        <div className="date-nav-pills">
-          {weekDays.map((d, i) => {
-            const isToday = d.toDateString() === new Date().toDateString();
-            const isSelected = formatDateLocal(d) === formatDateLocal(currentDate);
-            return (
-              <div
-                key={i}
-                className={`date-pill ${isToday ? 'today' : ''} ${isSelected && !isToday ? 'selected' : ''}`}
-                onClick={() => setCurrentDate(d)}
-              >
-                <div className="pill-dow">{d.toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 3)}</div>
-                <div className="pill-num">{d.getDate()}</div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      <div className="content">
-        {view === 'today' && <TodayView dayMeetings={dayMeetings} dayTasks={dayTasks} privacyMode={privacyMode} setMeetingModal={setMeetingModal} setTaskModal={setTaskModal} toggleTask={toggleTask} currentDate={currentDate} addQuickTask={addQuickTask} />}
-        {view === 'week' && <WeekView meetings={meetings} tasks={tasks} currentDate={currentDate} setCurrentDate={setCurrentDate} setView={setView} privacyMode={privacyMode} />}
-        {view === 'month' && <MonthView meetings={meetings} tasks={tasks} currentDate={currentDate} setCurrentDate={setCurrentDate} setView={setView} />}
-        {view === 'inbox' && (
-          <InboxView
-            inboxItems={inboxItems}
-            brainDumpText={brainDumpText}
-            setBrainDumpText={setBrainDumpText}
-            addInboxItem={addInboxItem}
-            inboxFilter={inboxFilter}
-            setInboxFilter={setInboxFilter}
-            inboxSort={inboxSort}
-            setInboxSort={setInboxSort}
-            expandedInboxId={expandedInboxId}
-            setExpandedInboxId={setExpandedInboxId}
-            updateInboxItem={updateInboxItem}
-            convertInboxToTask={convertInboxToTask}
-            convertInboxToMeeting={convertInboxToMeeting}
-            deleteInboxItem={deleteInboxItem}
-          />
-        )}
-        {view === 'review' && (
-          <ReviewView
-            currentReview={currentReview}
-            setCurrentReview={setCurrentReview}
-            saveReview={saveReview}
-            currentDate={currentDate}
-            mealPlan={mealPlan}
-            saveMeal={saveMeal}
-            reviews={reviews}
-            setCurrentDate={setCurrentDate}
-          />
-        )}
-      </div>
-
-      {(view === 'today' || view === 'week' || view === 'month') && (
-        <button className="fab" onClick={() => setMeetingModal({ start_time: '09:00', duration: 60, job: 'mint', icon: '📅' })}>+</button>
-      )}
-
+    <div className="app-shell">
       <nav className="tab-bar">
+        <div className="tab-bar-brand hide-mobile">
+          <div className="tab-bar-brand-icon">⚡</div>
+          <div className="tab-bar-brand-text">Command Center</div>
+        </div>
+        <button className={`tab-btn ${view === 'home' ? 'active' : ''}`} onClick={() => setView('home')}>
+          <div className="tab-icon">🏠</div>
+          <div>Home</div>
+        </button>
         <button className={`tab-btn ${view === 'inbox' ? 'active' : ''} ${inboxItems.length > 0 ? 'has-badge' : ''}`} data-count={inboxItems.length} onClick={() => setView('inbox')}>
           <div className="tab-icon">📥</div>
           <div>Inbox</div>
@@ -1597,61 +2219,288 @@ const App = () => {
           <div className="tab-icon">🗓️</div>
           <div>Month</div>
         </button>
+        <button className={`tab-btn ${view === 'notes' ? 'active' : ''}`} onClick={() => setView('notes')}>
+          <div className="tab-icon">📝</div>
+          <div>Notes</div>
+        </button>
         <button className={`tab-btn ${view === 'review' ? 'active' : ''}`} onClick={() => setView('review')}>
           <div className="tab-icon">📋</div>
           <div>Review</div>
         </button>
       </nav>
 
+      <div className="app-shell-main">
+        <header className="top-bar">
+          <div>
+            <div className="greeting-text">{greetingTime()}, Jessa</div>
+            <div className="greeting-sub">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</div>
+          </div>
+          <div className="top-actions">
+            <button className="icon-btn" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>{theme === 'light' ? '🌙' : '☀️'}</button>
+            <button className={`icon-btn ${privacyMode ? 'active' : ''}`} onClick={() => setPrivacyMode(!privacyMode)}>{privacyMode ? '🔒' : '👁️'}</button>
+            <button className="icon-btn" onClick={() => setShowSettings(true)}>⚙️</button>
+          </div>
+        </header>
+
+        {(view === 'today' || view === 'week' || view === 'month') && (
+          <div className="date-nav-pills">
+            {weekDays.map((d, i) => {
+              const isToday = d.toDateString() === new Date().toDateString();
+              const isSelected = formatDateLocal(d) === formatDateLocal(currentDate);
+              return (
+                <div key={i} className={`date-pill ${isToday ? 'today' : ''} ${isSelected && !isToday ? 'selected' : ''}`} onClick={() => setCurrentDate(d)}>
+                  <div className="pill-dow">{d.toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 3)}</div>
+                  <div className="pill-num">{d.getDate()}</div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        <div className="content">
+          {view === 'home' && (
+            <HomeView
+              dayMeetings={dayMeetings}
+              dayTasks={dayTasks}
+              inboxItems={inboxItems}
+              notes={notes}
+              pinnedNote={pinnedNote}
+              scratchPad={scratchPad}
+              scratchSaved={scratchSaved}
+              updateScratch={updateScratch}
+              setView={setView}
+              setMeetingModal={setMeetingModal}
+              setTaskModal={setTaskModal}
+              toggleTask={toggleTask}
+              setActiveNoteId={setActiveNoteId}
+              privacyMode={privacyMode}
+              createNote={createNote}
+            />
+          )}
+          {view === 'today' && <TodayView dayMeetings={dayMeetings} dayTasks={dayTasks} privacyMode={privacyMode} setMeetingModal={setMeetingModal} setTaskModal={setTaskModal} toggleTask={toggleTask} currentDate={currentDate} addQuickTask={addQuickTask} />}
+          {view === 'week' && <WeekView meetings={meetings} tasks={tasks} currentDate={currentDate} setCurrentDate={setCurrentDate} setView={setView} privacyMode={privacyMode} />}
+          {view === 'month' && <MonthView meetings={meetings} tasks={tasks} currentDate={currentDate} setCurrentDate={setCurrentDate} setView={setView} />}
+          {view === 'inbox' && (
+            <InboxView
+              inboxItems={inboxItems}
+              brainDumpText={brainDumpText}
+              setBrainDumpText={setBrainDumpText}
+              addInboxItem={addInboxItem}
+              inboxFilter={inboxFilter}
+              setInboxFilter={setInboxFilter}
+              inboxSort={inboxSort}
+              setInboxSort={setInboxSort}
+              expandedInboxId={expandedInboxId}
+              setExpandedInboxId={setExpandedInboxId}
+              updateInboxItem={updateInboxItem}
+              convertInboxToTask={convertInboxToTask}
+              convertInboxToMeeting={convertInboxToMeeting}
+              deleteInboxItem={deleteInboxItem}
+            />
+          )}
+          {view === 'notes' && (
+            <NotesView
+              notes={filteredNotes}
+              allNotes={notes}
+              activeNote={activeNote}
+              setActiveNoteId={setActiveNoteId}
+              notebooks={notebooks}
+              selectedNotebookId={selectedNotebookId}
+              setSelectedNotebookId={setSelectedNotebookId}
+              noteSearch={noteSearch}
+              setNoteSearch={setNoteSearch}
+              previewMode={previewMode}
+              setPreviewMode={setPreviewMode}
+              createNote={createNote}
+              updateNote={updateNote}
+              deleteNote={deleteNote}
+              pinnedNoteId={pinnedNoteId}
+              togglePinnedNote={togglePinnedNote}
+              setShowNotebookModal={setShowNotebookModal}
+            />
+          )}
+          {view === 'review' && (
+            <ReviewView
+              currentReview={currentReview}
+              setCurrentReview={setCurrentReview}
+              saveReview={saveReview}
+              currentDate={currentDate}
+              mealPlan={mealPlan}
+              saveMeal={saveMeal}
+              reviews={reviews}
+              setCurrentDate={setCurrentDate}
+            />
+          )}
+        </div>
+      </div>
+
+      {(view === 'today' || view === 'week' || view === 'month') && (
+        <button className="fab" onClick={() => setMeetingModal({ start_time: '09:00', duration: 60, job: '#5DCFA0', icon: '📅' })}>+</button>
+      )}
+      {view === 'notes' && (
+        <button className="fab" onClick={() => createNote(selectedNotebookId !== 'all' && selectedNotebookId !== 'unfiled' ? selectedNotebookId : null)}>+</button>
+      )}
+
       {meetingModal && <MeetingModal meeting={meetingModal} onSave={saveMeeting} onDelete={deleteMeeting} onClose={() => setMeetingModal(null)} />}
       {taskModal && <TaskModal task={taskModal} onSave={saveTask} onDelete={deleteTask} onClose={() => setTaskModal(null)} />}
-      {showSettings && (
-        <SettingsModal
-          categories={categories}
-          onClose={() => setShowSettings(false)}
-          onEditCategory={(c) => setEditingCategory(c)}
-          onMoveCategory={moveCategory}
-          onShowImport={() => { setShowSettings(false); setShowImport(true); }}
-          theme={theme}
-          setTheme={setTheme}
-        />
-      )}
-      {editingCategory && (
-        <CategoryEditModal
-          category={editingCategory}
-          onSave={saveCategory}
-          onDelete={deleteCategory}
-          onClose={() => setEditingCategory(null)}
-        />
-      )}
-      {showImport && (
-        <ImportMeetingsModal
-          onClose={() => setShowImport(false)}
-          onImport={async (meetings) => {
-            for (const m of meetings) {
-              await supabase.from('command_meetings').insert([{
-                date: m.date,
-                title: m.title,
-                start_time: m.start_time,
-                duration: m.duration,
-                job: m.job || 'mint',
-                icon: m.icon || '📅',
-                start_minutes: minutesFromTime(m.start_time),
-                end_minutes: minutesFromTime(m.start_time) + m.duration,
-                recurrence: 'none'
-              }]);
-            }
-            showToast(`Imported ${meetings.length} meeting${meetings.length !== 1 ? 's' : ''}`);
-            setShowImport(false);
-            loadMeetings();
-          }}
-        />
-      )}
+      {showSettings && <SettingsModal categories={categories} onClose={() => setShowSettings(false)} onEditCategory={(c) => setEditingCategory(c)} onMoveCategory={moveCategory} onShowImport={() => { setShowSettings(false); setShowImport(true); }} theme={theme} setTheme={setTheme} />}
+      {editingCategory && <CategoryEditModal category={editingCategory} onSave={saveCategory} onDelete={deleteCategory} onClose={() => setEditingCategory(null)} />}
+      {showImport && <ImportMeetingsModal onClose={() => setShowImport(false)} onImport={async (mts) => {
+        for (const m of mts) {
+          await supabase.from('command_meetings').insert([{ date: m.date, title: m.title, start_time: m.start_time, duration: m.duration, job: m.job || '#5DCFA0', icon: m.icon || '📅', start_minutes: minutesFromTime(m.start_time), end_minutes: minutesFromTime(m.start_time) + m.duration, recurrence: 'none' }]);
+        }
+        showToast(`Imported ${mts.length}`);
+        setShowImport(false);
+        loadMeetings();
+      }} />}
+      {showNotebookModal && <NotebookModal notebook={showNotebookModal} onSave={saveNotebook} onDelete={deleteNotebook} onClose={() => setShowNotebookModal(null)} />}
       {toast && <div className="toast">{toast}</div>}
     </div>
   );
 };
 
+// =============== HOME (Evernote-inspired) ===============
+const HomeView = ({ dayMeetings, dayTasks, inboxItems, notes, pinnedNote, scratchPad, scratchSaved, updateScratch, setView, setMeetingModal, setTaskModal, toggleTask, setActiveNoteId, privacyMode, createNote }) => {
+  const pendingTasks = dayTasks.filter(t => !t.completed);
+  const recentNotes = notes.slice(0, 5);
+
+  return (
+    <>
+      <div className="page-title-area">
+        <div className="page-title">Home</div>
+        <div className="page-subtitle">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</div>
+      </div>
+
+      <div className="home-grid">
+        {/* Tasks */}
+        <div className="home-card">
+          <div className="home-card-header">
+            <div className="home-card-title">📋 Today's Tasks</div>
+            <button className="home-card-action" onClick={() => setView('today')}>View all →</button>
+          </div>
+          <div className="home-card-body">
+            {pendingTasks.length === 0 ? (
+              <div className="home-empty">No pending tasks. ✨</div>
+            ) : (
+              pendingTasks.slice(0, 6).map(t => {
+                const cat = getCategoryById(t.context);
+                return (
+                  <div key={t.id} className="home-list-item" style={{ borderLeftColor: cat.color }} onClick={() => setTaskModal(t)}>
+                    <div
+                      style={{ width: '16px', height: '16px', borderRadius: '50%', border: `2px solid ${cat.color}`, flexShrink: 0, cursor: 'pointer' }}
+                      onClick={(e) => { e.stopPropagation(); toggleTask(t); }}
+                    ></div>
+                    <span className="home-list-text">{t.title}</span>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+
+        {/* Calendar */}
+        <div className="home-card">
+          <div className="home-card-header">
+            <div className="home-card-title">📅 Today's Meetings</div>
+            <button className="home-card-action" onClick={() => setView('today')}>View all →</button>
+          </div>
+          <div className="home-card-body">
+            {dayMeetings.length === 0 ? (
+              <div className="home-empty">No meetings today. 🌿</div>
+            ) : (
+              dayMeetings.slice(0, 6).map(m => (
+                <div key={m.id} className={`home-list-item ${privacyMode ? 'privacy-blur' : ''}`} style={{ borderLeftColor: m.job, background: hexToSoftBg(m.job) }} onClick={() => setMeetingModal(m)}>
+                  <span style={{ fontSize: '0.85rem' }}>{m.icon || '📅'}</span>
+                  <span className="home-list-text">{m.title}</span>
+                  <span className="home-list-meta">{m.start_time}</span>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Notes */}
+        <div className="home-card">
+          <div className="home-card-header">
+            <div className="home-card-title">📝 Recent Notes</div>
+            <button className="home-card-action" onClick={() => setView('notes')}>View all →</button>
+          </div>
+          <div className="home-card-body">
+            {recentNotes.length === 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '0.5rem 0' }}>
+                <div className="home-empty">No notes yet</div>
+                <button className="btn btn-soft" style={{ alignSelf: 'center' }} onClick={() => createNote()}>+ New note</button>
+              </div>
+            ) : (
+              recentNotes.map(n => (
+                <div key={n.id} className="home-list-item" style={{ borderLeftColor: n.color || 'var(--accent)' }} onClick={() => { setActiveNoteId(n.id); setView('notes'); }}>
+                  <span style={{ fontSize: '0.85rem' }}>📝</span>
+                  <span className="home-list-text">{n.title || 'Untitled'}</span>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Inbox */}
+        <div className="home-card">
+          <div className="home-card-header">
+            <div className="home-card-title">📥 Inbox</div>
+            <button className="home-card-action" onClick={() => setView('inbox')}>View all →</button>
+          </div>
+          <div className="home-card-body">
+            {inboxItems.length === 0 ? (
+              <div className="home-empty">Inbox is empty</div>
+            ) : (
+              inboxItems.slice(0, 5).map(item => (
+                <div key={item.id} className="home-list-item" style={{ borderLeftColor: '#F5B544' }} onClick={() => setView('inbox')}>
+                  <span style={{ fontSize: '0.85rem' }}>{item.starred ? '⭐' : '○'}</span>
+                  <span className="home-list-text">{item.text}</span>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Pinned Note */}
+        <div className="home-card">
+          <div className="home-card-header">
+            <div className="home-card-title">📌 Pinned Note</div>
+            {pinnedNote && <button className="home-card-action" onClick={() => { setActiveNoteId(pinnedNote.id); setView('notes'); }}>Open →</button>}
+          </div>
+          <div className="home-card-body">
+            {!pinnedNote ? (
+              <div className="home-empty">Pin a note from the Notes tab to keep it handy here</div>
+            ) : (
+              <div className="home-pinned-card" onClick={() => { setActiveNoteId(pinnedNote.id); setView('notes'); }} style={{ borderLeftColor: pinnedNote.color || 'var(--accent)' }}>
+                <div className="home-pinned-title">{pinnedNote.title || 'Untitled'}</div>
+                <div className="home-pinned-preview">{(pinnedNote.body || '').replace(/[#*`>_\-\[\]]/g, '').substring(0, 200) || 'Empty note'}</div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Scratch Pad */}
+        <div className="home-card scratch-pad">
+          <div className="home-card-header">
+            <div className="home-card-title">📒 Scratch Pad</div>
+            <span className="scratch-save-status">{scratchSaved ? '✓ Saved' : 'Saving...'}</span>
+          </div>
+          <div className="home-card-body">
+            <textarea
+              className="scratch-textarea"
+              value={scratchPad}
+              onChange={(e) => updateScratch(e.target.value)}
+              placeholder="Quick thoughts... auto-saves as you type."
+            />
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+// =============== TODAY ===============
 const TodayView = ({ dayMeetings, dayTasks, privacyMode, setMeetingModal, setTaskModal, toggleTask, currentDate, addQuickTask }) => {
   const isToday = currentDate.toDateString() === new Date().toDateString();
   const pendingTasks = dayTasks.filter(t => !t.completed);
@@ -1660,9 +2509,7 @@ const TodayView = ({ dayMeetings, dayTasks, privacyMode, setMeetingModal, setTas
   return (
     <>
       <div className="page-title-area">
-        <div className="page-title">
-          {isToday ? 'Today' : currentDate.toLocaleDateString('en-US', { weekday: 'long' })}
-        </div>
+        <div className="page-title">{isToday ? 'Today' : currentDate.toLocaleDateString('en-US', { weekday: 'long' })}</div>
         <div className="page-subtitle">
           {currentDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} · {dayMeetings.length} meeting{dayMeetings.length !== 1 ? 's' : ''} · {pendingTasks.length} task{pendingTasks.length !== 1 ? 's' : ''}
         </div>
@@ -1672,58 +2519,43 @@ const TodayView = ({ dayMeetings, dayTasks, privacyMode, setMeetingModal, setTas
         <div className="empty-state">
           <div className="empty-state-icon">✨</div>
           <div className="empty-state-title">All clear</div>
-          <div className="empty-state-text">No meetings or tasks scheduled. Tap + to add something.</div>
+          <div className="empty-state-text">No meetings or tasks scheduled.</div>
         </div>
       ) : (
         <div className="timeline">
-          {[...computeMeetingLayouts(dayMeetings).map(m => ({ ...m, _type: 'meeting', _sortKey: minutesFromTime(m.start_time) })),
+          {[...dayMeetings.map(m => ({ ...m, _type: 'meeting', _sortKey: minutesFromTime(m.start_time) })),
             ...pendingTasks.map(t => ({ ...t, _type: 'task', _sortKey: 99999 }))]
             .sort((a, b) => a._sortKey - b._sortKey)
             .map((item, idx) => {
               if (item._type === 'meeting') {
+                const bg = hexToSoftBg(item.job);
+                const txt = hexToTextColor(item.job);
                 return (
                   <div key={`m-${item.id}`} className="timeline-row">
-                    <div className="timeline-time">
-                      {item.start_time}
-                    </div>
-                    <div
-                      className={`event-card color-${item.job} ${privacyMode ? 'privacy-blur' : ''}`}
-                      onClick={() => setMeetingModal(item)}
-                    >
-                      <div className="event-duration-bar"></div>
-                      <div className="event-icon">{item.icon || '📅'}</div>
+                    <div className="timeline-time">{item.start_time}</div>
+                    <div className={`event-card ${privacyMode ? 'privacy-blur' : ''}`} style={{ background: bg }} onClick={() => setMeetingModal(item)}>
+                      <div className="event-duration-bar" style={{ background: item.job }}></div>
+                      <div className="event-icon" style={{ background: item.job, color: 'white' }}>{item.icon || '📅'}</div>
                       <div className="event-content">
-                        <div className="event-title">{item.title}</div>
-                        <div className="event-meta">
-                          <span>{item.duration}min</span>
-                          {item.recurrence && item.recurrence !== 'none' && <span>· 🔁</span>}
-                        </div>
+                        <div className="event-title" style={{ color: txt }}>{item.title}</div>
+                        <div className="event-meta">{item.duration}min{item.recurrence && item.recurrence !== 'none' ? ' · 🔁' : ''}</div>
                       </div>
                     </div>
                   </div>
                 );
               }
               const cat = getCategoryById(item.context);
+              const bg = hexToSoftBg(cat.color);
+              const txt = hexToTextColor(cat.color);
               return (
                 <div key={`t-${item.id}`} className="timeline-row">
                   <div className="timeline-time">·</div>
-                  <div
-                    className={`event-card color-${cat.color}`}
-                    onClick={() => setTaskModal(item)}
-                  >
-                    <div className="event-duration-bar"></div>
-                    <div
-                      className="event-icon"
-                      onClick={(e) => { e.stopPropagation(); toggleTask(item); }}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      ⭕
-                    </div>
+                  <div className="event-card" style={{ background: bg }} onClick={() => setTaskModal(item)}>
+                    <div className="event-duration-bar" style={{ background: cat.color }}></div>
+                    <div className="event-icon" style={{ background: cat.color, color: 'white', cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); toggleTask(item); }}>⭕</div>
                     <div className="event-content">
-                      <div className="event-title">{item.title}</div>
-                      <div className="event-meta">
-                        <span>{cat.label}</span>
-                      </div>
+                      <div className="event-title" style={{ color: txt }}>{item.title}</div>
+                      <div className="event-meta">{cat.label}</div>
                     </div>
                   </div>
                 </div>
@@ -1738,9 +2570,9 @@ const TodayView = ({ dayMeetings, dayTasks, privacyMode, setMeetingModal, setTas
                 return (
                   <div key={`d-${item.id}`} className="timeline-row" style={{ opacity: 0.5 }}>
                     <div className="timeline-time">·</div>
-                    <div className={`event-card color-${cat.color}`} onClick={() => setTaskModal(item)} style={{ minHeight: '44px' }}>
-                      <div className="event-duration-bar"></div>
-                      <div className="event-icon" onClick={(e) => { e.stopPropagation(); toggleTask(item); }} style={{ cursor: 'pointer' }}>✓</div>
+                    <div className="event-card" style={{ background: hexToSoftBg(cat.color), minHeight: '44px' }} onClick={() => setTaskModal(item)}>
+                      <div className="event-duration-bar" style={{ background: cat.color }}></div>
+                      <div className="event-icon" style={{ background: cat.color, color: 'white', cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); toggleTask(item); }}>✓</div>
                       <div className="event-content">
                         <div className="event-title" style={{ textDecoration: 'line-through' }}>{item.title}</div>
                       </div>
@@ -1754,28 +2586,14 @@ const TodayView = ({ dayMeetings, dayTasks, privacyMode, setMeetingModal, setTas
       )}
 
       <div className="quick-add" style={{ marginTop: '1.25rem' }}>
-        <input
-          type="text"
-          placeholder="Quick add task..."
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && e.target.value.trim()) {
-              addQuickTask(e.target.value);
-              e.target.value = '';
-            }
-          }}
-        />
-        <button onClick={(e) => {
-          const input = e.target.previousElementSibling;
-          if (input.value.trim()) {
-            addQuickTask(input.value);
-            input.value = '';
-          }
-        }}>+</button>
+        <input type="text" placeholder="Quick add task..." onKeyDown={(e) => { if (e.key === 'Enter' && e.target.value.trim()) { addQuickTask(e.target.value); e.target.value = ''; } }} />
+        <button onClick={(e) => { const input = e.target.previousElementSibling; if (input.value.trim()) { addQuickTask(input.value); input.value = ''; } }}>+</button>
       </div>
     </>
   );
 };
 
+// =============== WEEK ===============
 const WeekView = ({ meetings, tasks, currentDate, setCurrentDate, setView, privacyMode }) => {
   const weekStart = getWeekStart(currentDate);
 
@@ -1783,9 +2601,7 @@ const WeekView = ({ meetings, tasks, currentDate, setCurrentDate, setView, priva
     <>
       <div className="page-title-area">
         <div className="page-title">This Week</div>
-        <div className="page-subtitle">
-          Week of {weekStart.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
-        </div>
+        <div className="page-subtitle">Week of {weekStart.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}</div>
       </div>
 
       <div className="timeline">
@@ -1801,31 +2617,16 @@ const WeekView = ({ meetings, tasks, currentDate, setCurrentDate, setView, priva
 
           return (
             <div key={i} style={{ marginBottom: '1.25rem' }}>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'baseline',
-                  gap: '0.5rem',
-                  padding: '0.25rem 0 0.6rem',
-                  cursor: 'pointer',
-                  borderBottom: '1px solid var(--border-soft)',
-                  marginBottom: '0.6rem'
-                }}
-                onClick={() => { setCurrentDate(d); setView('today'); }}
-              >
-                <div style={{ fontFamily: 'Plus Jakarta Sans', fontSize: '1.1rem', fontWeight: 700, color: isToday ? 'var(--accent)' : 'var(--text)' }}>
-                  {d.toLocaleDateString('en-US', { weekday: 'long' })}
-                </div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                  {d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                </div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', padding: '0.25rem 0 0.6rem', cursor: 'pointer', borderBottom: '1px solid var(--border-soft)', marginBottom: '0.6rem' }} onClick={() => { setCurrentDate(d); setView('today'); }}>
+                <div style={{ fontFamily: 'Plus Jakarta Sans', fontSize: '1.1rem', fontWeight: 700, color: isToday ? 'var(--accent)' : 'var(--text)' }}>{d.toLocaleDateString('en-US', { weekday: 'long' })}</div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', paddingLeft: '0.5rem' }}>
                 {dayMeetings.map(m => (
-                  <div key={m.id} className={`event-card color-${m.job} ${privacyMode ? 'privacy-blur' : ''}`} style={{ minHeight: '44px' }}>
-                    <div className="event-duration-bar"></div>
-                    <div className="event-icon" style={{ width: '32px', height: '32px', fontSize: '0.95rem' }}>{m.icon || '📅'}</div>
+                  <div key={m.id} className={`event-card ${privacyMode ? 'privacy-blur' : ''}`} style={{ background: hexToSoftBg(m.job), minHeight: '44px' }}>
+                    <div className="event-duration-bar" style={{ background: m.job }}></div>
+                    <div className="event-icon" style={{ width: '32px', height: '32px', fontSize: '0.95rem', background: m.job, color: 'white' }}>{m.icon || '📅'}</div>
                     <div className="event-content">
                       <div className="event-title" style={{ fontSize: '0.85rem' }}>{m.title}</div>
                       <div className="event-meta" style={{ fontSize: '0.7rem' }}>{m.start_time} · {m.duration}min</div>
@@ -1835,9 +2636,9 @@ const WeekView = ({ meetings, tasks, currentDate, setCurrentDate, setView, priva
                 {dayTasks.map(t => {
                   const cat = getCategoryById(t.context);
                   return (
-                    <div key={t.id} className={`event-card color-${cat.color}`} style={{ minHeight: '44px' }}>
-                      <div className="event-duration-bar"></div>
-                      <div className="event-icon" style={{ width: '32px', height: '32px', fontSize: '0.95rem' }}>⭕</div>
+                    <div key={t.id} className="event-card" style={{ background: hexToSoftBg(cat.color), minHeight: '44px' }}>
+                      <div className="event-duration-bar" style={{ background: cat.color }}></div>
+                      <div className="event-icon" style={{ width: '32px', height: '32px', fontSize: '0.95rem', background: cat.color, color: 'white' }}>⭕</div>
                       <div className="event-content">
                         <div className="event-title" style={{ fontSize: '0.85rem' }}>{t.title}</div>
                         <div className="event-meta" style={{ fontSize: '0.7rem' }}>{cat.label}</div>
@@ -1849,26 +2650,12 @@ const WeekView = ({ meetings, tasks, currentDate, setCurrentDate, setView, priva
             </div>
           );
         })}
-
-        {Array.from({ length: 7 }, (_, i) => {
-          const d = new Date(weekStart);
-          d.setDate(d.getDate() + i);
-          const dateStr = formatDateLocal(d);
-          const dayMeetings = meetings.filter(m => meetingOccursOn(m, dateStr));
-          const dayTasks = tasks.filter(t => t.date === dateStr && !t.completed);
-          return dayMeetings.length === 0 && dayTasks.length === 0 ? d : null;
-        }).filter(Boolean).length === 7 && (
-          <div className="empty-state">
-            <div className="empty-state-icon">🌿</div>
-            <div className="empty-state-title">Wide open week</div>
-            <div className="empty-state-text">Nothing scheduled. Plenty of room to plan.</div>
-          </div>
-        )}
       </div>
     </>
   );
 };
 
+// =============== MONTH ===============
 const MonthView = ({ meetings, tasks, currentDate, setCurrentDate, setView }) => {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -1919,17 +2706,13 @@ const MonthView = ({ meetings, tasks, currentDate, setCurrentDate, setView }) =>
           const isToday = date.toDateString() === new Date().toDateString();
           const isSelected = !isToday && date.toDateString() === currentDate.toDateString();
           return (
-            <div
-              key={idx}
-              className={`month-cell ${otherMonth ? 'other-month' : ''} ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}`}
-              onClick={() => { setCurrentDate(date); setView('today'); }}
-            >
+            <div key={idx} className={`month-cell ${otherMonth ? 'other-month' : ''} ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}`} onClick={() => { setCurrentDate(date); setView('today'); }}>
               <div className="month-cell-num">{date.getDate()}</div>
               <div className="month-cell-events">
-                {dayMeetings.slice(0, 3).map((m, i) => (<div key={`m-${i}`} className={`month-event-pill color-${m.job}`}></div>))}
+                {dayMeetings.slice(0, 3).map((m, i) => (<div key={`m-${i}`} className="month-event-pill" style={{ background: m.job }}></div>))}
                 {dayTasks.length > 0 && dayMeetings.length < 3 && Array.from({ length: Math.min(dayTasks.length, 3 - dayMeetings.length) }).map((_, i) => {
                   const cat = getCategoryById(dayTasks[i].context);
-                  return <div key={`t-${i}`} className={`month-event-pill color-${cat.color}`}></div>;
+                  return <div key={`t-${i}`} className="month-event-pill" style={{ background: cat.color }}></div>;
                 })}
               </div>
             </div>
@@ -1940,6 +2723,7 @@ const MonthView = ({ meetings, tasks, currentDate, setCurrentDate, setView }) =>
   );
 };
 
+// =============== INBOX ===============
 const InboxView = ({ inboxItems, brainDumpText, setBrainDumpText, addInboxItem, inboxFilter, setInboxFilter, inboxSort, setInboxSort, expandedInboxId, setExpandedInboxId, updateInboxItem, convertInboxToTask, convertInboxToMeeting, deleteInboxItem }) => {
 
   const filtered = useMemo(() => {
@@ -1977,11 +2761,7 @@ const InboxView = ({ inboxItems, brainDumpText, setBrainDumpText, addInboxItem, 
 
       <div className="brain-dump">
         <div className="brain-dump-label">⚡ Brain Dump</div>
-        <textarea
-          value={brainDumpText}
-          onChange={(e) => setBrainDumpText(e.target.value)}
-          placeholder="Drop everything here. One thought per line. Don't filter — just capture..."
-        />
+        <textarea value={brainDumpText} onChange={(e) => setBrainDumpText(e.target.value)} placeholder="Drop everything here. One thought per line. Don't filter — just capture..." />
         <div className="brain-dump-actions">
           <button className="btn btn-ghost" onClick={() => setBrainDumpText('')}>Clear</button>
           <button className="btn btn-primary" onClick={addInboxItem}>Capture</button>
@@ -2008,7 +2788,6 @@ const InboxView = ({ inboxItems, brainDumpText, setBrainDumpText, addInboxItem, 
         <div className="empty-state">
           <div className="empty-state-icon">📭</div>
           <div className="empty-state-title">{inboxFilter !== 'all' ? 'No matches' : 'Inbox empty'}</div>
-          <div className="empty-state-text">{inboxFilter !== 'all' ? 'Try a different filter.' : 'Drop thoughts above when they come.'}</div>
         </div>
       ) : (
         <div className="inbox-list">
@@ -2022,15 +2801,11 @@ const InboxView = ({ inboxItems, brainDumpText, setBrainDumpText, addInboxItem, 
             return (
               <div key={item.id} className={`inbox-card ${isExpanded ? 'expanded' : ''} ${item.starred ? 'starred' : ''}`}>
                 <div className="inbox-card-row">
-                  <div
-                    className="inbox-circle"
-                    onClick={(e) => { e.stopPropagation(); convertInboxToTask(item); }}
-                    title="Mark complete - converts to task"
-                  ></div>
+                  <div className="inbox-circle" onClick={(e) => { e.stopPropagation(); convertInboxToTask(item); }}></div>
                   <div className="inbox-main" onClick={() => setExpandedInboxId(isExpanded ? null : item.id)}>
                     <div className="inbox-title">{item.text}</div>
                     <div className="inbox-pills">
-                      {cat && <span className="inbox-pill" style={{ background: `var(--c-${cat.color}-bg)`, color: `var(--c-${cat.color})` }}>{cat.icon} {cat.label}</span>}
+                      {cat && <span className="inbox-pill" style={{ background: hexToSoftBg(cat.color), color: hexToTextColor(cat.color) }}>{cat.icon} {cat.label}</span>}
                       {item.priority && <span className={`inbox-pill ${item.priority}`}>{item.priority === 'high' ? '🔴' : item.priority === 'medium' ? '🟡' : '🟢'} {item.priority}</span>}
                       {item.due_date && (
                         <span className={`inbox-pill ${isOverdue ? 'due-overdue' : isDueToday ? 'due-today' : 'due-future'}`}>
@@ -2041,9 +2816,7 @@ const InboxView = ({ inboxItems, brainDumpText, setBrainDumpText, addInboxItem, 
                       {!cat && !item.priority && !item.due_date && <span className="inbox-tag-empty">tap to organize</span>}
                     </div>
                   </div>
-                  <button className={`star-btn ${item.starred ? 'starred' : ''}`} onClick={(e) => { e.stopPropagation(); updateInboxItem(item.id, { starred: !item.starred }); }}>
-                    {item.starred ? '⭐' : '☆'}
-                  </button>
+                  <button className={`star-btn ${item.starred ? 'starred' : ''}`} onClick={(e) => { e.stopPropagation(); updateInboxItem(item.id, { starred: !item.starred }); }}>{item.starred ? '⭐' : '☆'}</button>
                 </div>
 
                 {isExpanded && (
@@ -2052,7 +2825,7 @@ const InboxView = ({ inboxItems, brainDumpText, setBrainDumpText, addInboxItem, 
                       <label>Category</label>
                       <select value={item.category || ''} onChange={(e) => updateInboxItem(item.id, { category: e.target.value || null })}>
                         <option value="">None</option>
-                        {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}
+                        {_categoriesCache.map(c => <option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}
                       </select>
                     </div>
                     <div className="detail-row">
@@ -2088,6 +2861,214 @@ const InboxView = ({ inboxItems, brainDumpText, setBrainDumpText, addInboxItem, 
   );
 };
 
+// =============== NOTES ===============
+const NotesView = ({ notes, allNotes, activeNote, setActiveNoteId, notebooks, selectedNotebookId, setSelectedNotebookId, noteSearch, setNoteSearch, previewMode, setPreviewMode, createNote, updateNote, deleteNote, pinnedNoteId, togglePinnedNote, setShowNotebookModal }) => {
+  const [editTitle, setEditTitle] = useState('');
+  const [editBody, setEditBody] = useState('');
+  const [tagInput, setTagInput] = useState('');
+  const saveTimer = useRef(null);
+
+  useEffect(() => {
+    if (activeNote) {
+      setEditTitle(activeNote.title || '');
+      setEditBody(activeNote.body || '');
+    }
+  }, [activeNote?.id]);
+
+  const debouncedSave = (updates) => {
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      if (activeNote) updateNote(activeNote.id, updates);
+    }, 600);
+  };
+
+  const handleTitleChange = (val) => {
+    setEditTitle(val);
+    debouncedSave({ title: val, body: editBody });
+  };
+
+  const handleBodyChange = (val) => {
+    setEditBody(val);
+    debouncedSave({ title: editTitle, body: val });
+  };
+
+  const insertMarkdown = (before, after = '') => {
+    const ta = document.querySelector('.note-body-input');
+    if (!ta) return;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const selected = editBody.substring(start, end);
+    const newText = editBody.substring(0, start) + before + selected + after + editBody.substring(end);
+    setEditBody(newText);
+    debouncedSave({ title: editTitle, body: newText });
+    setTimeout(() => {
+      ta.focus();
+      ta.setSelectionRange(start + before.length, start + before.length + selected.length);
+    }, 0);
+  };
+
+  const addTag = (e) => {
+    if (e.key === 'Enter' && tagInput.trim() && activeNote) {
+      const newTags = [...(activeNote.tags || []), tagInput.trim()];
+      updateNote(activeNote.id, { tags: newTags });
+      setTagInput('');
+    }
+  };
+
+  const removeTag = (tag) => {
+    if (!activeNote) return;
+    const newTags = (activeNote.tags || []).filter(t => t !== tag);
+    updateNote(activeNote.id, { tags: newTags });
+  };
+
+  return (
+    <>
+      <div className="page-title-area">
+        <div className="page-title">Notes</div>
+        <div className="page-subtitle">{allNotes.length} note{allNotes.length !== 1 ? 's' : ''}</div>
+      </div>
+
+      <div className="notes-layout">
+        <div className="notes-sidebar">
+          <input type="text" className="notes-search" placeholder="🔍 Search notes..." value={noteSearch} onChange={(e) => setNoteSearch(e.target.value)} />
+
+          <div className="notebook-section">
+            <div className="notebook-header">
+              <span>Notebooks</span>
+              <button className="notebook-add-btn" onClick={() => setShowNotebookModal({})}>+</button>
+            </div>
+            <div className={`notebook-item ${selectedNotebookId === 'all' ? 'active' : ''}`} onClick={() => setSelectedNotebookId('all')}>
+              <span>📚</span>
+              <span>All Notes</span>
+              <span className="nb-count">{allNotes.length}</span>
+            </div>
+            <div className={`notebook-item ${selectedNotebookId === 'unfiled' ? 'active' : ''}`} onClick={() => setSelectedNotebookId('unfiled')}>
+              <span>📥</span>
+              <span>Unfiled</span>
+              <span className="nb-count">{allNotes.filter(n => !n.notebook_id).length}</span>
+            </div>
+            {notebooks.map(nb => (
+              <div
+                key={nb.id}
+                className={`notebook-item ${selectedNotebookId === nb.id ? 'active' : ''}`}
+                style={{ borderLeftColor: nb.color }}
+                onClick={() => setSelectedNotebookId(nb.id)}
+                onDoubleClick={() => setShowNotebookModal(nb)}
+              >
+                <span>{nb.icon}</span>
+                <span>{nb.name}</span>
+                <span className="nb-count">{allNotes.filter(n => n.notebook_id === nb.id).length}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="notebook-section" style={{ marginTop: '0.5rem' }}>
+            <div className="notebook-header">
+              <span>Notes</span>
+              <button className="notebook-add-btn" onClick={() => createNote(selectedNotebookId !== 'all' && selectedNotebookId !== 'unfiled' ? selectedNotebookId : null)}>+</button>
+            </div>
+            {notes.length === 0 ? (
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', padding: '0.5rem', fontStyle: 'italic' }}>No notes yet</div>
+            ) : notes.map(n => {
+              const preview = (n.body || '').replace(/[#*`>_\-\[\]]/g, '').substring(0, 60);
+              return (
+                <div key={n.id} className={`note-list-item ${activeNote?.id === n.id ? 'active' : ''}`} style={{ borderLeftColor: n.color || '#8A8A8A' }} onClick={() => setActiveNoteId(n.id)}>
+                  <div className="note-list-title">
+                    {n.id === pinnedNoteId && <span className="note-pinned">📌 </span>}
+                    {n.title || 'Untitled'}
+                  </div>
+                  <div className="note-list-preview">{preview || 'Empty note'}</div>
+                  {n.tags && n.tags.length > 0 && (
+                    <div className="note-list-meta">
+                      {n.tags.slice(0, 3).map((t, i) => (
+                        <span key={i} className="note-tag-pill" style={{ background: 'var(--bg-card)', color: 'var(--text-muted)' }}>#{t}</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="notes-editor">
+          {!activeNote ? (
+            <div className="notes-empty-editor">
+              <div style={{ fontSize: '3rem' }}>📝</div>
+              <div style={{ fontWeight: 700, color: 'var(--text-soft)' }}>Select a note to start</div>
+              <button className="btn btn-soft" onClick={() => createNote(selectedNotebookId !== 'all' && selectedNotebookId !== 'unfiled' ? selectedNotebookId : null)}>+ New note</button>
+            </div>
+          ) : (
+            <>
+              <div className="notes-editor-toolbar">
+                <button className="toolbar-btn" onClick={() => insertMarkdown('**', '**')} title="Bold"><strong>B</strong></button>
+                <button className="toolbar-btn" onClick={() => insertMarkdown('*', '*')} title="Italic"><em>I</em></button>
+                <button className="toolbar-btn" onClick={() => insertMarkdown('~~', '~~')} title="Strikethrough"><del>S</del></button>
+                <div className="toolbar-divider"></div>
+                <button className="toolbar-btn" onClick={() => insertMarkdown('# ')} title="Heading 1">H1</button>
+                <button className="toolbar-btn" onClick={() => insertMarkdown('## ')} title="Heading 2">H2</button>
+                <button className="toolbar-btn" onClick={() => insertMarkdown('### ')} title="Heading 3">H3</button>
+                <div className="toolbar-divider"></div>
+                <button className="toolbar-btn" onClick={() => insertMarkdown('- ')} title="Bullet">•</button>
+                <button className="toolbar-btn" onClick={() => insertMarkdown('1. ')} title="Numbered">1.</button>
+                <button className="toolbar-btn" onClick={() => insertMarkdown('> ')} title="Quote">❝</button>
+                <button className="toolbar-btn" onClick={() => insertMarkdown('`', '`')} title="Code">{'<>'}</button>
+                <div className="toolbar-divider"></div>
+                <button className={`toolbar-btn ${previewMode ? 'active' : ''}`} onClick={() => setPreviewMode(!previewMode)} title="Preview">👁</button>
+                <button className={`toolbar-btn ${pinnedNoteId === activeNote.id ? 'active' : ''}`} onClick={() => togglePinnedNote(activeNote.id)} title="Pin">📌</button>
+                <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.4rem' }}>
+                  <select value={activeNote.notebook_id || ''} onChange={(e) => updateNote(activeNote.id, { notebook_id: e.target.value || null })} style={{ fontSize: '0.75rem', padding: '0.3rem 0.5rem', border: '1px solid var(--border)', borderRadius: '6px', background: 'var(--bg-soft)', color: 'var(--text)', fontFamily: 'inherit' }}>
+                    <option value="">Unfiled</option>
+                    {notebooks.map(nb => <option key={nb.id} value={nb.id}>{nb.icon} {nb.name}</option>)}
+                  </select>
+                  <input type="color" value={activeNote.color || '#8A8A8A'} onChange={(e) => updateNote(activeNote.id, { color: e.target.value })} style={{ width: '32px', height: '32px', padding: 0, border: 'none', cursor: 'pointer', borderRadius: '6px' }} title="Note color" />
+                  <button className="toolbar-btn" style={{ color: 'var(--c-coral)' }} onClick={() => { if (window.confirm('Delete this note?')) deleteNote(activeNote.id); }} title="Delete">🗑</button>
+                </div>
+              </div>
+
+              <input
+                type="text"
+                className="note-title-input"
+                value={editTitle}
+                onChange={(e) => handleTitleChange(e.target.value)}
+                placeholder="Title..."
+              />
+
+              <div className="note-meta-row">
+                {(activeNote.tags || []).map((tag, i) => (
+                  <span key={i} className="tag-pill removable" onClick={() => removeTag(tag)}>#{tag}</span>
+                ))}
+                <input
+                  type="text"
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={addTag}
+                  placeholder="+ tag"
+                  style={{ border: '1px dashed var(--border)', background: 'transparent', borderRadius: '12px', padding: '0.25rem 0.6rem', fontSize: '0.7rem', fontFamily: 'inherit', color: 'var(--text-muted)' }}
+                />
+              </div>
+
+              <div className="note-body-area">
+                {previewMode ? (
+                  <div className="note-preview" dangerouslySetInnerHTML={{ __html: renderMarkdown(editBody) }}></div>
+                ) : (
+                  <textarea
+                    className="note-body-input"
+                    value={editBody}
+                    onChange={(e) => handleBodyChange(e.target.value)}
+                    placeholder="Start writing... markdown supported (e.g., **bold**, *italic*, # heading, - list, > quote, `code`)"
+                  />
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </>
+  );
+};
+
+// =============== REVIEW ===============
 const ReviewView = ({ currentReview, setCurrentReview, saveReview, currentDate, mealPlan, saveMeal, reviews, setCurrentDate }) => {
   return (
     <>
@@ -2150,24 +3131,20 @@ const ReviewView = ({ currentReview, setCurrentReview, saveReview, currentDate, 
   );
 };
 
+// =============== Modals ===============
 const MeetingModal = ({ meeting, onSave, onDelete, onClose }) => {
   const [data, setData] = useState({
     id: meeting.id,
     title: meeting.title || '',
     start_time: meeting.start_time || '09:00',
     duration: meeting.duration || 60,
-    job: meeting.job || 'mint',
+    job: meeting.job || '#5DCFA0',
     icon: meeting.icon || '📅',
     date: meeting.date,
     recurrence: meeting.recurrence || 'none',
     recurrence_end: meeting.recurrence_end || '',
     _fromInbox: meeting._fromInbox
   });
-
-  const handleSave = () => {
-    if (!data.title.trim()) return;
-    onSave(data);
-  };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -2190,17 +3167,7 @@ const MeetingModal = ({ meeting, onSave, onDelete, onClose }) => {
         </div>
         <div className="form-group">
           <label>Color</label>
-          <div className="color-grid">
-            {COLORS.map(c => (
-              <div
-                key={c.id}
-                className={`color-swatch ${data.job === c.id ? 'selected' : ''}`}
-                style={{ background: `var(--c-${c.id})` }}
-                onClick={() => setData({ ...data, job: c.id })}
-                title={c.label}
-              ></div>
-            ))}
-          </div>
+          <ColorPicker value={data.job} onChange={(c) => setData({ ...data, job: c })} />
         </div>
         <div className="form-group">
           <label>Icon</label>
@@ -2231,391 +3198,9 @@ const MeetingModal = ({ meeting, onSave, onDelete, onClose }) => {
           {data.id ? <button className="btn btn-danger" onClick={() => onDelete(data.id)}>Delete</button> : <div></div>}
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <button className="btn btn-soft" onClick={onClose}>Cancel</button>
-            <button className="btn btn-primary" onClick={handleSave}>Save</button>
+            <button className="btn btn-primary" onClick={() => { if (data.title.trim()) onSave(data); }}>Save</button>
           </div>
         </div>
-      </div>
-    </div>
-  );
-};
-
-// =============== Settings Modal ===============
-const SettingsModal = ({ categories, onClose, onEditCategory, onMoveCategory, onShowImport, theme, setTheme }) => {
-  return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '560px' }}>
-        <div className="modal-handle"></div>
-        <h2>⚙️ Settings</h2>
-
-        <div className="settings-section">
-          <h3>Appearance</h3>
-          <div className="settings-row">
-            <div>
-              <div className="setting-label">Dark mode</div>
-              <div className="setting-desc">Switch between light and dark theme</div>
-            </div>
-            <div
-              className={`toggle-switch ${theme === 'dark' ? 'on' : ''}`}
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            ></div>
-          </div>
-        </div>
-
-        <div className="settings-section">
-          <h3>Tools</h3>
-          <div className="settings-row" onClick={onShowImport} style={{ cursor: 'pointer' }}>
-            <div>
-              <div className="setting-label">📋 Import meetings from text</div>
-              <div className="setting-desc">Paste your work calendar text to auto-create meetings</div>
-            </div>
-            <div style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>›</div>
-          </div>
-        </div>
-
-        <div className="settings-section">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-            <h3 style={{ margin: 0 }}>Categories</h3>
-            <button className="btn btn-soft" style={{ padding: '0.4rem 0.7rem', fontSize: '0.75rem' }} onClick={() => onEditCategory({ label: '', icon: '📌', color: 'slate' })}>+ New</button>
-          </div>
-          <div className="cat-list">
-            {categories.map((cat, idx) => (
-              <div key={cat.id} className="cat-row" onClick={() => onEditCategory(cat)}>
-                <div className="cat-icon-wrap" style={{ background: `var(--c-${cat.color})` }}>
-                  {cat.icon}
-                </div>
-                <div className="cat-text">
-                  <div className="cat-name">{cat.label}</div>
-                  <div className="cat-count">{cat.color}</div>
-                </div>
-                <div style={{ display: 'flex', gap: '0.25rem' }}>
-                  <button className="btn-ghost" onClick={(e) => { e.stopPropagation(); onMoveCategory(cat.id, -1); }} disabled={idx === 0} style={{ opacity: idx === 0 ? 0.3 : 1 }}>↑</button>
-                  <button className="btn-ghost" onClick={(e) => { e.stopPropagation(); onMoveCategory(cat.id, 1); }} disabled={idx === categories.length - 1} style={{ opacity: idx === categories.length - 1 ? 0.3 : 1 }}>↓</button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="modal-actions">
-          <button className="btn btn-primary" onClick={onClose}>Done</button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// =============== Category Edit Modal ===============
-const CategoryEditModal = ({ category, onSave, onDelete, onClose }) => {
-  const [data, setData] = useState({
-    id: category.id,
-    label: category.label || '',
-    icon: category.icon || '📌',
-    color: category.color || 'slate',
-    sort_order: category.sort_order
-  });
-
-  const handleSave = () => {
-    if (!data.label.trim()) return;
-    onSave(data);
-  };
-
-  return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-handle"></div>
-        <h2>{data.id ? 'Edit Category' : 'New Category'}</h2>
-
-        <div className="form-group">
-          <label>Name</label>
-          <input
-            type="text"
-            value={data.label}
-            onChange={(e) => setData({ ...data, label: e.target.value })}
-            placeholder="e.g. Korean Lessons"
-            autoFocus
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Color</label>
-          <div className="color-grid">
-            {COLORS.map(c => (
-              <div
-                key={c.id}
-                className={`color-swatch ${data.color === c.id ? 'selected' : ''}`}
-                style={{ background: `var(--c-${c.id})` }}
-                onClick={() => setData({ ...data, color: c.id })}
-                title={c.label}
-              ></div>
-            ))}
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label>Icon</label>
-          <div className="icon-grid">
-            {ICONS.map(ico => (
-              <div key={ico} className={`icon-pick ${data.icon === ico ? 'selected' : ''}`} onClick={() => setData({ ...data, icon: ico })}>{ico}</div>
-            ))}
-          </div>
-        </div>
-
-        <div className="modal-actions spread">
-          {data.id ? (
-            <button className="btn btn-danger" onClick={() => {
-              if (window.confirm('Delete this category? Tasks using it will keep their reference but show as uncategorized.')) {
-                onDelete(data.id);
-              }
-            }}>Delete</button>
-          ) : <div></div>}
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button className="btn btn-soft" onClick={onClose}>Cancel</button>
-            <button className="btn btn-primary" onClick={handleSave}>Save</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// =============== Import Meetings Modal ===============
-const parseMeetingText = (text, defaultDate) => {
-  // Try to parse common calendar formats
-  // Expected patterns:
-  // "9:00 AM - 10:00 AM   Meeting Title"
-  // "9:00 AM   Meeting Title (1 hr)"
-  // "Meeting Title  9:00 AM - 10:00 AM"
-  // "9:00 AM - Meeting Title"
-  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-  const meetings = [];
-
-  // Regex patterns
-  const timeRangePattern = /(\d{1,2}):?(\d{2})?\s*(AM|PM|am|pm)?\s*[-–—to]+\s*(\d{1,2}):?(\d{2})?\s*(AM|PM|am|pm)?/;
-  const singleTimePattern = /(\d{1,2}):?(\d{2})?\s*(AM|PM|am|pm)/;
-  const datePattern = /(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?|(\w+day),?\s*(\w+)\s+(\d{1,2})|(\w+)\s+(\d{1,2})/;
-  const durationPattern = /\(([0-9.]+)\s*(hr|hrs|hour|hours|min|mins|minutes)\)/i;
-
-  let currentDate = defaultDate;
-
-  for (const line of lines) {
-    // Skip very short lines
-    if (line.length < 4) continue;
-
-    // Try to detect a date heading line (e.g. "Monday, October 6" or "10/6")
-    const dateMatch = line.match(datePattern);
-    if (dateMatch && !line.match(singleTimePattern)) {
-      try {
-        const parsed = new Date(line + (line.match(/\d{4}/) ? '' : ` ${new Date().getFullYear()}`));
-        if (!isNaN(parsed.getTime())) {
-          currentDate = formatDateLocal(parsed);
-          continue;
-        }
-      } catch (e) {}
-    }
-
-    // Try to find a time range
-    const rangeMatch = line.match(timeRangePattern);
-    let startTime = null;
-    let duration = 60;
-
-    if (rangeMatch) {
-      const [, h1, m1, ap1, h2, m2, ap2] = rangeMatch;
-      const startH = parseInt(h1);
-      const startM = parseInt(m1 || '0');
-      const endH = parseInt(h2);
-      const endM = parseInt(m2 || '0');
-      const startAp = (ap1 || ap2 || '').toLowerCase();
-      const endAp = (ap2 || ap1 || '').toLowerCase();
-
-      let s24 = startH;
-      if (startAp === 'pm' && startH < 12) s24 += 12;
-      if (startAp === 'am' && startH === 12) s24 = 0;
-      let e24 = endH;
-      if (endAp === 'pm' && endH < 12) e24 += 12;
-      if (endAp === 'am' && endH === 12) e24 = 0;
-
-      startTime = `${String(s24).padStart(2, '0')}:${String(startM).padStart(2, '0')}`;
-      duration = (e24 * 60 + endM) - (s24 * 60 + startM);
-      if (duration <= 0) duration = 60;
-    } else {
-      const singleMatch = line.match(singleTimePattern);
-      if (singleMatch) {
-        const [, h, m, ap] = singleMatch;
-        let h24 = parseInt(h);
-        const ap_l = ap.toLowerCase();
-        if (ap_l === 'pm' && h24 < 12) h24 += 12;
-        if (ap_l === 'am' && h24 === 12) h24 = 0;
-        startTime = `${String(h24).padStart(2, '0')}:${String(parseInt(m || '0')).padStart(2, '0')}`;
-        const durMatch = line.match(durationPattern);
-        if (durMatch) {
-          const num = parseFloat(durMatch[1]);
-          const unit = durMatch[2].toLowerCase();
-          duration = unit.startsWith('h') ? num * 60 : num;
-        }
-      }
-    }
-
-    if (!startTime) continue;
-
-    // Extract title - everything that isn't time or date
-    let title = line
-      .replace(timeRangePattern, '')
-      .replace(singleTimePattern, '')
-      .replace(durationPattern, '')
-      .replace(/^[\s\-–—:|]+|[\s\-–—:|]+$/g, '')
-      .trim();
-
-    if (title.length < 2) continue;
-
-    meetings.push({
-      date: currentDate,
-      title,
-      start_time: startTime,
-      duration: Math.round(duration),
-      job: 'mint',
-      icon: '📅'
-    });
-  }
-
-  return meetings;
-};
-
-const ImportMeetingsModal = ({ onClose, onImport }) => {
-  const [text, setText] = useState('');
-  const [parsed, setParsed] = useState([]);
-  const [defaultDate, setDefaultDate] = useState(formatDateLocal(new Date()));
-  const [step, setStep] = useState('paste'); // paste | review
-
-  const handleParse = () => {
-    const result = parseMeetingText(text, defaultDate);
-    if (result.length === 0) {
-      alert("Couldn't find any meetings in that text. Make sure each meeting has a time like '9:00 AM - 10:00 AM' or '2:30 PM (1 hr)'.");
-      return;
-    }
-    setParsed(result);
-    setStep('review');
-  };
-
-  const updateParsed = (idx, updates) => {
-    const updated = [...parsed];
-    updated[idx] = { ...updated[idx], ...updates };
-    setParsed(updated);
-  };
-
-  const removeParsed = (idx) => {
-    setParsed(parsed.filter((_, i) => i !== idx));
-  };
-
-  return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px' }}>
-        <div className="modal-handle"></div>
-        <h2>📋 Import Meetings</h2>
-
-        {step === 'paste' && (
-          <>
-            <p style={{ color: 'var(--text-soft)', fontSize: '0.85rem', marginBottom: '1rem', lineHeight: 1.5 }}>
-              Copy your work calendar (Outlook, Google Cal, etc.) and paste below. The app will detect meetings with times like <strong>"9:00 AM - 10:00 AM"</strong> or <strong>"2:30 PM (1 hr)"</strong>.
-            </p>
-
-            <div className="form-group">
-              <label>Default date (used if no date in text)</label>
-              <input type="date" value={defaultDate} onChange={(e) => setDefaultDate(e.target.value)} />
-            </div>
-
-            <div className="form-group">
-              <label>Paste calendar text</label>
-              <textarea
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                placeholder={`Examples that work:
-
-Monday, October 6
-9:00 AM - 10:00 AM   Team Standup
-10:30 AM - 11:30 AM  1:1 with Sarah
-2:00 PM (30 min)     Sprint Planning
-
-Or just times:
-9:00 AM - Team Standup
-2:30 PM - 3:00 PM Quick check-in`}
-                style={{ minHeight: '200px', fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem' }}
-              />
-            </div>
-
-            <div className="modal-actions">
-              <button className="btn btn-soft" onClick={onClose}>Cancel</button>
-              <button className="btn btn-primary" onClick={handleParse} disabled={!text.trim()}>Parse Meetings</button>
-            </div>
-          </>
-        )}
-
-        {step === 'review' && (
-          <>
-            <p style={{ color: 'var(--text-soft)', fontSize: '0.85rem', marginBottom: '1rem' }}>
-              Found <strong>{parsed.length}</strong> meeting{parsed.length !== 1 ? 's' : ''}. Review, edit, or remove before importing.
-            </p>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '400px', overflowY: 'auto', marginBottom: '1rem' }}>
-              {parsed.map((m, idx) => (
-                <div key={idx} style={{ background: 'var(--bg-soft)', border: '1px solid var(--border)', borderRadius: '12px', padding: '0.75rem' }}>
-                  <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '0.5rem' }}>
-                    <input
-                      type="text"
-                      value={m.title}
-                      onChange={(e) => updateParsed(idx, { title: e.target.value })}
-                      style={{ flex: 1, padding: '0.4rem 0.6rem', border: '1px solid var(--border)', borderRadius: '6px', fontSize: '0.85rem', background: 'var(--bg-card)', color: 'var(--text)', fontFamily: 'inherit' }}
-                    />
-                    <button className="btn btn-ghost" style={{ color: 'var(--c-coral)' }} onClick={() => removeParsed(idx)}>✕</button>
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.4rem' }}>
-                    <input
-                      type="date"
-                      value={m.date}
-                      onChange={(e) => updateParsed(idx, { date: e.target.value })}
-                      style={{ padding: '0.3rem', border: '1px solid var(--border)', borderRadius: '6px', fontSize: '0.75rem', background: 'var(--bg-card)', color: 'var(--text)', fontFamily: 'inherit' }}
-                    />
-                    <input
-                      type="time"
-                      value={m.start_time}
-                      onChange={(e) => updateParsed(idx, { start_time: e.target.value })}
-                      style={{ padding: '0.3rem', border: '1px solid var(--border)', borderRadius: '6px', fontSize: '0.75rem', background: 'var(--bg-card)', color: 'var(--text)', fontFamily: 'inherit' }}
-                    />
-                    <input
-                      type="number"
-                      value={m.duration}
-                      step="15"
-                      onChange={(e) => updateParsed(idx, { duration: parseInt(e.target.value) || 60 })}
-                      style={{ padding: '0.3rem', border: '1px solid var(--border)', borderRadius: '6px', fontSize: '0.75rem', background: 'var(--bg-card)', color: 'var(--text)', fontFamily: 'inherit' }}
-                    />
-                  </div>
-                  <div style={{ display: 'flex', gap: '0.3rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
-                    {COLORS.map(c => (
-                      <div
-                        key={c.id}
-                        onClick={() => updateParsed(idx, { job: c.id })}
-                        style={{
-                          width: '24px',
-                          height: '24px',
-                          borderRadius: '6px',
-                          background: `var(--c-${c.id})`,
-                          cursor: 'pointer',
-                          border: m.job === c.id ? '2px solid var(--text)' : '2px solid transparent'
-                        }}
-                      ></div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="modal-actions spread">
-              <button className="btn btn-soft" onClick={() => setStep('paste')}>← Back</button>
-              <button className="btn btn-primary" onClick={() => onImport(parsed)} disabled={parsed.length === 0}>
-                Import {parsed.length} meeting{parsed.length !== 1 ? 's' : ''}
-              </button>
-            </div>
-          </>
-        )}
       </div>
     </div>
   );
@@ -2642,7 +3227,7 @@ const TaskModal = ({ task, onSave, onDelete, onClose }) => {
         <div className="form-group">
           <label>Category</label>
           <select value={data.context} onChange={(e) => setData({ ...data, context: e.target.value })}>
-            {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}
+            {_categoriesCache.map(c => <option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}
           </select>
         </div>
         <div className="form-group">
@@ -2656,6 +3241,262 @@ const TaskModal = ({ task, onSave, onDelete, onClose }) => {
             <button className="btn btn-primary" onClick={() => onSave(data)}>Save</button>
           </div>
         </div>
+      </div>
+    </div>
+  );
+};
+
+const SettingsModal = ({ categories, onClose, onEditCategory, onMoveCategory, onShowImport, theme, setTheme }) => {
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '560px' }}>
+        <div className="modal-handle"></div>
+        <h2>⚙️ Settings</h2>
+
+        <div className="settings-section">
+          <h3>Appearance</h3>
+          <div className="settings-row">
+            <div>
+              <div className="setting-label">Dark mode</div>
+              <div className="setting-desc">Switch theme</div>
+            </div>
+            <div className={`toggle-switch ${theme === 'dark' ? 'on' : ''}`} onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}></div>
+          </div>
+        </div>
+
+        <div className="settings-section">
+          <h3>Tools</h3>
+          <div className="settings-row" onClick={onShowImport} style={{ cursor: 'pointer' }}>
+            <div>
+              <div className="setting-label">📋 Import meetings from text</div>
+              <div className="setting-desc">Paste calendar text to auto-create</div>
+            </div>
+            <div style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>›</div>
+          </div>
+        </div>
+
+        <div className="settings-section">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+            <h3 style={{ margin: 0 }}>Categories</h3>
+            <button className="btn btn-soft" style={{ padding: '0.4rem 0.7rem', fontSize: '0.75rem' }} onClick={() => onEditCategory({ label: '', icon: '📌', color: '#8A8A8A' })}>+ New</button>
+          </div>
+          <div className="cat-list">
+            {categories.map((cat, idx) => (
+              <div key={cat.id} className="cat-row" onClick={() => onEditCategory(cat)}>
+                <div className="cat-icon-wrap" style={{ background: cat.color }}>{cat.icon}</div>
+                <div className="cat-text">
+                  <div className="cat-name">{cat.label}</div>
+                  <div className="cat-count">{cat.color}</div>
+                </div>
+                <div style={{ display: 'flex', gap: '0.25rem' }}>
+                  <button className="btn-ghost" onClick={(e) => { e.stopPropagation(); onMoveCategory(cat.id, -1); }} disabled={idx === 0} style={{ opacity: idx === 0 ? 0.3 : 1 }}>↑</button>
+                  <button className="btn-ghost" onClick={(e) => { e.stopPropagation(); onMoveCategory(cat.id, 1); }} disabled={idx === categories.length - 1} style={{ opacity: idx === categories.length - 1 ? 0.3 : 1 }}>↓</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="modal-actions">
+          <button className="btn btn-primary" onClick={onClose}>Done</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const CategoryEditModal = ({ category, onSave, onDelete, onClose }) => {
+  const [data, setData] = useState({
+    id: category.id,
+    label: category.label || '',
+    icon: category.icon || '📌',
+    color: category.color || '#8A8A8A',
+    sort_order: category.sort_order
+  });
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-handle"></div>
+        <h2>{data.id ? 'Edit Category' : 'New Category'}</h2>
+        <div className="form-group">
+          <label>Name</label>
+          <input type="text" value={data.label} onChange={(e) => setData({ ...data, label: e.target.value })} placeholder="e.g. Korean Lessons" autoFocus />
+        </div>
+        <div className="form-group">
+          <label>Color</label>
+          <ColorPicker value={data.color} onChange={(c) => setData({ ...data, color: c })} />
+        </div>
+        <div className="form-group">
+          <label>Icon</label>
+          <div className="icon-grid">
+            {ICONS.map(ico => (
+              <div key={ico} className={`icon-pick ${data.icon === ico ? 'selected' : ''}`} onClick={() => setData({ ...data, icon: ico })}>{ico}</div>
+            ))}
+          </div>
+        </div>
+        <div className="modal-actions spread">
+          {data.id ? <button className="btn btn-danger" onClick={() => { if (window.confirm('Delete this category?')) onDelete(data.id); }}>Delete</button> : <div></div>}
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button className="btn btn-soft" onClick={onClose}>Cancel</button>
+            <button className="btn btn-primary" onClick={() => { if (data.label.trim()) onSave(data); }}>Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const NotebookModal = ({ notebook, onSave, onDelete, onClose }) => {
+  const [data, setData] = useState({
+    id: notebook.id,
+    name: notebook.name || '',
+    icon: notebook.icon || '📓',
+    color: notebook.color || '#8A8A8A'
+  });
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-handle"></div>
+        <h2>{data.id ? 'Edit Notebook' : 'New Notebook'}</h2>
+        <div className="form-group">
+          <label>Name</label>
+          <input type="text" value={data.name} onChange={(e) => setData({ ...data, name: e.target.value })} placeholder="e.g. Work Projects" autoFocus />
+        </div>
+        <div className="form-group">
+          <label>Color</label>
+          <ColorPicker value={data.color} onChange={(c) => setData({ ...data, color: c })} />
+        </div>
+        <div className="form-group">
+          <label>Icon</label>
+          <div className="icon-grid">
+            {ICONS.map(ico => (
+              <div key={ico} className={`icon-pick ${data.icon === ico ? 'selected' : ''}`} onClick={() => setData({ ...data, icon: ico })}>{ico}</div>
+            ))}
+          </div>
+        </div>
+        <div className="modal-actions spread">
+          {data.id ? <button className="btn btn-danger" onClick={() => { if (window.confirm('Delete this notebook? Notes inside will become unfiled.')) onDelete(data.id); }}>Delete</button> : <div></div>}
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button className="btn btn-soft" onClick={onClose}>Cancel</button>
+            <button className="btn btn-primary" onClick={() => { if (data.name.trim()) onSave(data); }}>Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ImportMeetingsModal = ({ onClose, onImport }) => {
+  const [text, setText] = useState('');
+  const [parsed, setParsed] = useState([]);
+  const [defaultDate, setDefaultDate] = useState(formatDateLocal(new Date()));
+  const [step, setStep] = useState('paste');
+
+  const parseMeetingText = (text, defaultDate) => {
+    const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    const meetings = [];
+    const timeRangePattern = /(\d{1,2}):?(\d{2})?\s*(AM|PM|am|pm)?\s*[-–—to]+\s*(\d{1,2}):?(\d{2})?\s*(AM|PM|am|pm)?/;
+    const singleTimePattern = /(\d{1,2}):?(\d{2})?\s*(AM|PM|am|pm)/;
+    const durationPattern = /\(([0-9.]+)\s*(hr|hrs|hour|hours|min|mins|minutes)\)/i;
+    let currentDate = defaultDate;
+
+    for (const line of lines) {
+      if (line.length < 4) continue;
+      // Date line attempt
+      if (!line.match(singleTimePattern)) {
+        try {
+          const parsed = new Date(line + (line.match(/\d{4}/) ? '' : ` ${new Date().getFullYear()}`));
+          if (!isNaN(parsed.getTime())) {
+            currentDate = formatDateLocal(parsed);
+            continue;
+          }
+        } catch (e) {}
+      }
+      const rangeMatch = line.match(timeRangePattern);
+      let startTime = null;
+      let duration = 60;
+      if (rangeMatch) {
+        const [, h1, m1, ap1, h2, m2, ap2] = rangeMatch;
+        let s24 = parseInt(h1);
+        if ((ap1 || ap2 || '').toLowerCase() === 'pm' && s24 < 12) s24 += 12;
+        if ((ap1 || ap2 || '').toLowerCase() === 'am' && s24 === 12) s24 = 0;
+        let e24 = parseInt(h2);
+        if ((ap2 || ap1 || '').toLowerCase() === 'pm' && e24 < 12) e24 += 12;
+        if ((ap2 || ap1 || '').toLowerCase() === 'am' && e24 === 12) e24 = 0;
+        startTime = `${String(s24).padStart(2, '0')}:${String(parseInt(m1 || '0')).padStart(2, '0')}`;
+        duration = (e24 * 60 + parseInt(m2 || '0')) - (s24 * 60 + parseInt(m1 || '0'));
+        if (duration <= 0) duration = 60;
+      } else {
+        const sm = line.match(singleTimePattern);
+        if (sm) {
+          let h24 = parseInt(sm[1]);
+          if (sm[3].toLowerCase() === 'pm' && h24 < 12) h24 += 12;
+          if (sm[3].toLowerCase() === 'am' && h24 === 12) h24 = 0;
+          startTime = `${String(h24).padStart(2, '0')}:${String(parseInt(sm[2] || '0')).padStart(2, '0')}`;
+          const dm = line.match(durationPattern);
+          if (dm) duration = dm[2].toLowerCase().startsWith('h') ? parseFloat(dm[1]) * 60 : parseFloat(dm[1]);
+        }
+      }
+      if (!startTime) continue;
+      let title = line.replace(timeRangePattern, '').replace(singleTimePattern, '').replace(durationPattern, '').replace(/^[\s\-–—:|]+|[\s\-–—:|]+$/g, '').trim();
+      if (title.length < 2) continue;
+      meetings.push({ date: currentDate, title, start_time: startTime, duration: Math.round(duration), job: '#5DCFA0', icon: '📅' });
+    }
+    return meetings;
+  };
+
+  const handleParse = () => {
+    const result = parseMeetingText(text, defaultDate);
+    if (result.length === 0) { alert("No meetings found. Make sure each has a time."); return; }
+    setParsed(result);
+    setStep('review');
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px' }}>
+        <div className="modal-handle"></div>
+        <h2>📋 Import Meetings</h2>
+        {step === 'paste' && (
+          <>
+            <p style={{ color: 'var(--text-soft)', fontSize: '0.85rem', marginBottom: '1rem' }}>Paste calendar text. Times like "9:00 AM - 10:00 AM" detected automatically.</p>
+            <div className="form-group">
+              <label>Default date</label>
+              <input type="date" value={defaultDate} onChange={(e) => setDefaultDate(e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>Calendar text</label>
+              <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="9:00 AM - 10:00 AM Standup&#10;2:00 PM (30 min) Quick sync" style={{ minHeight: '180px', fontFamily: 'ui-monospace, monospace', fontSize: '0.8rem' }} />
+            </div>
+            <div className="modal-actions">
+              <button className="btn btn-soft" onClick={onClose}>Cancel</button>
+              <button className="btn btn-primary" onClick={handleParse} disabled={!text.trim()}>Parse</button>
+            </div>
+          </>
+        )}
+        {step === 'review' && (
+          <>
+            <p style={{ color: 'var(--text-soft)', fontSize: '0.85rem', marginBottom: '1rem' }}>Found <strong>{parsed.length}</strong>. Review and import:</p>
+            <div style={{ maxHeight: '350px', overflowY: 'auto', marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {parsed.map((m, idx) => (
+                <div key={idx} style={{ background: 'var(--bg-soft)', border: '1px solid var(--border)', borderRadius: '12px', padding: '0.75rem' }}>
+                  <input type="text" value={m.title} onChange={(e) => { const u = [...parsed]; u[idx].title = e.target.value; setParsed(u); }} style={{ width: '100%', padding: '0.4rem', border: '1px solid var(--border)', borderRadius: '6px', fontSize: '0.85rem', background: 'var(--bg-card)', color: 'var(--text)', fontFamily: 'inherit', marginBottom: '0.4rem' }} />
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.3rem' }}>
+                    <input type="date" value={m.date} onChange={(e) => { const u = [...parsed]; u[idx].date = e.target.value; setParsed(u); }} style={{ padding: '0.3rem', border: '1px solid var(--border)', borderRadius: '6px', fontSize: '0.7rem', background: 'var(--bg-card)', color: 'var(--text)', fontFamily: 'inherit' }} />
+                    <input type="time" value={m.start_time} onChange={(e) => { const u = [...parsed]; u[idx].start_time = e.target.value; setParsed(u); }} style={{ padding: '0.3rem', border: '1px solid var(--border)', borderRadius: '6px', fontSize: '0.7rem', background: 'var(--bg-card)', color: 'var(--text)', fontFamily: 'inherit' }} />
+                    <input type="number" value={m.duration} step="15" onChange={(e) => { const u = [...parsed]; u[idx].duration = parseInt(e.target.value) || 60; setParsed(u); }} style={{ padding: '0.3rem', border: '1px solid var(--border)', borderRadius: '6px', fontSize: '0.7rem', background: 'var(--bg-card)', color: 'var(--text)', fontFamily: 'inherit' }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="modal-actions spread">
+              <button className="btn btn-soft" onClick={() => setStep('paste')}>← Back</button>
+              <button className="btn btn-primary" onClick={() => onImport(parsed)}>Import {parsed.length}</button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
