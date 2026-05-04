@@ -17,27 +17,29 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
-  --bg-primary: #0F172A;
-  --bg-secondary: #1a2847;
+  --bg-primary: #FAF8F5;
+  --bg-secondary: #F5F2EC;
   --surface: #FFFFFF;
-  --surface-alt: #F9FAFB;
-  --border: #E5E7EB;
-  --text-primary: #0F172A;
-  --text-secondary: #6B7280;
-  --text-muted: #9CA3AF;
-  --accent: #FF6B35;
-  --accent-dark: #E55A24;
-  --shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --surface-alt: #FBFAF7;
+  --border: #EAE6DE;
+  --text-primary: #2C2C2C;
+  --text-secondary: #6B6B6B;
+  --text-muted: #A0A0A0;
+  --accent: #E8859A;
+  --accent-dark: #C96885;
+  --shadow: 0 8px 32px rgba(180, 160, 140, 0.12);
+  --shadow-sm: 0 1px 3px rgba(180, 160, 140, 0.08);
 }
 
 [data-theme="dark"] {
-  --surface: #1F2937;
-  --surface-alt: #111827;
-  --border: #374151;
-  --text-primary: #F9FAFB;
-  --text-secondary: #D1D5DB;
-  --text-muted: #9CA3AF;
+  --bg-primary: #1A1A1F;
+  --bg-secondary: #232329;
+  --surface: #2A2A30;
+  --surface-alt: #1F1F25;
+  --border: #3A3A42;
+  --text-primary: #F0EDE8;
+  --text-secondary: #C4BFB8;
+  --text-muted: #888188;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -627,17 +629,156 @@ input[type=number] { -moz-appearance: textfield; }
   padding: 0.875rem;
   margin-bottom: 0.75rem;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: all 0.15s;
 }
+
+.inbox-item.expanded { border-left-color: var(--accent); }
+.inbox-item.starred { border-left-color: #FCD34D; background: linear-gradient(135deg, var(--surface-alt), #FFFBEB); }
+.inbox-item.priority-high { border-left-color: #EF4444; }
+.inbox-item.priority-medium { border-left-color: #F59E0B; }
+.inbox-item.priority-low { border-left-color: #10B981; }
+
+.inbox-item-row { display: flex; gap: 0.6rem; align-items: flex-start; }
+
+.inbox-item-checkbox {
+  width: 22px;
+  height: 22px;
+  border: 2px solid #D1D5DB;
+  border-radius: 50%;
+  flex-shrink: 0;
+  cursor: pointer;
+  margin-top: 1px;
+  transition: all 0.15s;
+  background: var(--surface);
+}
+
+.inbox-item-checkbox:hover { border-color: var(--accent); }
+
+.inbox-item-main { flex: 1; min-width: 0; }
+
+.inbox-item-title {
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  word-break: break-word;
+  background: transparent;
+  border: none;
+  width: 100%;
+  font-family: inherit;
+  padding: 0;
+  cursor: pointer;
+}
+
+.inbox-item-title:focus {
+  outline: none;
+  border-bottom: 1px solid var(--accent);
+}
+
+.inbox-item-meta {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 0.4rem;
+  flex-wrap: wrap;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.inbox-meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.inbox-meta-pill:hover { border-color: var(--accent); }
+
+.inbox-meta-pill.priority-high { background: #FEF2F2; color: #991B1B; border-color: #FCA5A5; }
+.inbox-meta-pill.priority-medium { background: #FFFBEB; color: #92400E; border-color: #FCD34D; }
+.inbox-meta-pill.priority-low { background: #F0FDF4; color: #166534; border-color: #86EFAC; }
+.inbox-meta-pill.due-overdue { background: #FEF2F2; color: #991B1B; border-color: #FCA5A5; font-weight: 600; }
+.inbox-meta-pill.due-today { background: #FEF3C7; color: #92400E; border-color: #FCD34D; font-weight: 600; }
+
+.star-btn { background: transparent; border: none; cursor: pointer; font-size: 1.1rem; padding: 0; line-height: 1; opacity: 0.4; transition: opacity 0.15s; }
+.star-btn.starred { opacity: 1; }
+.star-btn:hover { opacity: 0.8; }
+
+.inbox-item-expand {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.inbox-detail-row { display: grid; grid-template-columns: 80px 1fr; gap: 0.5rem; align-items: center; }
+.inbox-detail-row label { font-size: 0.75rem; color: var(--text-secondary); font-weight: 500; }
+.inbox-detail-row input,
+.inbox-detail-row select,
+.inbox-detail-row textarea {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  font-family: inherit;
+  background: var(--surface);
+  color: var(--text-primary);
+  width: 100%;
+}
+
+.inbox-detail-row textarea { min-height: 60px; resize: vertical; }
 
 .inbox-item-content { flex: 1; min-width: 200px; }
 .inbox-item-text { color: var(--text-primary); font-size: 0.9rem; word-break: break-word; margin-bottom: 0.25rem; }
 .inbox-item-time { font-size: 0.7rem; color: var(--text-muted); }
 
 .inbox-item-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+.inbox-filters {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-chip {
+  padding: 0.3rem 0.7rem;
+  border-radius: 14px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.filter-chip.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.sort-select {
+  padding: 0.4rem 0.7rem;
+  border-radius: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 0.75rem;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-family: inherit;
+  margin-left: auto;
+}
 
 .inbox-action {
   background: var(--surface);
@@ -1217,6 +1358,9 @@ const CommandCenter = () => {
   const [currentReview, setCurrentReview] = useState({ wins: '', improvements: '', focus: '' });
   const [filterCategory, setFilterCategory] = useState(null);
   const [newTaskCategory, setNewTaskCategory] = useState('general');
+  const [inboxFilter, setInboxFilter] = useState('all'); // all, starred, high, today, category
+  const [inboxSort, setInboxSort] = useState('newest'); // newest, oldest, priority, due
+  const [expandedInboxId, setExpandedInboxId] = useState(null);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -1351,9 +1495,15 @@ const CommandCenter = () => {
     loadInbox();
   };
 
-  const convertInboxToTask = async (item, category = 'general') => {
-    const dateStr = formatDateLocal(currentDate);
-    await supabase.from('command_tasks').insert([{ date: dateStr, title: item.text, context: category, completed: false }]);
+  const convertInboxToTask = async (item, categoryOverride = null) => {
+    const dateStr = item.due_date || formatDateLocal(currentDate);
+    const category = categoryOverride || item.category || 'general';
+    await supabase.from('command_tasks').insert([{
+      date: dateStr,
+      title: item.text,
+      context: category,
+      completed: false
+    }]);
     await supabase.from('inbox_items').delete().eq('id', item.id);
     showToast('Converted to task');
     loadAll();
@@ -1366,6 +1516,11 @@ const CommandCenter = () => {
   const deleteInboxItem = async (id) => {
     await supabase.from('inbox_items').delete().eq('id', id);
     showToast('Item removed');
+    loadInbox();
+  };
+
+  const updateInboxItem = async (id, updates) => {
+    await supabase.from('inbox_items').update(updates).eq('id', id);
     loadInbox();
   };
 
@@ -1833,13 +1988,13 @@ const CommandCenter = () => {
         {view === 'inbox' && (
           <div className="card">
             <div className="section-title">
-              <span className="section-title-text">📥 Brain Dump Inbox</span>
+              <span className="section-title-text">📥 Inbox</span>
               <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', fontWeight: 400 }}>
                 {inboxItems.length} item{inboxItems.length !== 1 ? 's' : ''}
               </span>
             </div>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.875rem' }}>
-              Capture thoughts as they come. Convert to tasks or meetings later.
+              Capture fast. Tap any item to add category, priority, due date — when you have time.
             </p>
 
             <div className="brain-dump-area">
@@ -1854,32 +2009,160 @@ const CommandCenter = () => {
               </div>
             </div>
 
-            {inboxItems.length === 0 ? (
-              <p className="empty-state">Inbox is empty. Capture thoughts above when they come.</p>
-            ) : (
-              inboxItems.map(item => (
-                <div key={item.id} className="inbox-item">
-                  <div className="inbox-item-content">
-                    <div className="inbox-item-text">{item.text}</div>
-                    <div className="inbox-item-time">
-                      {new Date(item.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
-                    </div>
-                  </div>
-                  <div className="inbox-item-actions">
-                    <select
-                      className="inbox-action"
-                      onChange={(e) => { if (e.target.value) { convertInboxToTask(item, e.target.value); } }}
-                      defaultValue=""
-                    >
-                      <option value="">→ Task as...</option>
-                      {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}
-                    </select>
-                    <button className="inbox-action" onClick={() => convertInboxToMeeting(item)}>→ Meeting</button>
-                    <button className="inbox-action danger" onClick={() => deleteInboxItem(item.id)}>Delete</button>
-                  </div>
-                </div>
-              ))
+            {inboxItems.length > 0 && (
+              <div className="inbox-filters">
+                <button className={`filter-chip ${inboxFilter === 'all' ? 'active' : ''}`} onClick={() => setInboxFilter('all')}>All</button>
+                <button className={`filter-chip ${inboxFilter === 'starred' ? 'active' : ''}`} onClick={() => setInboxFilter('starred')}>⭐ Starred</button>
+                <button className={`filter-chip ${inboxFilter === 'high' ? 'active' : ''}`} onClick={() => setInboxFilter('high')}>🔴 High Priority</button>
+                <button className={`filter-chip ${inboxFilter === 'today' ? 'active' : ''}`} onClick={() => setInboxFilter('today')}>📅 Due Today</button>
+                <button className={`filter-chip ${inboxFilter === 'unsorted' ? 'active' : ''}`} onClick={() => setInboxFilter('unsorted')}>🆕 Unsorted</button>
+                <select className="sort-select" value={inboxSort} onChange={(e) => setInboxSort(e.target.value)}>
+                  <option value="newest">Newest first</option>
+                  <option value="oldest">Oldest first</option>
+                  <option value="priority">By priority</option>
+                  <option value="due">By due date</option>
+                </select>
+              </div>
             )}
+
+            {(() => {
+              let filtered = [...inboxItems];
+
+              // Apply filter
+              if (inboxFilter === 'starred') filtered = filtered.filter(i => i.starred);
+              else if (inboxFilter === 'high') filtered = filtered.filter(i => i.priority === 'high');
+              else if (inboxFilter === 'today') {
+                const today = formatDateLocal(new Date());
+                filtered = filtered.filter(i => i.due_date === today);
+              }
+              else if (inboxFilter === 'unsorted') filtered = filtered.filter(i => !i.category && !i.priority && !i.due_date);
+
+              // Apply sort
+              if (inboxSort === 'oldest') filtered.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+              else if (inboxSort === 'newest') filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+              else if (inboxSort === 'priority') {
+                const order = { high: 0, medium: 1, low: 2, null: 3, undefined: 3 };
+                filtered.sort((a, b) => (order[a.priority] ?? 3) - (order[b.priority] ?? 3));
+              }
+              else if (inboxSort === 'due') {
+                filtered.sort((a, b) => {
+                  if (!a.due_date && !b.due_date) return 0;
+                  if (!a.due_date) return 1;
+                  if (!b.due_date) return -1;
+                  return new Date(a.due_date) - new Date(b.due_date);
+                });
+              }
+
+              if (filtered.length === 0) {
+                return <p className="empty-state">{inboxFilter !== 'all' ? 'No items match this filter.' : 'Inbox is empty. Capture thoughts above when they come.'}</p>;
+              }
+
+              return filtered.map(item => {
+                const isExpanded = expandedInboxId === item.id;
+                const todayStr = formatDateLocal(new Date());
+                const isOverdue = item.due_date && item.due_date < todayStr;
+                const isDueToday = item.due_date === todayStr;
+                const cat = item.category ? getCategoryById(item.category) : null;
+
+                let itemClass = 'inbox-item';
+                if (isExpanded) itemClass += ' expanded';
+                if (item.starred) itemClass += ' starred';
+                if (item.priority === 'high') itemClass += ' priority-high';
+                else if (item.priority === 'medium') itemClass += ' priority-medium';
+                else if (item.priority === 'low') itemClass += ' priority-low';
+
+                return (
+                  <div key={item.id} className={itemClass}>
+                    <div className="inbox-item-row">
+                      <div
+                        className="inbox-item-checkbox"
+                        title="Mark complete (deletes item)"
+                        onClick={(e) => { e.stopPropagation(); deleteInboxItem(item.id); }}
+                      ></div>
+                      <div className="inbox-item-main" onClick={() => setExpandedInboxId(isExpanded ? null : item.id)}>
+                        <div className="inbox-item-title">{item.text}</div>
+                        <div className="inbox-item-meta">
+                          {cat && (
+                            <span className="inbox-meta-pill" style={{ background: cat.bg, color: cat.text, borderColor: cat.color }}>
+                              {cat.icon} {cat.label}
+                            </span>
+                          )}
+                          {item.priority && (
+                            <span className={`inbox-meta-pill priority-${item.priority}`}>
+                              {item.priority === 'high' ? '🔴' : item.priority === 'medium' ? '🟡' : '🟢'} {item.priority}
+                            </span>
+                          )}
+                          {item.due_date && (
+                            <span className={`inbox-meta-pill ${isOverdue ? 'due-overdue' : isDueToday ? 'due-today' : ''}`}>
+                              📅 {new Date(item.due_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              {isOverdue && ' · OVERDUE'}
+                              {isDueToday && ' · TODAY'}
+                            </span>
+                          )}
+                          {!cat && !item.priority && !item.due_date && (
+                            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>tap to add details</span>
+                          )}
+                        </div>
+                      </div>
+                      <button
+                        className={`star-btn ${item.starred ? 'starred' : ''}`}
+                        onClick={(e) => { e.stopPropagation(); updateInboxItem(item.id, { starred: !item.starred }); }}
+                      >
+                        {item.starred ? '⭐' : '☆'}
+                      </button>
+                    </div>
+
+                    {isExpanded && (
+                      <div className="inbox-item-expand">
+                        <div className="inbox-detail-row">
+                          <label>Category</label>
+                          <select
+                            value={item.category || ''}
+                            onChange={(e) => updateInboxItem(item.id, { category: e.target.value || null })}
+                          >
+                            <option value="">None</option>
+                            {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}
+                          </select>
+                        </div>
+                        <div className="inbox-detail-row">
+                          <label>Priority</label>
+                          <select
+                            value={item.priority || ''}
+                            onChange={(e) => updateInboxItem(item.id, { priority: e.target.value || null })}
+                          >
+                            <option value="">None</option>
+                            <option value="high">🔴 High</option>
+                            <option value="medium">🟡 Medium</option>
+                            <option value="low">🟢 Low</option>
+                          </select>
+                        </div>
+                        <div className="inbox-detail-row">
+                          <label>Due Date</label>
+                          <input
+                            type="date"
+                            value={item.due_date || ''}
+                            onChange={(e) => updateInboxItem(item.id, { due_date: e.target.value || null })}
+                          />
+                        </div>
+                        <div className="inbox-detail-row">
+                          <label>Notes</label>
+                          <textarea
+                            placeholder="Optional notes..."
+                            defaultValue={item.notes || ''}
+                            onBlur={(e) => updateInboxItem(item.id, { notes: e.target.value || null })}
+                          />
+                        </div>
+                        <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginTop: '0.5rem', justifyContent: 'flex-end' }}>
+                          <button className="inbox-action" onClick={() => convertInboxToTask(item)}>→ Make Task</button>
+                          <button className="inbox-action" onClick={() => convertInboxToMeeting(item)}>→ Make Meeting</button>
+                          <button className="inbox-action danger" onClick={() => deleteInboxItem(item.id)}>Delete</button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              });
+            })()}
           </div>
         )}
 
